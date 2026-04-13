@@ -599,6 +599,7 @@
             metrics: {},
             lastSyncTime: null,
             autoSyncTimer: null,
+            labelTimer: null,       // interval for "last sync" label updates
             isSyncing: false,
         };
 
@@ -783,10 +784,12 @@
                 performSync(true);
             }, 3 * 60 * 1000);
             // Also update "last sync" label every 30s
-            setInterval(updateLastSyncLabel, 30000);
+            if (wState.labelTimer) clearInterval(wState.labelTimer);
+            wState.labelTimer = setInterval(updateLastSyncLabel, 30000);
         }
         function stopAutoSync() {
             if (wState.autoSyncTimer) { clearInterval(wState.autoSyncTimer); wState.autoSyncTimer = null; }
+            if (wState.labelTimer)    { clearInterval(wState.labelTimer);    wState.labelTimer = null; }
         }
 
         function performSync(auto = false) {
