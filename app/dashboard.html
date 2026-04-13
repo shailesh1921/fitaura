@@ -75,7 +75,7 @@
             letter-spacing: 0.05em;
         }
 
-        /* Pulse Card Specifics */
+        /* Wearable Integration Card */
         .pulse-card {
             background: linear-gradient(145deg, rgba(112,0,255,0.08), rgba(0,195,255,0.05));
             border: 1px solid rgba(112,0,255,0.25);
@@ -86,16 +86,121 @@
             content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%;
             background: radial-gradient(circle, rgba(112,0,255,0.05) 0%, transparent 70%);
             animation: pulseBg 8s linear infinite;
+            pointer-events: none;
         }
         @keyframes pulseBg {
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
         }
-        .pulse-value { font-size: 2.2rem; font-weight: 800; font-family: var(--font-heading); line-height: 1; margin-top: 0.5rem; }
-        .pulse-unit { font-size: 0.75rem; color: var(--text-secondary); text-transform: uppercase; margin-bottom: 1rem; }
-        .pulse-stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; width: 100%; border-top: 1px solid rgba(255,255,255,0.08); padding-top: 1rem; }
-        .pulse-substat { font-size: 0.8rem; }
-        .pulse-substat label { font-size: 0.65rem; display: block; color: var(--text-secondary); margin-bottom: 0.2rem; }
+        /* Metrics grid */
+        .wearable-metrics-grid {
+            display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem;
+            width: 100%; margin-bottom: 0.75rem;
+        }
+        .wearable-metric {
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(255,255,255,0.07);
+            border-radius: var(--radius-sm);
+            padding: 0.75rem 0.5rem;
+            text-align: center;
+        }
+        .wearable-metric-icon { font-size: 1.1rem; display: block; margin-bottom: 0.2rem; }
+        .wearable-metric-value {
+            font-size: 1.4rem; font-weight: 800;
+            font-family: var(--font-heading); line-height: 1;
+            transition: color 0.4s;
+        }
+        .wearable-metric-label {
+            font-size: 0.6rem; color: var(--text-secondary);
+            text-transform: uppercase; letter-spacing: 0.07em; margin-top: 0.2rem;
+        }
+        /* Insight bar */
+        .wearable-insight-bar {
+            width: 100%;
+            background: rgba(112,0,255,0.1);
+            border: 1px solid rgba(112,0,255,0.25);
+            border-radius: var(--radius-sm);
+            padding: 0.6rem 0.8rem;
+            font-size: 0.78rem;
+            color: var(--text-secondary);
+            line-height: 1.4;
+        }
+        /* Device list item */
+        .wearable-device-item {
+            display: flex; align-items: center; gap: 0.75rem;
+            padding: 0.6rem 0; border-bottom: 1px solid rgba(255,255,255,0.05);
+            font-size: 0.8rem;
+        }
+        .wearable-device-item:last-child { border-bottom: none; }
+        .wearable-device-icon { font-size: 1.3rem; flex-shrink: 0; }
+        .wearable-device-info { flex: 1; }
+        .wearable-device-name { font-weight: 600; font-size: 0.82rem; }
+        .wearable-device-meta { color: var(--text-secondary); font-size: 0.68rem; margin-top: 0.1rem; }
+        .wearable-battery-bar {
+            display: inline-block; width: 28px; height: 8px;
+            border: 1px solid rgba(255,255,255,0.3); border-radius: 2px;
+            position: relative; vertical-align: middle; margin-right: 3px;
+        }
+        .wearable-battery-fill {
+            position: absolute; left: 1px; top: 1px; bottom: 1px;
+            border-radius: 1px; background: var(--accent-green);
+        }
+        /* Syncing spinner */
+        .wearable-spinner {
+            width: 36px; height: 36px;
+            border: 3px solid rgba(112,0,255,0.2);
+            border-top-color: var(--accent-purple, #7000ff);
+            border-radius: 50%;
+            animation: wearableSpin 0.8s linear infinite;
+        }
+        @keyframes wearableSpin { to { transform: rotate(360deg); } }
+        /* Modal */
+        .wearable-modal-overlay {
+            position: fixed; inset: 0;
+            background: rgba(0,0,0,0.7);
+            backdrop-filter: blur(6px);
+            z-index: 9999;
+            display: flex; align-items: center; justify-content: center;
+        }
+        .wearable-modal-box {
+            background: linear-gradient(145deg, #0e0e1a, #13111f);
+            border: 1px solid rgba(112,0,255,0.3);
+            border-radius: var(--radius-lg, 1.25rem);
+            padding: 2rem;
+            width: min(420px, 92vw);
+            box-shadow: 0 20px 60px rgba(0,0,0,0.6);
+        }
+        .wearable-device-grid {
+            display: flex; flex-direction: column; gap: 0.75rem;
+        }
+        .wearable-device-btn {
+            display: flex; align-items: center; gap: 1rem;
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: var(--radius-md, 0.75rem);
+            padding: 1rem 1.25rem;
+            cursor: pointer; color: white;
+            transition: all 0.2s; width: 100%; text-align: left;
+        }
+        .wearable-device-btn:hover {
+            background: rgba(112,0,255,0.12);
+            border-color: rgba(112,0,255,0.4);
+            transform: translateX(4px);
+        }
+        .wearable-device-btn.connected {
+            border-color: rgba(0,255,128,0.4);
+            background: rgba(0,255,128,0.06);
+        }
+        .wearable-device-btn .dev-icon { font-size: 1.8rem; }
+        .wearable-device-btn .dev-label { font-weight: 600; font-size: 0.95rem; }
+        .wearable-device-btn .dev-status {
+            font-size: 0.72rem; color: var(--text-secondary); margin-top: 0.1rem;
+        }
+        .wearable-device-btn .dev-badge {
+            margin-left: auto; font-size: 0.72rem; padding: 0.2rem 0.6rem;
+            border-radius: 999px; background: rgba(0,255,128,0.15);
+            color: var(--accent-green); font-weight: 600;
+        }
     </style>
 </head>
 <body>
@@ -161,28 +266,78 @@
                 <p id="recAdvice" class="text-center text-secondary" style="font-size:0.9rem;">Processing CNS fatigue and history.</p>
             </div>
 
-            <!-- FITAURA PULSE (Real-time Sensors) -->
-            <div class="glass-card pulse-card animate-up flex-col items-center justify-between" id="pedometerCard">
-                <h3 style="align-self:flex-start;" class="mb-1 text-secondary uppercase tag">Fitaura Pulse</h3>
-                <div class="flex-col items-center" id="pulseDisplay" style="display:none;">
-                    <div class="pulse-value" id="pulseSteps">0</div>
-                    <div class="pulse-unit">Daily Steps</div>
-                    <div class="pulse-stats-grid">
-                        <div class="pulse-substat"><label>Speed</label><strong id="pulseSpeed">0.0</strong> <span class="text-secondary">km/h</span></div>
-                        <div class="pulse-substat"><label>Daily Active</label><strong id="pulseKcal">0</strong> <span class="text-secondary">kcal</span></div>
+            <!-- WEARABLE INTEGRATION (Premium Sync) -->
+            <div class="glass-card pulse-card animate-up flex-col" id="wearableCard">
+                <div class="flex justify-between items-center mb-2" style="align-self:stretch;width:100%;">
+                    <h3 class="text-secondary uppercase tag" style="margin:0;">Wearable Sync</h3>
+                    <div class="flex items-center gap-1" id="wearableSyncStatus" style="display:none;">
+                        <span class="pulse-dot" id="wearablePulseDot" style="background:var(--accent-green);"></span>
+                        <span id="wearableLastSync" style="font-size:0.68rem;color:var(--text-secondary);">Just now</span>
                     </div>
                 </div>
-                <!-- Permission Prompt -->
-                <div id="pulseSync" class="flex-col items-center text-center gap-1">
-                    <div style="font-size:2.5rem;">📱</div>
-                    <p style="font-size:0.85rem; padding: 0 1rem;">Sync your device sensors to track active expenditure in real-time.</p>
-                    <div class="flex gap-1 w-full">
-                        <button class="btn btn-accent w-full" onclick="requestPulseAccess()">Sync Sensors</button>
-                        <button class="btn btn-glass" onclick="simulatePulse()" title="Simulate Activity (Tests/Manual)">🧪</button>
+
+                <!-- Disconnected -->
+                <div id="wearableDisconnected" class="flex-col items-center text-center gap-1" style="width:100%;">
+                    <div style="font-size:2.5rem;margin-bottom:0.5rem;">⌚</div>
+                    <p style="font-size:0.85rem;padding:0 0.5rem;color:var(--text-secondary);">Connect your wearable for real-time heart rate, recovery score, and fitness insights.</p>
+                    <button class="btn btn-accent w-full" onclick="openWearableModal()">Sync Sensors</button>
+                </div>
+
+                <!-- Syncing loader -->
+                <div id="wearableSyncing" style="display:none;width:100%;" class="flex-col items-center gap-1">
+                    <div class="wearable-spinner"></div>
+                    <p style="font-size:0.85rem;margin-top:0.5rem;" id="wearableSyncMsg">Connecting…</p>
+                </div>
+
+                <!-- Connected metrics -->
+                <div id="wearableConnected" style="display:none;width:100%;">
+                    <div class="wearable-metrics-grid">
+                        <div class="wearable-metric">
+                            <span class="wearable-metric-icon">🫀</span>
+                            <div class="wearable-metric-value" id="wHR">--</div>
+                            <div class="wearable-metric-label">Heart Rate</div>
+                        </div>
+                        <div class="wearable-metric">
+                            <span class="wearable-metric-icon">🔥</span>
+                            <div class="wearable-metric-value" id="wCals">--</div>
+                            <div class="wearable-metric-label">Calories</div>
+                        </div>
+                        <div class="wearable-metric">
+                            <span class="wearable-metric-icon">👟</span>
+                            <div class="wearable-metric-value" id="wSteps">--</div>
+                            <div class="wearable-metric-label">Steps</div>
+                        </div>
+                        <div class="wearable-metric">
+                            <span class="wearable-metric-icon">😴</span>
+                            <div class="wearable-metric-value" id="wSleep">--</div>
+                            <div class="wearable-metric-label">Sleep (h)</div>
+                        </div>
+                    </div>
+                    <div style="display:flex;gap:0.5rem;margin-bottom:0.75rem;">
+                        <div class="wearable-metric" style="flex:1;">
+                            <span class="wearable-metric-icon">📡</span>
+                            <div class="wearable-metric-value" id="wHRV" style="font-size:1.1rem;">--</div>
+                            <div class="wearable-metric-label">HRV (ms)</div>
+                        </div>
+                        <div class="wearable-metric" style="flex:1;">
+                            <span class="wearable-metric-icon">⚡</span>
+                            <div class="wearable-metric-value" id="wRecovery" style="font-size:1.1rem;">--</div>
+                            <div class="wearable-metric-label">Recovery %</div>
+                        </div>
+                    </div>
+                    <div class="wearable-insight-bar" id="wInsightBar">
+                        <span id="wInsightText">Analyzing readiness…</span>
+                    </div>
+                    <div id="connectedDevicesList" style="margin-top:0.75rem;"></div>
+                    <div class="flex gap-1 mt-2" style="width:100%;">
+                        <button class="btn btn-glass" style="flex:1;font-size:0.78rem;" id="syncNowBtn" onclick="manualSync()">🔄 Sync Now</button>
+                        <button class="btn btn-glass" style="font-size:0.78rem;padding:0 0.9rem;" onclick="openWearableModal()" title="Manage devices">⚙️</button>
                     </div>
                 </div>
-                <div id="pulseActiveIndicator" style="display:none; position:absolute; bottom:1rem; right:1rem;">
-                    <span class="pulse-dot" style="background:var(--accent-red);"></span>
+
+                <!-- Active indicator (top-right glow) -->
+                <div id="wearableActiveIndicator" style="display:none;position:absolute;bottom:1rem;right:1rem;">
+                    <span class="pulse-dot" style="background:var(--accent-green);"></span>
                 </div>
             </div>
 
@@ -267,6 +422,20 @@
             <div class="streaks-grid" id="streakGrid"></div>
         </div>
     </main>
+
+    <!-- Wearable Device Selection Modal -->
+    <div id="wearableModal" class="wearable-modal-overlay" style="display:none;" onclick="if(event.target===this)closeWearableModal()">
+        <div class="wearable-modal-box">
+            <div class="flex justify-between items-center" style="margin-bottom:1rem;">
+                <h2 style="font-size:1.2rem;font-family:var(--font-heading);">Connect Wearable</h2>
+                <button onclick="closeWearableModal()" style="background:none;border:none;color:var(--text-secondary);font-size:1.4rem;cursor:pointer;line-height:1;">✕</button>
+            </div>
+            <p class="text-secondary" style="font-size:0.82rem;margin-bottom:1.5rem;">Select a device to connect. This runs a realistic simulation of wearable data.</p>
+            <div class="wearable-device-grid" id="wearableDeviceGrid">
+                <!-- Injected by JS -->
+            </div>
+        </div>
+    </div>
 
     <script src="../js/fitnessEngine.js"></script>
     <script src="../js/cardioEngine.js"></script>
@@ -408,84 +577,255 @@
         if (macros.type === 'Refeed') aiText += ' The engine has injected a Refeed macro surplus to boost leptin output.';
         document.getElementById('dashAiNote').textContent = `"${aiText}"`;
 
-        document.getElementById('streakCount').textContent = `${streak} days`;
-
-        // ── FITAURA PULSE UI LOGIC ──
-        const pedoUI = {
-            card: document.getElementById('pedometerCard'),
-            display: document.getElementById('pulseDisplay'),
-            sync: document.getElementById('pulseSync'),
-            steps: document.getElementById('pulseSteps'),
-            speed: document.getElementById('pulseSpeed'),
-            kcal: document.getElementById('pulseKcal'),
-            active: document.getElementById('pulseActiveIndicator')
-        };
-
-        window.requestPulseAccess = async () => {
-            if (window.activityEngine) {
-                const granted = await window.activityEngine.requestPermission();
-                if (granted) updatePulseUI(window.activityEngine.data);
-            }
-        };
-
-        window.simulatePulse = (silent = false) => {
-            const current = (window.activityEngine ? window.activityEngine.data.steps : 0) + 1000;
-            const mockData = {
-                steps: current,
-                distance: current * 0.0007,
-                currentSpeed: 5.2,
-                activeCalories: Math.round(current * 0.045),
-                isTracking: true
-            };
-            // Update engine data if it exists
-            if (window.activityEngine) window.activityEngine.data = { ...window.activityEngine.data, ...mockData };
-            localStorage.setItem('fitaura_daily_activity', JSON.stringify(mockData));
-            window.dispatchEvent(new CustomEvent('fitaura_activity_update', { detail: mockData }));
-            
-            // Sync with other engines immediately without reload if possible
-            if (window.dEng) {
-                const plan = window.dEng.generatePlan(); // Recalculate
-                const macros = plan.macros;
-                document.getElementById('dashEnergy').textContent = plan.cals.target.toLocaleString();
-                document.getElementById('dashP').textContent = macros.p + 'g';
-                document.getElementById('dashC').textContent = macros.c + 'g';
-                document.getElementById('dashF').textContent = macros.f + 'g';
-            }
-
-            if (!silent) showToast('🧪 Simulation Active: +1000 Steps');
-        };
-
-        // Auto-Simulate for testing if URL param exists
-        const urlParams = new URLSearchParams(window.location.search);
-        if (urlParams.get('simulate') === 'true') {
-            setTimeout(() => {
-                // Simulate 5000 steps for a clear calorie delta
-                for(let i=0; i<5; i++) window.simulatePulse(true);
-            }, 1000);
-        }
-
-        function updatePulseUI(data) {
-            if (data.isTracking) {
-                pedoUI.display.style.display = 'flex';
-                pedoUI.sync.style.display = 'none';
-                pedoUI.active.style.display = 'block';
-
-                pedoUI.steps.textContent = data.steps.toLocaleString();
-                pedoUI.speed.textContent = data.currentSpeed.toFixed(1);
-                pedoUI.kcal.textContent = data.activeCalories;
-            }
-        }
-
-        // Initialize from existing state
-        if (window.activityEngine && window.activityEngine.data.isTracking) {
-            updatePulseUI(window.activityEngine.data);
-        }
-
-        // Listen for live updates
-        window.addEventListener('fitaura_activity_update', (e) => {
-            updatePulseUI(e.detail);
-        });
+        document.getElementById('streakCount').textContent = `${typeof streak !== 'undefined' ? streak : 0} days`;
     });
+    </script>
+
+    <!-- ── WEARABLE INTEGRATION (standalone) ── -->
+    <script>
+    /* Runs immediately at bottom of body — DOM is already ready for element references in callbacks */
+    (function() {
+        // ── WEARABLE INTEGRATION LOGIC ──
+        const WEARABLE_DEVICES = [
+            { id: 'apple',   name: 'Apple Watch',    icon: '⌚', color: '#e8e8e8' },
+            { id: 'fitbit',  name: 'Fitbit',         icon: '💚', color: '#00b259' },
+            { id: 'garmin',  name: 'Garmin',         icon: '🟠', color: '#ff6a00' },
+            { id: 'samsung', name: 'Samsung Health', icon: '💙', color: '#1428a0' },
+        ];
+
+        // State
+        const wState = {
+            connectedDevices: [],   // array of device ids
+            metrics: {},
+            lastSyncTime: null,
+            autoSyncTimer: null,
+            isSyncing: false,
+        };
+
+        // Persist & restore connected devices
+        function wSaveState() {
+            localStorage.setItem('fitaura_wearable_devices', JSON.stringify(wState.connectedDevices));
+        }
+        function wLoadState() {
+            try {
+                const saved = localStorage.getItem('fitaura_wearable_devices');
+                if (saved) wState.connectedDevices = JSON.parse(saved);
+            } catch(e) { wState.connectedDevices = []; }
+        }
+
+        // Modal helpers
+        window.openWearableModal = function() {
+            document.getElementById('wearableModal').style.display = 'flex';
+            renderDeviceGrid();
+        };
+        window.closeWearableModal = function() {
+            document.getElementById('wearableModal').style.display = 'none';
+        };
+
+        function renderDeviceGrid() {
+            const grid = document.getElementById('wearableDeviceGrid');
+            grid.innerHTML = WEARABLE_DEVICES.map(d => {
+                const isConnected = wState.connectedDevices.includes(d.id);
+                return `<button class="wearable-device-btn${isConnected ? ' connected' : ''}"
+                            onclick="toggleDevice('${d.id}')" id="devBtn_${d.id}">
+                    <span class="dev-icon">${d.icon}</span>
+                    <div>
+                        <div class="dev-label">${d.name}</div>
+                        <div class="dev-status" id="devStatus_${d.id}">${isConnected ? 'Connected ✅' : 'Tap to connect'}</div>
+                    </div>
+                    ${isConnected ? '<span class="dev-badge">Connected</span>' : ''}
+                </button>`;
+            }).join('');
+        }
+
+        window.toggleDevice = function(deviceId) {
+            if (wState.connectedDevices.includes(deviceId)) {
+                // Disconnect
+                wState.connectedDevices = wState.connectedDevices.filter(d => d !== deviceId);
+                wSaveState();
+                renderDeviceGrid();
+                if (wState.connectedDevices.length === 0) showDisconnectedUI();
+                else { renderConnectedDeviceList(); generateMetrics(); }
+            } else {
+                // Connect flow
+                const btn = document.getElementById('devBtn_' + deviceId);
+                const statusEl = document.getElementById('devStatus_' + deviceId);
+                if (statusEl) statusEl.textContent = 'Connecting…';
+                if (btn) btn.disabled = true;
+
+                setTimeout(() => {
+                    if (statusEl) statusEl.textContent = 'Connected ✅';
+                    if (btn) { btn.classList.add('connected'); btn.disabled = false; }
+                    wState.connectedDevices.push(deviceId);
+                    wSaveState();
+                    renderDeviceGrid();
+                    // Show syncing state, then connected
+                    closeWearableModal();
+                    showSyncingUI('Syncing data 🔄');
+                    setTimeout(() => {
+                        generateMetrics();
+                        showConnectedUI();
+                        startAutoSync();
+                    }, 1800);
+                }, 1200);
+            }
+        };
+
+        function showDisconnectedUI() {
+            document.getElementById('wearableDisconnected').style.display = '';
+            document.getElementById('wearableSyncing').style.display = 'none';
+            document.getElementById('wearableConnected').style.display = 'none';
+            document.getElementById('wearableSyncStatus').style.display = 'none';
+            document.getElementById('wearableActiveIndicator').style.display = 'none';
+            stopAutoSync();
+        }
+        function showSyncingUI(msg) {
+            document.getElementById('wearableDisconnected').style.display = 'none';
+            document.getElementById('wearableSyncing').style.display = 'flex';
+            document.getElementById('wearableConnected').style.display = 'none';
+            document.getElementById('wearableSyncMsg').textContent = msg || 'Syncing data 🔄';
+        }
+        function showConnectedUI() {
+            document.getElementById('wearableDisconnected').style.display = 'none';
+            document.getElementById('wearableSyncing').style.display = 'none';
+            document.getElementById('wearableConnected').style.display = '';
+            document.getElementById('wearableSyncStatus').style.display = 'flex';
+            document.getElementById('wearableActiveIndicator').style.display = 'block';
+            wState.lastSyncTime = new Date();
+            updateLastSyncLabel();
+            updateMetricsUI();
+            renderConnectedDeviceList();
+        }
+
+        function updateLastSyncLabel() {
+            if (!wState.lastSyncTime) return;
+            const diff = Math.floor((Date.now() - wState.lastSyncTime) / 1000);
+            let label = 'Just now';
+            if (diff > 59) label = `${Math.floor(diff/60)}m ago`;
+            else if (diff > 10) label = `${diff}s ago`;
+            const el = document.getElementById('wearableLastSync');
+            if (el) el.textContent = label;
+        }
+
+        function generateMetrics() {
+            // Realistic dummy metrics
+            const hrBase = 58 + Math.floor(Math.random() * 22);
+            const hrv     = 42 + Math.floor(Math.random() * 38);
+            const recovery= 55 + Math.floor(Math.random() * 40);
+            const steps   = 4200 + Math.floor(Math.random() * 8000);
+            const cals    = 1600 + Math.floor(Math.random() * 1100);
+            const sleep   = (5.5 + Math.random() * 3).toFixed(1);
+            wState.metrics = { hr: hrBase, hrv, recovery, steps, cals, sleep };
+
+            // Generate insight text based on recovery
+            let insight;
+            if (recovery >= 80) {
+                insight = `⚡ Recovery ${recovery}% — You're primed. HRV of ${hrv}ms indicates full CNS readiness. Optimal day for high-intensity or PR attempts.`;
+            } else if (recovery >= 55) {
+                insight = `✅ Recovery ${recovery}% — Good readiness. HRV ${hrv}ms. Moderate-intensity training recommended. Stay hydrated.`;
+            } else {
+                insight = `⚠️ Recovery ${recovery}% — Below threshold. HRV ${hrv}ms signals residual fatigue. Prioritize Zone 1-2 movement and sleep.`;
+            }
+            wState.metrics.insight = insight;
+        }
+
+        function updateMetricsUI() {
+            const m = wState.metrics;
+            if (!m.hr) return;
+            document.getElementById('wHR').textContent       = m.hr;
+            document.getElementById('wCals').textContent     = m.cals.toLocaleString();
+            document.getElementById('wSteps').textContent    = m.steps.toLocaleString();
+            document.getElementById('wSleep').textContent    = m.sleep;
+            document.getElementById('wHRV').textContent      = m.hrv;
+            document.getElementById('wRecovery').textContent = m.recovery + '%';
+
+            // Colour-code recovery
+            const recEl = document.getElementById('wRecovery');
+            if (m.recovery >= 80) recEl.style.color = 'var(--accent-green)';
+            else if (m.recovery >= 55) recEl.style.color = 'var(--accent-yellow, #ffd60a)';
+            else recEl.style.color = 'var(--accent-red)';
+
+            // HR pulse colour
+            const hrEl = document.getElementById('wHR');
+            hrEl.style.color = m.hr > 100 ? 'var(--accent-red)' : m.hr < 60 ? 'var(--accent-blue)' : 'white';
+
+            // Insight
+            document.getElementById('wInsightText').textContent = m.insight;
+        }
+
+        function renderConnectedDeviceList() {
+            const el = document.getElementById('connectedDevicesList');
+            if (!el) return;
+            const items = wState.connectedDevices.map(id => {
+                const d = WEARABLE_DEVICES.find(x => x.id === id);
+                if (!d) return '';
+                const battery = 72 + Math.floor(Math.random() * 27);
+                const fillW = Math.round(battery * 0.24);
+                return `<div class="wearable-device-item">
+                    <span class="wearable-device-icon">${d.icon}</span>
+                    <div class="wearable-device-info">
+                        <div class="wearable-device-name">${d.name}</div>
+                        <div class="wearable-device-meta">
+                            <span class="wearable-battery-bar"><span class="wearable-battery-fill" style="width:${fillW}px;${battery<30?'background:var(--accent-red)':''}"></span></span>
+                            ${battery}% · Connected ✅
+                        </div>
+                    </div>
+                </div>`;
+            });
+            el.innerHTML = items.join('');
+        }
+
+        // Auto-sync every 3 minutes
+        function startAutoSync() {
+            stopAutoSync();
+            wState.autoSyncTimer = setInterval(() => {
+                if (wState.connectedDevices.length === 0) { stopAutoSync(); return; }
+                performSync(true);
+            }, 3 * 60 * 1000);
+            // Also update "last sync" label every 30s
+            setInterval(updateLastSyncLabel, 30000);
+        }
+        function stopAutoSync() {
+            if (wState.autoSyncTimer) { clearInterval(wState.autoSyncTimer); wState.autoSyncTimer = null; }
+        }
+
+        function performSync(auto = false) {
+            if (wState.isSyncing) return;
+            wState.isSyncing = true;
+            const syncBtn = document.getElementById('syncNowBtn');
+            if (syncBtn) { syncBtn.disabled = true; syncBtn.textContent = '⏳ Syncing…'; }
+            // Small metric update to simulate real-time
+            const m = wState.metrics;
+            if (m.hr) {
+                m.hr   = Math.max(50, Math.min(120, m.hr   + Math.floor((Math.random()-0.5)*6)));
+                m.steps= m.steps + Math.floor(Math.random() * 400);
+                m.cals = m.cals  + Math.floor(Math.random() * 60);
+                m.hrv  = Math.max(20, Math.min(100, m.hrv  + Math.floor((Math.random()-0.5)*5)));
+            }
+            setTimeout(() => {
+                wState.isSyncing = false;
+                wState.lastSyncTime = new Date();
+                updateMetricsUI();
+                updateLastSyncLabel();
+                renderConnectedDeviceList();
+                if (syncBtn) { syncBtn.disabled = false; syncBtn.textContent = '🔄 Sync Now'; }
+                if (!auto && window.showToast) showToast('✅ Wearable data synced');
+            }, 1200);
+        }
+
+        window.manualSync = function() {
+            if (wState.connectedDevices.length === 0) { openWearableModal(); return; }
+            performSync(false);
+        };
+
+        // ── INIT: restore state on load ──
+        wLoadState();
+        if (wState.connectedDevices.length > 0) {
+            generateMetrics();
+            showConnectedUI();
+            startAutoSync();
+        }
+    }());
     </script>
 </body>
 </html>
