@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fitaura | Premium Diet Planner</title>
+    <link rel="stylesheet" href="css/premium.css">
+    <link rel="manifest" href="../manifest.json">
+    <script src="../js/fitaura-global.js" defer></script>
+    <script src="../js/components.js" defer></script>
+    <style>
+        .timeline-item {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem 0;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+        .timeline-item:last-child {
+            border-bottom: none;
+        }
+        .timeline-time {
+            width: 80px;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            font-weight: 600;
+        }
+        .timeline-content {
+            flex: 1;
+            background: rgba(255,255,255,0.02);
+            padding: 1rem;
+            border-radius: var(--radius-sm);
+            border-left: 3px solid var(--accent-yellow);
+        }
+        .warning-box {
+            background: rgba(255, 51, 102, 0.1);
+            border-left: 3px solid var(--accent-red);
+            padding: 1rem;
+            border-radius: var(--radius-sm);
+            margin-bottom: 1rem;
+        }
+        .fab {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: var(--accent-purple);
+            box-shadow: 0 0 20px rgba(112,0,255,0.4);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 1000;
+            transition: transform 0.3s ease;
+        }
+        .fab:hover {
+            transform: scale(1.1);
+        }
+        .fab svg {
+            width: 24px;
+            height: 24px;
+            fill: white;
+        }
+    </style>
+</head>
+<body>
+    <div class="ambient-bg" style="background: radial-gradient(circle, rgba(255,215,0,0.1) 0%, rgba(0,0,0,0) 60%);"></div>
+
+    <aside class="layout-sidebar">
+        <!-- Dynamic Sidebar injected via components.js -->
+    </aside>
+
+    <main class="layout-content">
+        <div class="page-header flex justify-between items-center">
+            <div>
+                <h1 class="page-title">Diet Planner</h1>
+                <p class="page-subtitle">Metabolic controller and dynamic macronutrient algorithms.</p>
+            </div>
+        </div>
+
+        <!-- INTAKE FORM -->
+        <div class="glass-card mb-2 animate-up">
+            <h3 class="mb-2 text-center" style="font-size: 1.5rem; color: var(--accent-yellow);">Personalize Your Nutrition Engine</h3>
+            <div class="grid-3">
+                <div class="form-group">
+                    <label class="form-label">Age (yrs)</label>
+                    <input type="number" id="f_age" class="form-control" value="25">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Weight (kg)</label>
+                    <input type="number" id="f_weight" class="form-control" value="80">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Height (cm)</label>
+                    <input type="number" id="f_height" class="form-control" value="180">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Gender</label>
+                    <select id="f_gender" class="form-control" style="appearance: none; -webkit-appearance: none;">
+                        <option value="male">Male</option>
+                        <option value="female">Female</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Goal</label>
+                    <select id="f_goal" class="form-control" style="appearance: none; -webkit-appearance: none;">
+                        <option value="fat_loss">Fat Loss (Cut)</option>
+                        <option value="muscle_gain">Muscle Gain (Bulk)</option>
+                        <option value="recomposition">Recomposition</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Training Days/Wk</label>
+                    <input type="number" id="f_train" class="form-control" value="4">
+                </div>
+            </div>
+            <button id="calcPlanBtn" class="btn btn-primary w-100" style="width: 100%; margin-top: 1rem;">Generate World-Class Nutrition Plan</button>
+        </div>
+
+        <div id="resultsEngine" style="display:none;" class="animate-up delay-1">
+            <!-- INSIGHTS PANEL & CALORIES -->
+            <div class="grid-2 mb-2">
+                <!-- MACROS -->
+                <div class="glass-card" style="border-top: 3px solid var(--accent-blue);">
+                    <div class="flex justify-between items-center mb-1">
+                        <h3 class="mb-1">Daily Macro Requirements</h3>
+                        <span class="tag tag-blue" id="calsConsumed">0 kcal Consumed</span>
+                    </div>
+                    <div style="font-family: var(--font-heading); font-size: 3rem; font-weight: 800; line-height: 1;" id="tgtCals" class="mb-2">-- kcal</div>
+                    
+                    <div class="flex-col gap-1">
+                        <div class="flex justify-between items-center" style="background: rgba(255,255,255,0.02); padding: 1rem; border-radius: var(--radius-sm);">
+                            <span class="text-secondary">Maintenance</span>
+                            <span style="color:white; font-weight:700;" id="maintCals">--</span>
+                        </div>
+                        <div class="flex justify-between items-center" style="background: rgba(255,255,255,0.02); padding: 1rem; border-radius: var(--radius-sm);">
+                            <span class="text-secondary">Protein Target</span>
+                            <span style="color:var(--text-secondary); font-size: 0.8rem;" id="trackedP">0g Tracked</span>
+                            <strong style="color:var(--accent-blue); font-size:1.2rem;" id="tgtP">--g</strong>
+                        </div>
+                        <div class="flex justify-between items-center" style="background: rgba(255,255,255,0.02); padding: 1rem; border-radius: var(--radius-sm);">
+                            <span class="text-secondary">Carbohydrate Target</span>
+                            <span style="color:var(--text-secondary); font-size: 0.8rem;" id="trackedC">0g Tracked</span>
+                            <strong style="color:var(--accent-red); font-size:1.2rem;" id="tgtC">--g</strong>
+                        </div>
+                        <div class="flex justify-between items-center" style="background: rgba(255,255,255,0.02); padding: 1rem; border-radius: var(--radius-sm);">
+                            <span class="text-secondary">Fat Target</span>
+                            <span style="color:var(--text-secondary); font-size: 0.8rem;" id="trackedF">0g Tracked</span>
+                            <strong style="color:var(--accent-yellow); font-size:1.2rem;" id="tgtF">--g</strong>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- INSIGHTS PANEL -->
+                <div class="glass-card flex-col justify-between">
+                    <div>
+                        <h3 class="mb-2"><span style="color: var(--accent-yellow);">⚡</span> Premium Insights</h3>
+                        <div id="warningsContainer"></div>
+                        <div id="recommendationsContainer"></div>
+
+                        <div style="margin-top: 2rem;">
+                            <div class="mb-1 text-secondary" style="font-size: 0.9rem;" id="insTiming"></div>
+                            <div class="mb-1 text-secondary" style="font-size: 0.9rem;" id="insHydration"></div>
+                            <div class="mb-1 text-secondary" style="font-size: 0.9rem;" id="insFiber"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- MEAL DISTRIBUTION -->
+            <div class="glass-card animate-up delay-2">
+                <h3 class="mb-2">Meal Distribution Timeline</h3>
+                <div id="mealTimeline"></div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- FLOATING CAMERA BUTTON -->
+    <a href="food-scanner.html" class="fab" title="AI Food Scanner">
+        <svg viewBox="0 0 24 24">
+            <path d="M4,4H7L9,2H15L17,4H20A2,2 0 0,1 22,6V18A2,2 0 0,1 20,20H4A2,2 0 0,1 2,18V6A2,2 0 0,1 4,4M12,7A5,5 0 0,0 7,12A5,5 0 0,0 12,17A5,5 0 0,0 17,12A5,5 0 0,0 12,7M12,9A3,3 0 0,1 15,12A3,3 0 0,1 12,15A3,3 0 0,1 9,12A3,3 0 0,1 12,9Z"/>
+        </svg>
+    </a>
+
+    <script src="../js/nutritionEngine.js"></script>
+    <script>
+        function initDiet() {
+            if (window.initializeSidebar) window.initializeSidebar('diet.html');
+            const engine = new window.NutritionEngine();
+            engine.init();
+
+            // Populate form if profile exists
+            if (engine.profile) {
+                document.getElementById('f_age').value = engine.profile.age;
+                document.getElementById('f_weight').value = engine.profile.weight;
+                document.getElementById('f_height').value = engine.profile.height;
+                document.getElementById('f_gender').value = engine.profile.gender;
+                document.getElementById('f_goal').value = engine.profile.goal;
+                document.getElementById('f_train').value = engine.profile.trainingDays;
+            }
+
+            document.getElementById('calcPlanBtn').addEventListener('click', () => {
+                const data = {
+                    age: parseInt(document.getElementById('f_age').value),
+                    weight: parseInt(document.getElementById('f_weight').value),
+                    height: parseInt(document.getElementById('f_height').value),
+                    gender: document.getElementById('f_gender').value,
+                    goal: document.getElementById('f_goal').value,
+                    trainingDays: parseInt(document.getElementById('f_train').value),
+                    activityLevel: parseInt(document.getElementById('f_train').value) >= 5 ? 'heavy' : 'moderate'
+                };
+
+                const plan = engine.saveProfile(data);
+
+                // Render Results
+                document.getElementById('resultsEngine').style.display = 'block';
+
+                document.getElementById('tgtCals').textContent = plan.cals.target + ' kcal';
+                document.getElementById('maintCals').textContent = plan.cals.maintenance + ' kcal';
+                document.getElementById('tgtP').textContent = plan.macros.p + 'g';
+                document.getElementById('tgtC').textContent = plan.macros.c + 'g';
+                document.getElementById('tgtF').textContent = plan.macros.f + 'g';
+
+                // Insights
+                document.getElementById('insTiming').innerHTML = `<strong>Nutrient Timing:</strong> ${plan.insights.timing}`;
+                document.getElementById('insHydration').innerHTML = `<strong>Hydration:</strong> ${plan.insights.hydration}`;
+                document.getElementById('insFiber').innerHTML = `<strong>Fiber:</strong> ${plan.insights.fiber}`;
+
+                // Update tracked data from scanner logs
+                const tracked = localStorage.getItem('fitaura_daily_intake');
+                if (tracked) {
+                    const trk = JSON.parse(tracked);
+                    const consumed = (trk.p * 4) + (trk.c * 4) + (trk.f * 9);
+                    document.getElementById('calsConsumed').textContent = `${consumed} kcal Consumed`;
+                    document.getElementById('trackedP').textContent = `${trk.p}g Tracked`;
+                    document.getElementById('trackedC').textContent = `${trk.c}g Tracked`;
+                    document.getElementById('trackedF').textContent = `${trk.f}g Tracked`;
+                }
+
+                const warns = document.getElementById('warningsContainer');
+                warns.innerHTML = '';
+                plan.warnings.forEach(w => {
+                    warns.innerHTML += `<div class="warning-box" style="color:#ff3366">${w}</div>`;
+                });
+
+                const recs = document.getElementById('recommendationsContainer');
+                recs.innerHTML = '';
+                plan.recommendations.forEach(r => {
+                    recs.innerHTML += `<div style="color:var(--text-secondary); margin-bottom: 0.5rem; font-size: 0.95rem;">✓ ${r}</div>`;
+                });
+
+                // Meal Distribution
+                const timeline = document.getElementById('mealTimeline');
+                timeline.innerHTML = '';
+                Object.values(plan.meals).forEach(meal => {
+                    timeline.innerHTML += `
+                        <div class="timeline-item">
+                            <div class="timeline-time">${meal.name}</div>
+                            <div class="timeline-content flex justify-between">
+                                <div><strong style="color:var(--accent-blue)">P:</strong> ${meal.p}g</div>
+                                <div><strong style="color:var(--accent-red)">C:</strong> ${meal.c}g</div>
+                                <div><strong style="color:var(--accent-yellow)">F:</strong> ${meal.f}g</div>
+                                <div style="color:var(--text-secondary); font-size: 0.8rem;">~${(meal.p*4 + meal.c*4 + meal.f*9)} kcal</div>
+                            </div>
+                        </div>
+                    `;
+                });
+
+                window.scrollTo({top: document.body.scrollHeight, behavior: 'smooth'});
+            });
+            
+            // Auto click if data already exists to show UI fast
+            if(localStorage.getItem('fitaura_nutrition_profile')) {
+                document.getElementById('calcPlanBtn').click();
+            }
+        });
+    </script>
+</body>
+</html>

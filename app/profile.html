@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fitaura | Athlete Profile</title>
+    <link rel="stylesheet" href="css/premium.css">
+    <link rel="manifest" href="../manifest.json">
+    <script src="../js/fitaura-global.js" defer></script>
+    <script src="../js/components.js" defer></script>
+    <style>
+        .select-group { display: flex; gap: 1rem; margin-bottom: 2rem; }
+        .select-btn {
+            flex: 1;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid var(--border-glass);
+            padding: 1rem;
+            border-radius: var(--radius-sm);
+            text-align: center;
+            cursor: pointer;
+            transition: var(--transition-smooth);
+            color: var(--text-secondary);
+        }
+        .select-btn.active {
+            background: rgba(255,255,255,0.1);
+            border-color: var(--accent-green);
+            color: white;
+            box-shadow: var(--shadow-glow-green);
+        }
+    </style>
+</head>
+<body>
+    <div class="ambient-bg" style="background: radial-gradient(circle, rgba(0,255,128,0.1) 0%, rgba(0,0,0,0) 60%);"></div>
+
+    <aside class="layout-sidebar">
+        <!-- Dynamic Sidebar injected via components.js -->
+    </aside>
+
+    <main class="layout-content">
+        <div class="page-header">
+            <h1 class="page-title">Physiological Baseline</h1>
+            <p class="page-subtitle">Configure your telemetry data to calibrate the Fitaura Engine.</p>
+        </div>
+
+        <div class="glass-card animate-up" style="max-width: 800px; margin: 0 auto;">
+            
+            <h3 class="mb-2">Primary Objective</h3>
+            <div class="select-group" id="goalGroup">
+                <div class="select-btn active" data-val="fat_loss">Fat Loss Protocol</div>
+                <div class="select-btn" data-val="recomposition">Body Recomposition</div>
+                <div class="select-btn" data-val="muscle_gain">Hypertrophy Base</div>
+            </div>
+
+            <h3 class="mb-2">Experience Level</h3>
+            <div class="select-group" id="expGroup">
+                <div class="select-btn active" data-val="intermediate">Intermediate</div>
+                <div class="select-btn" data-val="advanced">Advanced Athlete</div>
+            </div>
+
+            <h3 class="mb-2">Biometrics</h3>
+            <div class="grid-2 mb-2">
+                <div class="form-group">
+                    <label class="form-label">Body Weight (kg)</label>
+                    <input type="number" id="pWeight" class="form-control" value="75">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Height (cm)</label>
+                    <input type="number" id="pHeight" class="form-control" value="180">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Age</label>
+                    <input type="number" id="pAge" class="form-control" value="30">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Resting Heart Rate</label>
+                    <input type="number" id="pHR" class="form-control" value="65">
+                </div>
+            </div>
+
+            <h3 class="mb-2">Logistics</h3>
+            <div class="grid-2 mb-2">
+                <div class="form-group">
+                    <label class="form-label">Training Frequency (Days/Week)</label>
+                    <select id="pFreq" class="form-control">
+                        <option value="3">3 Days (Full Body)</option>
+                        <option value="4" selected>4 Days (Upper / Lower)</option>
+                        <option value="5">5 Days (Push Pull Legs / UL)</option>
+                        <option value="6">6 Days (Push Pull Legs 2x)</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Available Equipment</label>
+                    <select id="pEq" class="form-control">
+                        <option value="gym" selected>Full Gym</option>
+                        <option value="dumbbells">Dumbbells Only</option>
+                        <option value="home">Bodyweight / Home</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="flex items-center gap-1 mt-2">
+                <button class="btn btn-primary" id="saveBtn" style="flex: 1;">Save & Calibrate Engine</button>
+                <button class="btn btn-glass" id="resetBtn">Wipe Data</button>
+            </div>
+            <p id="saveMsg" style="color: var(--accent-green); text-align: center; display: none; margin-top: 1rem;">Profile successfully synchronized to Core.</p>
+        </div>
+    </main>
+
+    <script>
+        function initProfile() {
+            if (window.initializeSidebar) window.initializeSidebar('profile.html');
+            
+            // Load existing
+            const raw = localStorage.getItem('fitaura_profile');
+            let profile = raw ? JSON.parse(raw) : { goal: 'fat_loss', experience: 'intermediate', weight: 75, height: 180, age: 30, restingHR: 65, daysPerWeek: 4, equipment: 'gym' };
+
+            // Setup buttons
+            const setupSelects = (groupId, prop) => {
+                const btns = document.querySelectorAll(`#${groupId} .select-btn`);
+                btns.forEach(b => {
+                    if(b.dataset.val === profile[prop]) {
+                        btns.forEach(x => x.classList.remove('active'));
+                        b.classList.add('active');
+                    }
+                    b.addEventListener('click', () => {
+                        btns.forEach(x => x.classList.remove('active'));
+                        b.classList.add('active');
+                        profile[prop] = b.dataset.val;
+                    });
+                });
+            };
+            
+            setupSelects('goalGroup', 'goal');
+            setupSelects('expGroup', 'experience');
+
+            // Set inputs
+            document.getElementById('pWeight').value = profile.weight;
+            document.getElementById('pHeight').value = profile.height;
+            document.getElementById('pAge').value = profile.age;
+            document.getElementById('pHR').value = profile.restingHR;
+            document.getElementById('pFreq').value = profile.daysPerWeek;
+            document.getElementById('pEq').value = profile.equipment;
+
+            document.getElementById('saveBtn').addEventListener('click', () => {
+                profile.weight = parseFloat(document.getElementById('pWeight').value);
+                profile.height = parseFloat(document.getElementById('pHeight').value);
+                profile.age = parseFloat(document.getElementById('pAge').value);
+                profile.restingHR = parseFloat(document.getElementById('pHR').value);
+                profile.daysPerWeek = parseInt(document.getElementById('pFreq').value);
+                profile.equipment = document.getElementById('pEq').value;
+
+                localStorage.setItem('fitaura_profile', JSON.stringify(profile));
+                
+                // Sync to some global keys for other engines
+                localStorage.setItem('fitaura_weight', profile.weight);
+                localStorage.setItem('fitaura_training_days', profile.daysPerWeek);
+                localStorage.setItem('fitaura_auth_name', 'Athlete'); // Mock
+
+                document.getElementById('saveMsg').style.display = 'block';
+                setTimeout(() => { document.getElementById('saveMsg').style.display = 'none'; }, 3000);
+            });
+
+            document.getElementById('resetBtn').addEventListener('click', () => {
+                if(confirm('Are you sure you want to wipe all history, logs, and profile data?')) {
+                    localStorage.clear();
+                    window.location.reload();
+                }
+            });
+        }
+
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initProfile);
+        } else {
+            initProfile();
+        }
+    </script>
+</body>
+</html>

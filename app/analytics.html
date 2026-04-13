@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fitaura | Analytics Center</title>
+    <link rel="stylesheet" href="css/premium.css">
+    <link rel="manifest" href="../manifest.json">
+    <script src="../js/fitaura-global.js" defer></script>
+    <script src="../js/components.js" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <style>
+      /* ── AI Food Scanner Card ─────────────────────────────────────────── */
+      .scanner-section {
+        margin-top: 2.5rem;
+        animation: fadeUp 0.6s cubic-bezier(0.2,0.8,0.2,1) 0.4s both;
+      }
+      .scanner-section-title {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        margin-bottom: 1.5rem;
+      }
+      .scanner-section-title h2 {
+        font-family: var(--font-heading);
+        font-size: 1.4rem;
+        font-weight: 700;
+        letter-spacing: -0.01em;
+      }
+      .scanner-badge {
+        font-size: 0.7rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        background: rgba(0,255,128,0.12);
+        color: var(--accent-green);
+        border: 1px solid rgba(0,255,128,0.25);
+        padding: 3px 10px;
+        border-radius: var(--radius-pill);
+      }
+
+      .scanner-card {
+        background: var(--bg-surface);
+        border: 1px solid var(--border-glass);
+        border-radius: var(--radius-lg);
+        padding: 0;
+        overflow: hidden;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 0;
+        min-height: 280px;
+        transition: var(--transition-smooth);
+        box-shadow: var(--shadow-glass);
+        position: relative;
+      }
+      .scanner-card:hover {
+        border-color: rgba(0,255,128,0.25);
+        box-shadow: 0 8px 40px rgba(0,255,128,0.08);
+        transform: translateY(-2px);
+      }
+
+      /* Left: CTA pane */
+      .scanner-cta {
+        padding: 2.5rem;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        position: relative;
+        z-index: 2;
+      }
+      .scanner-cta-tag {
+        font-size: 0.7rem;
+        font-weight: 800;
+        letter-spacing: 0.15em;
+        text-transform: uppercase;
+        color: var(--accent-green);
+        margin-bottom: 1rem;
+      }
+      .scanner-cta h3 {
+        font-family: var(--font-heading);
+        font-size: 1.8rem;
+        font-weight: 800;
+        line-height: 1.15;
+        margin-bottom: 0.75rem;
+        letter-spacing: -0.02em;
+      }
+      .scanner-cta p {
+        font-size: 0.9rem;
+        color: var(--text-secondary);
+        line-height: 1.65;
+        margin-bottom: 1.75rem;
+        max-width: 340px;
+      }
+      .scan-launch-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.6rem;
+        padding: 0.85rem 1.75rem;
+        background: var(--accent-green);
+        color: #000;
+        font-family: var(--font-heading);
+        font-size: 0.95rem;
+        font-weight: 800;
+        border-radius: var(--radius-pill);
+        border: none;
+        cursor: pointer;
+        text-decoration: none;
+        transition: all 0.25s;
+        width: fit-content;
+        letter-spacing: 0.02em;
+      }
+      .scan-launch-btn:hover {
+        background: #00e874;
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(0,255,128,0.35);
+      }
+      .scan-launch-btn .btn-icon {
+        font-size: 1.1rem;
+        animation: cameraPulse 2.5s ease-in-out infinite;
+      }
+      @keyframes cameraPulse {
+        0%,100% { transform: scale(1); }
+        50%      { transform: scale(1.15); }
+      }
+
+      /* Right: visual pane */
+      .scanner-visual {
+        background: linear-gradient(135deg, rgba(0,255,128,0.04) 0%, rgba(112,0,255,0.08) 100%);
+        border-left: 1px solid rgba(255,255,255,0.06);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 1rem;
+        padding: 2rem;
+        position: relative;
+        overflow: hidden;
+      }
+      .scanner-visual::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background: radial-gradient(circle at 60% 40%, rgba(0,255,128,0.06), transparent 70%);
+        pointer-events: none;
+      }
+
+      /* Animated mock camera bracket */
+      .mock-bracket {
+        width: 120px; height: 100px;
+        border: 2px dashed rgba(255,255,255,0.2);
+        border-radius: 12px;
+        position: relative;
+        transition: all 0.3s;
+      }
+      .scanner-card:hover .mock-bracket {
+        border-color: rgba(0,255,128,0.5);
+        box-shadow: 0 0 20px rgba(0,255,128,0.1) inset;
+      }
+      .mock-bracket::before { top:-2px; left:-2px; border-width:3px 0 0 3px; border-radius:5px 0 0 0; }
+      .mock-bracket::after  { bottom:-2px; right:-2px; border-width:0 3px 3px 0; border-radius:0 0 5px 0; }
+      .mock-bracket::before, .mock-bracket::after {
+        content: ''; position: absolute;
+        width: 18px; height: 18px;
+        border-color: var(--accent-green);
+        border-style: solid;
+      }
+      .mock-laser {
+        position: absolute;
+        top: 30%; left: 5%; right: 5%; height: 1.5px;
+        background: var(--accent-green);
+        box-shadow: 0 0 8px var(--accent-green);
+        border-radius: 1px;
+        animation: mockLaser 2.5s ease-in-out infinite;
+      }
+      @keyframes mockLaser {
+        0%   { top: 5%; opacity:0; }
+        10%  { opacity: 1; }
+        90%  { opacity: 1; }
+        100% { top: 90%; opacity:0; }
+      }
+
+      /* Food tags floating */
+      .food-tag-float {
+        position: absolute;
+        font-size: 0.7rem;
+        font-weight: 700;
+        padding: 3px 10px;
+        border-radius: var(--radius-pill);
+        border: 1px solid;
+        opacity: 0;
+        animation: floatIn 4s ease-in-out infinite;
+        pointer-events: none;
+      }
+      .food-tag-float:nth-child(1) { top: 18%; left: 8%;  background:rgba(0,255,128,0.1); border-color:rgba(0,255,128,0.3); color:var(--accent-green); animation-delay:0s; }
+      .food-tag-float:nth-child(2) { top: 35%; right:6%;  background:rgba(0,195,255,0.1); border-color:rgba(0,195,255,0.3); color:var(--accent-blue);  animation-delay:1.3s; }
+      .food-tag-float:nth-child(3) { bottom:22%; left:12%; background:rgba(255,215,0,0.1); border-color:rgba(255,215,0,0.3); color:var(--accent-yellow); animation-delay:2.6s; }
+      @keyframes floatIn {
+        0%,100% { opacity:0; transform:translateY(6px); }
+        20%,80% { opacity:1; transform:translateY(0); }
+      }
+
+      /* Stat pills row */
+      .scanner-stats {
+        display: flex;
+        gap: 0.5rem;
+        flex-wrap: wrap;
+      }
+      .scanner-stat-pill {
+        font-size: 0.72rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.07em;
+        padding: 5px 12px;
+        border-radius: var(--radius-pill);
+        background: rgba(255,255,255,0.05);
+        border: 1px solid rgba(255,255,255,0.1);
+        color: var(--text-secondary);
+      }
+
+      /* Capabilities mini list */
+      .scanner-capabilities {
+        grid-column: 1 / -1;
+        padding: 0 2.5rem 2rem;
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 1rem;
+        border-top: 1px solid rgba(255,255,255,0.05);
+        padding-top: 1.5rem;
+      }
+      .cap-item {
+        display: flex;
+        align-items: flex-start;
+        gap: 0.6rem;
+      }
+      .cap-icon {
+        font-size: 1.2rem;
+        flex-shrink: 0;
+      }
+      .cap-text {
+        font-size: 0.8rem;
+        color: var(--text-secondary);
+        line-height: 1.4;
+      }
+      .cap-text strong {
+        display: block;
+        color: var(--text-primary);
+        font-weight: 600;
+        font-size: 0.82rem;
+        margin-bottom: 0.1rem;
+      }
+
+      @media (max-width: 900px) {
+        .scanner-card { grid-template-columns: 1fr; }
+        .scanner-visual { display: none; }
+        .scanner-capabilities { grid-template-columns: repeat(2,1fr); }
+      }
+    </style>
+</head>
+<body>
+    <div class="ambient-bg" style="background: radial-gradient(circle, rgba(112,0,255,0.1) 0%, rgba(0,0,0,0) 60%);"></div>
+
+    <aside class="layout-sidebar">
+        <!-- Dynamic Sidebar injected via components.js -->
+    </aside>
+
+    <main class="layout-content">
+        <div class="page-header">
+            <h1 class="page-title">Analytics Center</h1>
+            <p class="page-subtitle">Tracking physiological markers over time.</p>
+        </div>
+
+        <div class="grid-2 mb-2">
+            <!-- VOLUME HISTORY -->
+            <div class="glass-card animate-up flex-col" style="height: 350px;">
+                <h3 class="mb-1 text-secondary uppercase tag">Volume Load History</h3>
+                <div style="flex: 1; position: relative;">
+                    <canvas id="volChart"></canvas>
+                </div>
+            </div>
+
+            <!-- RECOVERY TREND -->
+            <div class="glass-card animate-up delay-1 flex-col" style="height: 350px;">
+                <h3 class="mb-1 text-secondary uppercase tag">7-Day CNS Readiness</h3>
+                <div style="flex: 1; position: relative;">
+                    <canvas id="recChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <div class="grid-2 mb-2">
+            <!-- STRENGTH PROGRESSION -->
+            <div class="glass-card animate-up delay-2 flex-col" style="height: 350px;">
+                <h3 class="mb-1 text-secondary uppercase tag">Strength Progression (1RM)</h3>
+                <div style="flex: 1; position: relative;">
+                    <canvas id="strengthChart"></canvas>
+                </div>
+            </div>
+
+            <!-- WEIGHT TREND -->
+            <div class="glass-card animate-up delay-3 flex-col" style="height: 350px;">
+                <h3 class="mb-1 text-secondary uppercase tag">Bodyweight Trend</h3>
+                <div style="flex: 1; position: relative;">
+                    <canvas id="weightChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <div class="grid-2">
+            <!-- ZONE DISTRIBUTION -->
+            <div class="glass-card animate-up delay-4 flex-col items-center" style="height: 350px;">
+                <h3 class="mb-1 w-100 text-center text-secondary uppercase tag" style="width: 100%; text-align: center;">Heart Rate Zone Dist</h3>
+                <div style="flex: 1; width: 100%; position: relative;">
+                    <canvas id="zChart"></canvas>
+                </div>
+            </div>
+
+            <!-- AI MACRO INSIGHT -->
+            <div class="glass-card animate-up delay-5" style="background: linear-gradient(135deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.01) 100%);">
+                <h3 class="mb-1 text-secondary uppercase tag">Pattern Analysis</h3>
+                <div class="flex-col gap-1 mt-2">
+                    <div style="background: rgba(0,255,128,0.1); padding: 1rem; border-radius: var(--radius-sm); border-left: 3px solid var(--accent-green);">
+                        <strong>Positive Adaptation</strong>
+                        <p class="text-secondary mt-1" style="font-size: 0.9rem;">Your volume load correlates strongly with your recovery baseline. You are successfully maintaining progressive overload without entering overtraining territory.</p>
+                    </div>
+                    <div style="background: rgba(255,215,0,0.1); padding: 1rem; border-radius: var(--radius-sm); border-left: 3px solid var(--accent-yellow);">
+                        <strong>Metabolic Insight</strong>
+                        <p class="text-secondary mt-1" style="font-size: 0.9rem;">Consistent tracking indicates high adherence to Carb Cycling protocols. Ensure you continue to hit protein minimums to preserve lean mass.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ════════════ AI FOOD SCANNER SECTION ════════════ -->
+        <section class="scanner-section">
+
+          <div class="scanner-section-title">
+            <h2>AI Food Scanner</h2>
+            <span class="scanner-badge">Computer Vision</span>
+          </div>
+
+          <div class="scanner-card">
+
+            <!-- LEFT: CTA -->
+            <div class="scanner-cta">
+              <div class="scanner-cta-tag">📷 Real-Time Nutrition Detection</div>
+              <h3>Scan Your Meal.<br>Know Your Macros.</h3>
+              <p>
+                Point your camera at any plate — rice, roti, dal, chicken, salad — and our
+                multi-food AI detects every item, estimates portion sizes, and delivers a
+                full macro breakdown in seconds. Powered by USDA, OpenFoodFacts &amp; IFCT data.
+              </p>
+
+              <div class="scanner-stats" style="margin-bottom:1.5rem">
+                <span class="scanner-stat-pill">12+ Food Types</span>
+                <span class="scanner-stat-pill">Multi-Food Plates</span>
+                <span class="scanner-stat-pill">Portion Estimation</span>
+                <span class="scanner-stat-pill">Daily Log</span>
+              </div>
+
+              <a href="food-scanner.html" class="scan-launch-btn" id="openFoodScannerBtn">
+                <span class="btn-icon">📷</span>
+                Scan Your Meal
+              </a>
+            </div>
+
+            <!-- RIGHT: Visual -->
+            <div class="scanner-visual">
+              <!-- floating detection tags -->
+              <div class="food-tag-float">🍗 Chicken 150g</div>
+              <div class="food-tag-float">🍚 Rice 200g</div>
+              <div class="food-tag-float">🥗 Salad 100g</div>
+
+              <!-- mock camera bracket -->
+              <div class="mock-bracket">
+                <div class="mock-laser"></div>
+              </div>
+
+              <!-- detection readout -->
+              <div style="text-align:center">
+                <div style="font-size:0.7rem; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.1em; margin-bottom:0.5rem">Detected · 94% confidence</div>
+                <div style="font-family:var(--font-heading); font-size:1.5rem; font-weight:800">520 kcal</div>
+                <div style="font-size:0.8rem; color:var(--text-secondary); margin-top:0.2rem">Protein 42g · Carbs 60g · Fat 8g</div>
+              </div>
+            </div>
+
+            <!-- BOTTOM: Capabilities -->
+            <div class="scanner-capabilities">
+              <div class="cap-item">
+                <span class="cap-icon">🧠</span>
+                <div class="cap-text"><strong>Multi-Food Detection</strong>Identifies multiple items on a single plate simultaneously.</div>
+              </div>
+              <div class="cap-item">
+                <span class="cap-icon">📏</span>
+                <div class="cap-text"><strong>Portion Estimation</strong>Estimates grams per food item from visual depth cues.</div>
+              </div>
+              <div class="cap-item">
+                <span class="cap-icon">📊</span>
+                <div class="cap-text"><strong>Full Macro Breakdown</strong>Calories, protein, carbs, fat, fiber &amp; sugar per meal.</div>
+              </div>
+              <div class="cap-item">
+                <span class="cap-icon">📋</span>
+                <div class="cap-text"><strong>Daily Intake Log</strong>Auto-tracks macros to your daily protocol target.</div>
+              </div>
+            </div>
+
+          </div><!-- /scanner-card -->
+        </section><!-- /scanner-section -->
+
+    </main>
+
+    <script src="../js/fitnessEngine.js"></script>
+    <script src="../js/cardioEngine.js"></script>
+    <script src="../js/analytics.js"></script>
+
+    <script>
+        function initAnalytics() {
+            if (window.initializeSidebar) window.initializeSidebar('analytics.html');
+            const aEng = new window.AnalyticsEngine();
+            
+            // 1. Volume Grid
+            aEng.renderVolumeGrid(document.getElementById('volChart').getContext('2d'));
+            
+            // 2. Recovery Line
+            aEng.renderRecoveryTrend(document.getElementById('recChart').getContext('2d'));
+
+            // 3. Strength Line
+            aEng.renderStrengthProgression(document.getElementById('strengthChart').getContext('2d'));
+        }
+
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initAnalytics);
+        } else {
+            initAnalytics();
+        }
+
+            // 4. Weight Trend
+            aEng.renderWeightTrend(document.getElementById('weightChart').getContext('2d'));
+            
+            // 5. Zone Dist Doughnut
+            aEng.renderCardioStrain(document.getElementById('zChart').getContext('2d'));
+        });
+    </script>
+</body>
+</html>

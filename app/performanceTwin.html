@@ -1,0 +1,975 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fitaura | Performance Twin</title>
+    <meta name="description" content="Your Adaptive Athlete Digital Twin — AI-powered performance prediction, fatigue monitoring, and strength forecasting.">
+    <link rel="stylesheet" href="css/premium.css">
+    <script src="../js/fitaura-global.js" defer></script>
+    <script src="../js/components.js" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <style>
+        /* ── Twin-specific overrides ── */
+        .twin-hero {
+            background: linear-gradient(135deg, rgba(112,0,255,0.12) 0%, rgba(0,195,255,0.06) 100%);
+            border: 1px solid rgba(112,0,255,0.25);
+            border-radius: var(--radius-lg);
+            padding: 2.5rem;
+            margin-bottom: 2rem;
+            position: relative;
+            overflow: hidden;
+        }
+        .twin-hero::before {
+            content: '';
+            position: absolute;
+            top: -60px; right: -60px;
+            width: 200px; height: 200px;
+            background: radial-gradient(circle, rgba(112,0,255,0.2) 0%, transparent 70%);
+            border-radius: 50%;
+        }
+        .twin-avatar {
+            width: 64px; height: 64px;
+            background: linear-gradient(135deg, #7000ff, #00c3ff);
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.8rem;
+            box-shadow: 0 0 30px rgba(112,0,255,0.4);
+            flex-shrink: 0;
+        }
+        .readiness-ring-big {
+            position: relative;
+            width: 180px; height: 180px;
+            flex-shrink: 0;
+        }
+        .readiness-ring-big canvas { position: absolute; top: 0; left: 0; }
+        .ring-center-text {
+            position: absolute; top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+        }
+        .ring-pct {
+            font-family: var(--font-heading);
+            font-size: 2.5rem; font-weight: 800; line-height: 1;
+        }
+        .ring-lbl { font-size: 0.7rem; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.1em; }
+
+        /* ── Gauge ── */
+        .gauge-wrap { position: relative; width: 140px; height: 80px; margin: 0 auto; }
+        .gauge-wrap canvas { display: block; }
+        .gauge-value {
+            position: absolute; bottom: 0; left: 50%; transform: translateX(-50%);
+            font-family: var(--font-heading); font-size: 1.3rem; font-weight: 800;
+        }
+        .gauge-label { text-align: center; font-size: 0.7rem; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.08em; margin-top: 4px; }
+
+        /* ── Metric cards ── */
+        .metric-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1.5rem; margin-bottom: 2rem; }
+        .metric-card {
+            background: rgba(255,255,255,0.03);
+            border: 1px solid var(--border-glass);
+            border-radius: var(--radius-md);
+            padding: 1.5rem;
+            text-align: center;
+            transition: var(--transition-smooth);
+        }
+        .metric-card:hover { border-color: var(--border-hover); transform: translateY(-2px); }
+        .metric-card .m-icon { font-size: 1.6rem; margin-bottom: 0.5rem; }
+        .metric-card .m-val { font-family: var(--font-heading); font-size: 1.8rem; font-weight: 800; line-height: 1; }
+        .metric-card .m-sub { font-size: 0.75rem; color: var(--text-secondary); margin-top: 4px; }
+        .metric-card .m-lab { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-muted); margin-bottom: 0.5rem; }
+
+        /* ── Lift cards ── */
+        .lift-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; }
+        .lift-card {
+            background: rgba(255,255,255,0.02);
+            border: 1px solid var(--border-glass);
+            border-radius: var(--radius-md);
+            padding: 1.5rem;
+            transition: var(--transition-smooth);
+        }
+        .lift-card:hover { border-color: rgba(112,0,255,0.3); background: rgba(112,0,255,0.05); }
+        .lift-name { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-secondary); margin-bottom: 0.5rem; }
+        .lift-current { font-family: var(--font-heading); font-size: 2rem; font-weight: 800; }
+        .lift-predicted {
+            display: flex; align-items: center; gap: 0.5rem;
+            font-size: 0.85rem; color: var(--accent-green); margin-top: 0.5rem;
+        }
+        .lift-delta { font-size: 0.9rem; font-weight: 700; }
+        .lift-bar-wrap { height: 4px; background: rgba(255,255,255,0.08); border-radius: 2px; margin-top: 1rem; overflow: hidden; }
+        .lift-bar { height: 100%; border-radius: 2px; transition: width 1s ease; }
+
+        /* ── AI Insights ── */
+        .insight-card {
+            background: rgba(255,255,255,0.02);
+            border: 1px solid var(--border-glass);
+            border-radius: var(--radius-md);
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            transition: var(--transition-smooth);
+            border-left: 3px solid transparent;
+        }
+        .insight-card:hover { transform: translateX(4px); }
+        .insight-header { display: flex; align-items: center; gap: 0.8rem; margin-bottom: 0.5rem; }
+        .insight-icon { font-size: 1.3rem; }
+        .insight-title { font-weight: 700; font-size: 0.95rem; }
+        .insight-cat { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-secondary); margin-left: auto; }
+        .insight-body { font-size: 0.88rem; color: var(--text-secondary); line-height: 1.6; }
+
+        /* ── Log panel ── */
+        .log-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; }
+        .log-card { background: rgba(255,255,255,0.02); border: 1px solid var(--border-glass); border-radius: var(--radius-md); padding: 1.5rem; }
+
+        /* ── Weight forecast ── */
+        .wf-row { display: flex; justify-content: space-between; align-items: center; padding: 0.5rem 0; border-bottom: 1px solid rgba(255,255,255,0.04); }
+        .wf-row:last-child { border-bottom: none; }
+
+        /* ── Fatigue bar ── */
+        .fatigue-bar-wrap { height: 8px; background: rgba(255,255,255,0.08); border-radius: 4px; overflow: hidden; margin: 1rem 0; }
+        .fatigue-bar { height: 100%; border-radius: 4px; transition: width 1.2s cubic-bezier(0.2,0.8,0.2,1); }
+
+        /* ── Overtraining dial ── */
+        .ot-indicator { display: flex; align-items: center; gap: 1rem; }
+        .ot-dot { width: 12px; height: 12px; border-radius: 50%; flex-shrink: 0; }
+
+        /* ── PR Banner ── */
+        .pr-banner {
+            background: linear-gradient(135deg, rgba(255,215,0,0.1), rgba(255,215,0,0.03));
+            border: 1px solid rgba(255,215,0,0.25);
+            border-radius: var(--radius-md);
+            padding: 1rem 1.5rem;
+            display: flex; align-items: center; gap: 1rem;
+            margin-bottom: 2rem;
+        }
+        .pr-banner-icon { font-size: 1.8rem; }
+        .pr-banner-text strong { font-family: var(--font-heading); }
+
+        /* ── Form overrides ── */
+        select.form-control option { background: #1a1a1a; }
+
+        /* ── Section title ── */
+        .section-title { font-family: var(--font-heading); font-size: 1.2rem; font-weight: 700; margin-bottom: 1.5rem; display: flex; align-items: center; gap: 0.5rem; }
+        .section-title .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--accent-purple); box-shadow: 0 0 8px var(--accent-purple); }
+
+        /* ── Tabs ── */
+        .tab-bar { display: flex; gap: 0.5rem; margin-bottom: 1.5rem; }
+        .tab-btn {
+            padding: 0.5rem 1.2rem;
+            border-radius: var(--radius-pill);
+            border: 1px solid var(--border-glass);
+            background: transparent;
+            color: var(--text-secondary);
+            cursor: pointer;
+            font-size: 0.85rem;
+            font-family: var(--font-body);
+            transition: var(--transition-smooth);
+        }
+        .tab-btn.active {
+            background: rgba(112,0,255,0.2);
+            border-color: rgba(112,0,255,0.4);
+            color: #b080ff;
+        }
+        .tab-panel { display: none; }
+        .tab-panel.active { display: block; }
+
+        /* ── Recovery timer ── */
+        .recovery-timer {
+            font-family: var(--font-heading);
+            font-size: 2.2rem;
+            font-weight: 800;
+            color: var(--accent-blue);
+            text-align: center;
+        }
+        .recovery-sub { text-align: center; font-size: 0.8rem; color: var(--text-secondary); margin-top: 4px; }
+
+        /* ── Pulse animation ── */
+        @keyframes pulseGlow {
+            0%,100% { box-shadow: 0 0 10px currentColor; }
+            50% { box-shadow: 0 0 25px currentColor; }
+        }
+        .pulse-glow { animation: pulseGlow 2s ease-in-out infinite; }
+
+        /* ── Floating badge ── */
+        .live-badge {
+            display: inline-flex; align-items: center; gap: 0.4rem;
+            background: rgba(0,255,128,0.12);
+            border: 1px solid rgba(0,255,128,0.25);
+            border-radius: var(--radius-pill);
+            padding: 0.3rem 0.8rem;
+            font-size: 0.75rem;
+            color: var(--accent-green);
+            font-weight: 600;
+        }
+        .live-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--accent-green); animation: livePulse 1.4s ease-in-out infinite; }
+        @keyframes livePulse { 0%,100%{transform:scale(1);opacity:1;}50%{transform:scale(1.6);opacity:0.5;} }
+
+        @media (max-width: 1200px) {
+            .metric-row { grid-template-columns: repeat(2,1fr); }
+            .lift-grid { grid-template-columns: 1fr 1fr; }
+            .log-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <div class="ambient-bg"></div>
+    <div class="ambient-bg-2"></div>
+
+    <!-- Sidebar -->
+    <aside class="layout-sidebar">
+        <!-- Dynamic Sidebar injected via components.js -->
+    </aside>
+
+    <!-- Main -->
+    <main class="layout-content">
+        <!-- Header -->
+        <div class="page-header flex justify-between items-center">
+            <div>
+                <h1 class="page-title">Performance Twin</h1>
+                <p class="page-subtitle">Your adaptive digital athlete model — predicting, learning, evolving</p>
+            </div>
+            <div class="flex items-center gap-1">
+                <span class="live-badge"><span class="live-dot"></span> LIVE MODEL</span>
+                <button id="btnSeed" class="btn btn-glass" style="font-size:0.8rem;padding:0.5rem 1rem;" onclick="seedData()">Load Sample Data</button>
+                <button id="btnReset" class="btn btn-glass" style="font-size:0.8rem;padding:0.5rem 1rem;color:var(--accent-red);" onclick="resetData()">Reset</button>
+            </div>
+        </div>
+
+        <!-- PR Banner -->
+        <div class="pr-banner animate-up" id="prBanner" style="display:none;">
+            <div class="pr-banner-icon">🏆</div>
+            <div class="pr-banner-text">
+                <strong id="prMsg">PR expected in 3 days!</strong>
+                <div style="font-size:0.85rem;color:var(--text-secondary);" id="prSub">Keep pushing the progressive overload.</div>
+            </div>
+        </div>
+
+        <!-- Twin Hero Card -->
+        <div class="twin-hero animate-up flex gap-2 items-center" style="margin-bottom:2rem;">
+            <div class="twin-avatar">🧬</div>
+            <div style="flex:1;">
+                <div style="font-size:0.75rem;text-transform:uppercase;letter-spacing:0.1em;color:var(--text-secondary);margin-bottom:0.3rem;">Digital Athlete Model</div>
+                <h2 style="font-family:var(--font-heading);font-size:1.6rem;font-weight:800;" id="twinName">Athlete</h2>
+                <p style="color:var(--text-secondary);font-size:0.9rem;" id="twinMeta">Calibrating your physiological model...</p>
+            </div>
+            <!-- Readiness Ring -->
+            <div style="text-align:center;">
+                <div class="readiness-ring-big">
+                    <canvas id="readinessRingCanvas" width="180" height="180"></canvas>
+                    <div class="ring-center-text">
+                        <div class="ring-pct" id="readinessPct">--</div>
+                        <div class="ring-lbl">Readiness</div>
+                    </div>
+                </div>
+                <div id="readinessLabel" class="tag tag-green" style="margin-top:0.5rem;">Calibrating</div>
+            </div>
+        </div>
+
+        <!-- 4-Metric Row -->
+        <div class="metric-row animate-up delay-1">
+            <div class="metric-card">
+                <div class="m-icon">😴</div>
+                <div class="m-lab">Fatigue Risk</div>
+                <div class="m-val" id="fatigueVal" style="font-size:1.3rem;">—</div>
+                <div class="m-sub" id="fatigueAcwr">ACWR: —</div>
+                <div class="fatigue-bar-wrap"><div class="fatigue-bar" id="fatigueBar" style="width:0%;background:var(--accent-green);"></div></div>
+            </div>
+            <div class="metric-card">
+                <div class="m-icon">⏱️</div>
+                <div class="m-lab">Recovery Required</div>
+                <div class="recovery-timer" id="recoveryHrs">—</div>
+                <div class="recovery-sub" id="recoveryReady">Ready at —</div>
+            </div>
+            <div class="metric-card">
+                <div class="m-icon">⚖️</div>
+                <div class="m-lab">Body Weight</div>
+                <div class="m-val" id="weightVal">—</div>
+                <div class="m-sub" id="weightTrend">Tracking...</div>
+            </div>
+            <div class="metric-card">
+                <div class="m-icon">🔥</div>
+                <div class="m-lab">Daily TDEE</div>
+                <div class="m-val" id="tdeeVal">—</div>
+                <div class="m-sub">kcal target</div>
+            </div>
+        </div>
+
+        <!-- Gauges Row -->
+        <div class="grid-3 animate-up delay-2" style="margin-bottom:2rem;">
+            <!-- Overtraining Risk -->
+            <div class="glass-card flex-col items-center" style="text-align:center;">
+                <div class="section-title" style="justify-content:center;"><span class="dot"></span> Overtraining Risk</div>
+                <div class="gauge-wrap">
+                    <canvas id="otGauge" width="140" height="80"></canvas>
+                    <div class="gauge-value" id="otPct">—</div>
+                </div>
+                <div class="gauge-label" id="otLevel">Calculating...</div>
+                <div class="ot-indicator" style="margin-top:1rem;">
+                    <div class="ot-dot" id="otDot" style="background:var(--accent-green);color:var(--accent-green);" ></div>
+                    <span style="font-size:0.85rem;" id="otAdvice">Monitoring workload...</span>
+                </div>
+            </div>
+
+            <!-- Strength Forecast chart -->
+            <div class="glass-card col-span-2">
+                <div class="section-title"><span class="dot" style="background:var(--accent-blue);box-shadow:0 0 8px var(--accent-blue);"></span> 8-Week Strength Forecast (Squat 1RM)</div>
+                <canvas id="strengthChart" height="80"></canvas>
+            </div>
+        </div>
+
+        <!-- Strength Predictions -->
+        <div class="glass-card animate-up delay-2" style="margin-bottom:2rem;">
+            <div class="section-title"><span class="dot" style="background:var(--accent-purple);box-shadow:0 0 8px var(--accent-purple);"></span> Next-Week Strength Prediction</div>
+            <div class="lift-grid" id="liftGrid">
+                <!-- Rendered by JS -->
+            </div>
+        </div>
+
+        <!-- Weight Forecast + AI Insights -->
+        <div class="log-grid animate-up delay-3" style="margin-bottom:2rem;">
+            <!-- Weight Forecast -->
+            <div class="glass-card">
+                <div class="section-title"><span class="dot" style="background:var(--accent-yellow);box-shadow:0 0 8px var(--accent-yellow);"></span> Weight Forecast</div>
+                <canvas id="weightChart" height="160"></canvas>
+                <div style="margin-top:1rem;">
+                    <div class="wf-row">
+                        <span class="text-secondary" style="font-size:0.85rem;">Now</span>
+                        <strong id="wfNow">—</strong>
+                    </div>
+                    <div class="wf-row">
+                        <span class="text-secondary" style="font-size:0.85rem;">+1 Week</span>
+                        <strong id="wf1w">—</strong>
+                    </div>
+                    <div class="wf-row">
+                        <span class="text-secondary" style="font-size:0.85rem;">+4 Weeks</span>
+                        <strong id="wf4w">—</strong>
+                    </div>
+                    <div class="wf-row">
+                        <span class="text-secondary" style="font-size:0.85rem;">Trajectory</span>
+                        <strong id="wfTraj" style="color:var(--accent-blue);">—</strong>
+                    </div>
+                </div>
+            </div>
+
+            <!-- AI Insights -->
+            <div class="glass-card">
+                <div class="section-title"><span class="dot" style="background:var(--accent-green);box-shadow:0 0 8px var(--accent-green);"></span> AI Adaptive Insights</div>
+                <div id="insightsList">
+                    <div style="color:var(--text-secondary);font-size:0.9rem;text-align:center;padding:2rem;">
+                        🤖 Loading AI recommendations...
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Log Workouts / Lifts / Weight -->
+        <div class="glass-card animate-up delay-3" style="margin-bottom:2rem;">
+            <div class="section-title"><span class="dot"></span> Log Training Data</div>
+            <div class="tab-bar">
+                <button class="tab-btn active" onclick="switchTab('tabWorkout', this)">Workout Session</button>
+                <button class="tab-btn" onclick="switchTab('tabLift', this)">Log Lift (1RM)</button>
+                <button class="tab-btn" onclick="switchTab('tabWeight', this)">Body Weight</button>
+                <button class="tab-btn" onclick="switchTab('tabProfile', this)">Athlete Setup</button>
+            </div>
+
+            <!-- Workout Tab -->
+            <div class="tab-panel active" id="tabWorkout">
+                <div class="log-grid">
+                    <div>
+                        <div class="form-group">
+                            <label class="form-label">RPE (Rate of Perceived Exertion)</label>
+                            <input type="range" id="rpeSlider" min="1" max="10" value="7" class="form-control" style="padding:0.4rem;" oninput="document.getElementById('rpeVal').textContent=this.value">
+                            <div style="display:flex;justify-content:space-between;font-size:0.8rem;color:var(--text-secondary);margin-top:4px;">
+                                <span>Easy (1)</span><span>RPE: <strong id="rpeVal">7</strong></span><span>Max (10)</span>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Total Sets Completed</label>
+                            <input type="number" id="setsInput" class="form-control" value="16" min="1" max="50" placeholder="e.g. 16">
+                        </div>
+                    </div>
+                    <div>
+                        <div class="form-group">
+                            <label class="form-label">Workout Type</label>
+                            <select id="workoutType" class="form-control">
+                                <option value="strength">Strength</option>
+                                <option value="hypertrophy">Hypertrophy</option>
+                                <option value="cardio">Cardio</option>
+                                <option value="deload">Deload</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Notes (optional)</label>
+                            <input type="text" id="workoutNotes" class="form-control" placeholder="e.g. Felt strong on squats">
+                        </div>
+                    </div>
+                </div>
+                <button class="btn btn-accent" onclick="logWorkout()">⚡ Log Workout & Update Twin</button>
+            </div>
+
+            <!-- Lift Tab -->
+            <div class="tab-panel" id="tabLift">
+                <div class="log-grid">
+                    <div>
+                        <div class="form-group">
+                            <label class="form-label">Exercise</label>
+                            <select id="liftExercise" class="form-control">
+                                <option value="squat">Squat</option>
+                                <option value="bench">Bench Press</option>
+                                <option value="deadlift">Deadlift</option>
+                                <option value="ohp">Overhead Press</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Weight Lifted (kg)</label>
+                            <input type="number" id="liftWeight" class="form-control" value="100" min="10" max="500" placeholder="kg">
+                        </div>
+                    </div>
+                    <div>
+                        <div class="form-group">
+                            <label class="form-label">Reps Performed</label>
+                            <input type="number" id="liftReps" class="form-control" value="5" min="1" max="30" placeholder="reps">
+                        </div>
+                        <div style="background:rgba(0,195,255,0.05);border:1px solid rgba(0,195,255,0.2);border-radius:var(--radius-sm);padding:1rem;margin-top:0.5rem;">
+                            <div style="font-size:0.8rem;color:var(--text-secondary);">Estimated 1RM (Epley)</div>
+                            <div id="e1rmPreview" style="font-family:var(--font-heading);font-size:1.5rem;font-weight:800;color:var(--accent-blue);">—</div>
+                        </div>
+                    </div>
+                </div>
+                <button class="btn btn-accent" onclick="logLift()">🏋️ Log Lift & Update Twin</button>
+            </div>
+
+            <!-- Weight Tab -->
+            <div class="tab-panel" id="tabWeight">
+                <div style="max-width:400px;">
+                    <div class="form-group">
+                        <label class="form-label">Today's Body Weight (kg)</label>
+                        <input type="number" id="weightInput" class="form-control" step="0.1" min="30" max="300" placeholder="e.g. 76.5">
+                    </div>
+                    <button class="btn btn-accent" onclick="logWeight()">⚖️ Log Weight & Update Twin</button>
+                </div>
+            </div>
+
+            <!-- Profile Tab -->
+            <div class="tab-panel" id="tabProfile">
+                <div class="log-grid">
+                    <div>
+                        <div class="form-group">
+                            <label class="form-label">Name</label>
+                            <input type="text" id="pName" class="form-control" placeholder="Athlete">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Age</label>
+                            <input type="number" id="pAge" class="form-control" value="25" min="15" max="80">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Weight (kg)</label>
+                            <input type="number" id="pWeight" class="form-control" step="0.5" value="75">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Height (cm)</label>
+                            <input type="number" id="pHeight" class="form-control" value="175">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Sex</label>
+                            <select id="pSex" class="form-control">
+                                <option value="male">Male</option>
+                                <option value="female">Female</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="form-group">
+                            <label class="form-label">Goal</label>
+                            <select id="pGoal" class="form-control">
+                                <option value="recomposition">Body Recomposition</option>
+                                <option value="fat_loss">Fat Loss</option>
+                                <option value="mass_gain">Mass Gain</option>
+                                <option value="maintenance">Maintenance</option>
+                                <option value="strength">Strength</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Experience Level</label>
+                            <select id="pExp" class="form-control">
+                                <option value="beginner">Beginner (0–1 year)</option>
+                                <option value="intermediate" selected>Intermediate (1–3 years)</option>
+                                <option value="advanced">Advanced (3+ years)</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Training Days / Week</label>
+                            <input type="number" id="pDays" class="form-control" value="4" min="1" max="7">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Sleep Hours / Night</label>
+                            <input type="number" id="pSleep" class="form-control" step="0.5" value="7" min="3" max="12">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Stress Level (1–10)</label>
+                            <input type="range" id="pStress" min="1" max="10" value="5" class="form-control" style="padding:0.4rem;" oninput="document.getElementById('pStressVal').textContent=this.value">
+                            <div style="display:flex;justify-content:space-between;font-size:0.8rem;color:var(--text-secondary);margin-top:4px;">
+                                <span>Low (1)</span><span>Stress: <strong id="pStressVal">5</strong></span><span>Max (10)</span>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Daily Calorie Intake</label>
+                            <input type="number" id="pCals" class="form-control" value="2400" min="1000" max="6000">
+                        </div>
+                    </div>
+                </div>
+                <button class="btn btn-accent" onclick="saveProfile()">🧬 Build Digital Twin</button>
+            </div>
+        </div>
+
+        <!-- Toast -->
+        <div id="toast" style="position:fixed;bottom:2rem;right:2rem;background:rgba(0,255,128,0.15);border:1px solid rgba(0,255,128,0.3);color:var(--accent-green);padding:1rem 1.5rem;border-radius:var(--radius-md);font-weight:600;opacity:0;transition:opacity 0.3s;z-index:999;pointer-events:none;"></div>
+    </main>
+
+    <script src="../js/predictionModel.js"></script>
+    <script src="../js/performanceEngine.js"></script>
+    <script>
+    /* ───────────────────────────────────────────────
+       PERFORMANCE TWIN UI CONTROLLER
+    ─────────────────────────────────────────────── */
+    let PE;
+    let strengthChartInst = null;
+    let weightChartInst   = null;
+    let readinessArc      = null;
+
+    function initTwin() {
+        if (window.initializeSidebar) window.initializeSidebar('performanceTwin.html');
+        PE = new PerformanceEngine();
+        PE.init();
+
+        // Seed if no data
+        if (!PE.workouts.length) PE.seedSampleData();
+
+        render(PE.twin);
+        initLiftPreview();
+        prefillProfile();
+    }
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initTwin);
+    } else {
+        initTwin();
+    }
+
+    /* ── Render Full UI ── */
+    function render(twin) {
+        if (!twin) return;
+        const p = twin.profile;
+
+        // Hero
+        document.getElementById('twinName').textContent = p.name || 'Athlete';
+        document.getElementById('twinMeta').textContent =
+            `${p.age} yrs · ${twin.currentWeight}kg · ${p.height}cm · ${cap(p.experience)} · Goal: ${fmtGoal(p.goal)}`;
+
+        // Readiness ring
+        drawReadinessRing(twin.readinessScore, twin.readinessColor);
+        document.getElementById('readinessPct').textContent = twin.readinessScore + '%';
+        document.getElementById('readinessPct').style.color = twin.readinessColor;
+        const labelEl = document.getElementById('readinessLabel');
+        labelEl.textContent = twin.readinessLabel;
+        labelEl.className = 'tag ' + readinessTagClass(twin.readinessScore);
+
+        // PR Banner
+        const pr = twin.prPrediction;
+        if (pr && pr.daysUntilPR <= 7) {
+            document.getElementById('prBanner').style.display = 'flex';
+            document.getElementById('prMsg').textContent = pr.daysUntilPR <= 2
+                ? '🏆 PR attempt recommended TODAY!'
+                : `PR expected in ${pr.daysUntilPR} days`;
+            document.getElementById('prSub').textContent = pr.description;
+        }
+
+        // Metrics row
+        const fatigueColor = twin.fatigueColor;
+        document.getElementById('fatigueVal').textContent = twin.fatigueRisk;
+        document.getElementById('fatigueVal').style.color = fatigueColor;
+        document.getElementById('fatigueAcwr').textContent = `ACWR: ${twin.acwr} · RPE avg: ${twin.recentRPEAvg}`;
+        const fatiguePct = twin.fatigueScore;
+        document.getElementById('fatigueBar').style.width = fatiguePct + '%';
+        document.getElementById('fatigueBar').style.background = fatigueColor;
+
+        document.getElementById('recoveryHrs').textContent = twin.recoveryHours + 'h';
+        document.getElementById('recoveryReady').textContent = `Ready at ${twin.recoveryReadyAt}`;
+
+        document.getElementById('weightVal').textContent = twin.currentWeight + ' kg';
+        const wPred = twin.weightPrediction;
+        document.getElementById('weightTrend').textContent =
+            `${wPred.weeklyChange >= 0 ? '+' : ''}${wPred.weeklyChange}kg/wk · ${wPred.trajectory}`;
+        document.getElementById('weightTrend').style.color = wPred.color;
+
+        document.getElementById('tdeeVal').textContent = twin.tdee.toLocaleString();
+
+        // Overtraining gauge
+        drawGauge('otGauge', twin.overtrain.pct, twin.overtrain.color);
+        document.getElementById('otPct').textContent = twin.overtrain.pct + '%';
+        document.getElementById('otPct').style.color = twin.overtrain.color;
+        document.getElementById('otLevel').textContent = twin.overtrain.level + ' Risk';
+        document.getElementById('otLevel').style.color = twin.overtrain.color;
+        document.getElementById('otDot').style.background = twin.overtrain.color;
+        document.getElementById('otAdvice').textContent =
+            twin.overtrain.level === 'High' ? 'Deload recommended immediately.'
+          : twin.overtrain.level === 'Moderate' ? 'Monitor closely. Reduce intensity.'
+          : 'Workload is sustainable.';
+
+        // Lift cards
+        renderLiftCards(twin);
+
+        // Weight forecast
+        const wp = twin.weightPrediction;
+        document.getElementById('wfNow').textContent = twin.currentWeight + ' kg';
+        document.getElementById('wf1w').textContent = wp.projectedWeight1w + ' kg';
+        document.getElementById('wf4w').textContent = wp.projectedWeight4w + ' kg';
+        document.getElementById('wfTraj').textContent = wp.trajectory;
+        document.getElementById('wfTraj').style.color = wp.color;
+
+        // AI Insights
+        renderInsights(twin.recommendations, twin);
+
+        // Charts
+        renderStrengthChart(twin.strengthForecast);
+        renderWeightChart(twin.weightForecast);
+    }
+
+    /* ── Readiness Arc ── */
+    function drawReadinessRing(score, color) {
+        const canvas = document.getElementById('readinessRingCanvas');
+        const ctx = canvas.getContext('2d');
+        const cx = 90, cy = 90, r = 72;
+        ctx.clearRect(0, 0, 180, 180);
+
+        // Track
+        ctx.beginPath();
+        ctx.arc(cx, cy, r, 0, Math.PI * 2);
+        ctx.strokeStyle = 'rgba(255,255,255,0.06)';
+        ctx.lineWidth = 10;
+        ctx.stroke();
+
+        // Arc
+        const start = -Math.PI / 2;
+        const end   = start + (Math.PI * 2 * score / 100);
+        const grad  = ctx.createLinearGradient(0, 0, 180, 180);
+        grad.addColorStop(0, color);
+        grad.addColorStop(1, color + '88');
+        ctx.beginPath();
+        ctx.arc(cx, cy, r, start, end);
+        ctx.strokeStyle = grad;
+        ctx.lineWidth = 10;
+        ctx.lineCap = 'round';
+        ctx.shadowBlur = 15;
+        ctx.shadowColor = color;
+        ctx.stroke();
+        ctx.shadowBlur = 0;
+    }
+
+    /* ── Semi-circle Gauge ── */
+    function drawGauge(canvasId, pct, color) {
+        const canvas = document.getElementById(canvasId);
+        const ctx = canvas.getContext('2d');
+        const cx = 70, cy = 70, r = 55;
+        ctx.clearRect(0, 0, 140, 80);
+
+        // Track
+        ctx.beginPath();
+        ctx.arc(cx, cy, r, Math.PI, 0);
+        ctx.strokeStyle = 'rgba(255,255,255,0.07)';
+        ctx.lineWidth = 10;
+        ctx.stroke();
+
+        // Fill
+        const endAngle = Math.PI + (Math.PI * pct / 100);
+        ctx.beginPath();
+        ctx.arc(cx, cy, r, Math.PI, endAngle);
+        ctx.strokeStyle = color;
+        ctx.lineWidth = 10;
+        ctx.lineCap = 'round';
+        ctx.shadowBlur = 12;
+        ctx.shadowColor = color;
+        ctx.stroke();
+        ctx.shadowBlur = 0;
+    }
+
+    /* ── Lift Cards ── */
+    function renderLiftCards(twin) {
+        const lifts = [
+            { key: 'squat',    label: 'Squat',       icon: '🏋️' },
+            { key: 'bench',    label: 'Bench Press',  icon: '💪' },
+            { key: 'deadlift', label: 'Deadlift',     icon: '⚡' },
+        ];
+        const grid = document.getElementById('liftGrid');
+        grid.innerHTML = '';
+        lifts.forEach(l => {
+            const cur  = twin.current1RM[l.key] || 0;
+            const pred = twin.strengthPrediction[l.key];
+            const pct  = Math.min(100, (cur / (cur + 50)) * 100);
+            const col  = pred.plateau ? '#ffd700' : '#00ff80';
+            grid.innerHTML += `
+            <div class="lift-card">
+                <div class="lift-name">${l.icon} ${l.label}</div>
+                <div class="lift-current">${cur}<span style="font-size:1rem;color:var(--text-secondary);font-weight:400;">kg</span></div>
+                <div class="lift-predicted" style="color:${col};">
+                    <span>Next week: ${pred.predicted1RM}kg</span>
+                    <span class="lift-delta">+${pred.delta}kg</span>
+                    ${pred.plateau ? '<span class="tag" style="background:rgba(255,215,0,0.15);color:#ffd700;font-size:0.6rem;">PLATEAU</span>' : ''}
+                </div>
+                <div class="lift-bar-wrap">
+                    <div class="lift-bar" style="width:${pct}%;background:linear-gradient(90deg,${col},${col}88);"></div>
+                </div>
+                <div style="font-size:0.75rem;color:var(--text-secondary);margin-top:0.5rem;">${pred.percentGain}% weekly gain rate</div>
+            </div>`;
+        });
+    }
+
+    /* ── AI Insights ── */
+    function renderInsights(recs, twin) {
+        const el = document.getElementById('insightsList');
+        if (!recs || !recs.length) {
+            // Generate default insight
+            recs = [{
+                icon: '✅', color: '#00ff80', title: 'All Systems Nominal',
+                body: `Readiness at ${twin.readinessScore}%. ${twin.fatigueAdv}`,
+                category: 'Status'
+            }];
+        }
+        el.innerHTML = recs.map(r => `
+        <div class="insight-card" style="border-left-color:${r.color};">
+            <div class="insight-header">
+                <span class="insight-icon">${r.icon}</span>
+                <span class="insight-title">${r.title}</span>
+                <span class="insight-cat">${r.category}</span>
+            </div>
+            <p class="insight-body">${r.body}</p>
+        </div>`).join('');
+
+        // Always add fatigueAdv as a tip
+        el.innerHTML += `
+        <div class="insight-card" style="border-left-color:${twin.fatigueColor};">
+            <div class="insight-header">
+                <span class="insight-icon">🧠</span>
+                <span class="insight-title">Twin Readout</span>
+                <span class="insight-cat">AI</span>
+            </div>
+            <p class="insight-body">${twin.fatigueAdv}</p>
+        </div>`;
+    }
+
+    /* ── Strength Chart ── */
+    function renderStrengthChart(data) {
+        if (!data) return;
+        const labels = data.map(d => d.week);
+        const vals   = data.map(d => d.value);
+        const predicted = data.map(d => d.predicted);
+
+        if (strengthChartInst) strengthChartInst.destroy();
+        const ctx = document.getElementById('strengthChart').getContext('2d');
+        const grad = ctx.createLinearGradient(0, 0, 0, 200);
+        grad.addColorStop(0, 'rgba(0,195,255,0.3)');
+        grad.addColorStop(1, 'rgba(0,195,255,0)');
+
+        strengthChartInst = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels,
+                datasets: [{
+                    label: 'Squat 1RM (kg)',
+                    data: vals,
+                    borderColor: '#00c3ff',
+                    backgroundColor: grad,
+                    borderWidth: 2,
+                    fill: true,
+                    tension: 0.4,
+                    pointBackgroundColor: predicted.map(p => p ? '#00c3ff' : '#fff'),
+                    pointRadius: 4,
+                    pointHoverRadius: 6,
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        backgroundColor: 'rgba(10,10,10,0.9)',
+                        borderColor: 'rgba(0,195,255,0.3)',
+                        borderWidth: 1,
+                        callbacks: {
+                            label: ctx => ` ${ctx.parsed.y}kg ${ctx.dataIndex > 0 ? '(predicted)' : '(current)'}`,
+                        }
+                    }
+                },
+                scales: {
+                    x: { grid: { color: 'rgba(255,255,255,0.04)' }, ticks: { color: '#666' } },
+                    y: { grid: { color: 'rgba(255,255,255,0.04)' }, ticks: { color: '#666', callback: v => v + 'kg' } }
+                }
+            }
+        });
+    }
+
+    /* ── Weight Chart ── */
+    function renderWeightChart(data) {
+        if (!data) return;
+        const labels = data.map(d => d.week);
+        const vals   = data.map(d => d.value);
+
+        if (weightChartInst) weightChartInst.destroy();
+        const ctx = document.getElementById('weightChart').getContext('2d');
+        const grad = ctx.createLinearGradient(0, 0, 0, 160);
+        grad.addColorStop(0, 'rgba(255,215,0,0.25)');
+        grad.addColorStop(1, 'rgba(255,215,0,0)');
+
+        weightChartInst = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels,
+                datasets: [{
+                    label: 'Body Weight (kg)',
+                    data: vals,
+                    borderColor: '#ffd700',
+                    backgroundColor: grad,
+                    borderWidth: 2,
+                    fill: true,
+                    tension: 0.4,
+                    pointRadius: 3,
+                    pointHoverRadius: 5,
+                    pointBackgroundColor: '#ffd700',
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        backgroundColor: 'rgba(10,10,10,0.9)',
+                        borderColor: 'rgba(255,215,0,0.3)',
+                        borderWidth: 1,
+                    }
+                },
+                scales: {
+                    x: { grid: { color: 'rgba(255,255,255,0.04)' }, ticks: { color: '#666', font: { size: 10 } } },
+                    y: { grid: { color: 'rgba(255,255,255,0.04)' }, ticks: { color: '#666', callback: v => v + 'kg' } }
+                }
+            }
+        });
+    }
+
+    /* ── Tabs ── */
+    function switchTab(id, btn) {
+        document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        document.getElementById(id).classList.add('active');
+        btn.classList.add('active');
+    }
+
+    /* ── Log Actions ── */
+    function logWorkout() {
+        const rpe   = parseInt(document.getElementById('rpeSlider').value);
+        const sets  = parseInt(document.getElementById('setsInput').value) || 16;
+        const type  = document.getElementById('workoutType').value;
+        const notes = document.getElementById('workoutNotes').value;
+        const twin  = PE.logWorkout({ rpe, sets, type, notes });
+        render(twin);
+        toast('✅ Workout logged! Twin updated.');
+    }
+
+    function logLift() {
+        const exercise = document.getElementById('liftExercise').value;
+        const weight   = parseFloat(document.getElementById('liftWeight').value) || 100;
+        const reps     = parseInt(document.getElementById('liftReps').value) || 5;
+        const twin     = PE.logLift(exercise, weight, reps);
+        render(twin);
+        toast(`🏋️ ${cap(exercise)} logged! e1RM: ${PredictionModel.estimate1RM(weight, reps)}kg`);
+    }
+
+    function logWeight() {
+        const kg = parseFloat(document.getElementById('weightInput').value);
+        if (!kg) { toast('⚠️ Enter a valid body weight.'); return; }
+        const twin = PE.logWeight(kg);
+        render(twin);
+        toast(`⚖️ Weight logged: ${kg}kg`);
+    }
+
+    function saveProfile() {
+        const twin = PE.saveProfile({
+            name:         document.getElementById('pName').value || 'Athlete',
+            age:          parseInt(document.getElementById('pAge').value) || 25,
+            weight:       parseFloat(document.getElementById('pWeight').value) || 75,
+            height:       parseFloat(document.getElementById('pHeight').value) || 175,
+            sex:          document.getElementById('pSex').value,
+            goal:         document.getElementById('pGoal').value,
+            experience:   document.getElementById('pExp').value,
+            trainingDays: parseInt(document.getElementById('pDays').value) || 4,
+            sleepHours:   parseFloat(document.getElementById('pSleep').value) || 7,
+            stressLevel:  parseInt(document.getElementById('pStress').value) || 5,
+            dailyCalories:parseInt(document.getElementById('pCals').value) || 2400,
+        });
+        render(twin);
+        toast('🧬 Digital Twin rebuilt!');
+    }
+
+    function seedData() {
+        const twin = PE.seedSampleData();
+        render(twin);
+        prefillProfile();
+        toast('📊 Sample data loaded!');
+    }
+
+    function resetData() {
+        PE.resetAll();
+        render(PE.twin);
+        toast('🔄 Twin reset to defaults.');
+    }
+
+    /* ── Live 1RM Preview ── */
+    function initLiftPreview() {
+        const wEl = document.getElementById('liftWeight');
+        const rEl = document.getElementById('liftReps');
+        const update = () => {
+            const w = parseFloat(wEl.value) || 0;
+            const r = parseInt(rEl.value) || 0;
+            document.getElementById('e1rmPreview').textContent = (w && r) ? PredictionModel.estimate1RM(w, r) + ' kg' : '—';
+        };
+        wEl.addEventListener('input', update);
+        rEl.addEventListener('input', update);
+        update();
+    }
+
+    /* ── Prefill Profile ── */
+    function prefillProfile() {
+        const p = PE.profile;
+        if (!p) return;
+        document.getElementById('pName').value   = p.name || '';
+        document.getElementById('pAge').value    = p.age;
+        document.getElementById('pWeight').value = p.weight;
+        document.getElementById('pHeight').value = p.height;
+        document.getElementById('pSex').value    = p.sex;
+        document.getElementById('pGoal').value   = p.goal;
+        document.getElementById('pExp').value    = p.experience;
+        document.getElementById('pDays').value   = p.trainingDays;
+        document.getElementById('pSleep').value  = p.sleepHours;
+        document.getElementById('pStress').value = p.stressLevel;
+        document.getElementById('pStressVal').textContent = p.stressLevel;
+        document.getElementById('pCals').value   = p.dailyCalories;
+    }
+
+    /* ── Helpers ── */
+    function cap(s) { return s ? s.charAt(0).toUpperCase() + s.slice(1) : s; }
+    function fmtGoal(g) {
+        return { recomposition:'Recomposition', fat_loss:'Fat Loss', mass_gain:'Mass Gain', maintenance:'Maintenance', strength:'Strength' }[g] || g;
+    }
+    function readinessTagClass(score) {
+        if (score >= 85) return 'tag-green';
+        if (score >= 70) return 'tag-blue';
+        if (score >= 50) return 'tag-purple';
+        return 'tag'; // red-ish handled via direct color
+    }
+    function toast(msg) {
+        const el = document.getElementById('toast');
+        el.textContent = msg;
+        el.style.opacity = '1';
+        setTimeout(() => { el.style.opacity = '0'; }, 3000);
+    }
+    </script>
+</body>
+</html>

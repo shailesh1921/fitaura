@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fitaura | Endurance Zone</title>
+    <link rel="stylesheet" href="css/premium.css">
+    <link rel="manifest" href="../manifest.json">
+    <script src="../js/fitaura-global.js" defer></script>
+    <script src="../js/components.js" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <div class="ambient-bg" style="background: radial-gradient(circle, rgba(0,195,255,0.15) 0%, rgba(0,0,0,0) 60%);"></div>
+
+    <aside class="layout-sidebar">
+        <!-- Dynamic Sidebar injected via components.js -->
+    </aside>
+
+    <main class="layout-content">
+        <div class="page-header">
+            <h1 class="page-title">Cardio & Endurance</h1>
+            <p class="page-subtitle">Metabolic pathways and VO2 Max tracking.</p>
+        </div>
+
+        <div class="grid-3 mb-2">
+            <!-- VO2 MAX -->
+            <div class="glass-card animate-up flex-col items-center justify-center pt-2 pb-2">
+                <span class="tag tag-blue mb-1">Estimated VO2 Max</span>
+                <div style="font-family: var(--font-heading); font-size: 4rem; font-weight: 800; line-height: 1;" id="vo2Score">--</div>
+                <div class="text-secondary mt-1" id="vo2Class" style="font-size: 1.1rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--accent-blue);">--</div>
+            </div>
+
+            <!-- DAILY STRAIN -->
+            <div class="glass-card animate-up delay-1 flex-col items-center justify-center">
+                <span class="tag tag-purple mb-1">Cardio Strain (TRIMP)</span>
+                <div style="position: relative; width: 120px; height: 120px;">
+                    <canvas id="strainChart"></canvas>
+                    <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center; width: 100%;">
+                        <strong style="font-size: 1.5rem;" id="strainVal">0</strong>
+                    </div>
+                </div>
+                <div class="text-secondary mt-1" id="strainLabel">--</div>
+            </div>
+
+            <!-- TODAY PROTOCOL -->
+            <div class="glass-card animate-up delay-2 flex-col justify-between" style="border-top: 3px solid var(--accent-blue);">
+                <div>
+                    <span class="tag mb-1" style="background: var(--accent-blue); color: #000;">Today's Protocol</span>
+                    <h2 id="cardioType" style="font-size: 1.5rem; display: none;" class="mb-1">Loading...</h2>
+                    <div id="cardioDetailsContainer" class="mt-1">
+                        <!-- JS inject -->
+                    </div>
+                </div>
+                <button class="btn btn-glass mt-2" onclick="document.getElementById('loggerView').style.display='block'; window.scrollTo({top: document.body.scrollHeight, behavior: 'smooth'});">Log Session</button>
+            </div>
+        </div>
+
+        <!-- ZONE METRICS -->
+        <div class="glass-card animate-up delay-3">
+            <h3 class="mb-2">Your Heart Rate Zones</h3>
+            <div class="grid-5" style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 1rem;" id="zoneGrid">
+                <!-- JS inject -->
+            </div>
+        </div>
+
+        <!-- LOGGER -->
+        <div id="loggerView" class="glass-card mt-2 animate-up" style="display: none; border: 1px solid var(--accent-blue);">
+            <h3 class="mb-2">Log Cardio Session (TRIMP Calc)</h3>
+            <div class="flex gap-2">
+                <div class="form-group" style="flex: 1;">
+                    <label class="form-label">Duration (Minutes)</label>
+                    <input type="number" id="logDur" class="form-control" placeholder="e.g. 45">
+                </div>
+                <div class="form-group" style="flex: 1;">
+                    <label class="form-label">Average Heart Rate</label>
+                    <input type="number" id="logHR" class="form-control" placeholder="e.g. 140">
+                </div>
+                <div style="flex: 1; display: flex; align-items: center; padding-top: 1rem;">
+                    <button id="logBtn" class="btn btn-primary" style="width: 100%;">Calculate Strain</button>
+                </div>
+            </div>
+            <p id="logRes" style="color: var(--accent-green); display: none; margin-top: 1rem;">Session logged successfully. Strain updated.</p>
+        </div>
+    </main>
+
+    <script src="../js/fitnessEngine.js"></script>
+    <script src="../js/cardioEngine.js"></script>
+    <script>
+    <script>
+        function initCardio() {
+            if (window.initializeSidebar) window.initializeSidebar('cardio.html');
+            const fEng = new window.FitnessEngine();
+            fEng.init();
+            const cEng = new window.CardioEngine();
+            cEng.init(fEng);
+
+            // 1. VO2 Max
+            document.getElementById('vo2Score').textContent = cEng.vo2Max.score;
+            document.getElementById('vo2Class').textContent = cEng.vo2Max.classification;
+
+            // 2. Protocol
+            const plan = cEng.currentPlan.schedule[0];
+            const cardioExercise = {
+                id: 'c1',
+                name: plan.type + ' (' + plan.mode + ')',
+                duration: plan.duration,
+                targetHR: plan.hrTarget
+            };
+            const container = document.getElementById('cardioDetailsContainer');
+            container.innerHTML = '';
+            container.appendChild(window.createExerciseCard(cardioExercise, { isCardio: true, hideInput: true }));
+
+            // 3. Zones
+            const z = cEng.metrics.zones;
+            const grid = document.getElementById('zoneGrid');
+            Object.keys(z).forEach((key, idx) => {
+                const zone = z[key];
+                grid.innerHTML += `
+                    <div style="background: rgba(255,255,255,0.03); padding: 1.5rem 1rem; border-radius: var(--radius-sm); border-top: 3px solid ${zone.color}; text-align: center;">
+                        <span style="color: ${zone.color}; font-weight: 700; font-size: 0.9rem; margin-bottom: 0.5rem; display: block;">ZONE ${idx+1}</span>
+                        <div style="font-size: 1.2rem; font-weight: 700; margin-bottom: 0.2rem;">${zone.min}-${zone.max}</div>
+                        <div class="text-secondary" style="font-size: 0.75rem;">${zone.name}</div>
+                    </div>
+                `;
+            });
+
+            // 4. Strain Chart
+            const strainData = cEng.getDailyStrain();
+            document.getElementById('strainVal').textContent = strainData.val;
+            document.getElementById('strainLabel').textContent = strainData.label;
+
+            const ctx = document.getElementById('strainChart').getContext('2d');
+            let strainChart = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    datasets: [{
+                        data: [strainData.val, Math.max(0, 500 - strainData.val)],
+                        backgroundColor: [strainData.color, 'rgba(255,255,255,0.05)'],
+                        borderWidth: 0,
+                    }]
+                },
+                options: { cutout: '80%', responsive: true, maintainAspectRatio: false, plugins: { tooltip: { enabled: false } } }
+            });
+
+            // Logger Note
+            document.getElementById('logBtn').addEventListener('click', () => {
+                const dur = parseInt(document.getElementById('logDur').value);
+                const hr = parseInt(document.getElementById('logHR').value);
+                if(!dur || !hr) return;
+                
+                cEng.logCardio({ duration: dur, avgHR: hr });
+                
+                document.getElementById('logRes').style.display = 'block';
+                
+                // Update Strain live
+                const newStrain = cEng.getDailyStrain();
+                document.getElementById('strainVal').textContent = newStrain.val;
+                document.getElementById('strainLabel').textContent = newStrain.label;
+                strainChart.data.datasets[0].data = [newStrain.val, Math.max(0, 500 - newStrain.val)];
+                strainChart.data.datasets[0].backgroundColor[0] = newStrain.color;
+                strainChart.update();
+            });
+        }
+
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initCardio);
+        } else {
+            initCardio();
+        }
+    </script>
+</body>
+</html>

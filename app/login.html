@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fitaura | Login</title>
+    <meta name="description" content="Sign in to Fitaura Elite — your AI-powered fitness intelligence platform.">
+    <link rel="stylesheet" href="css/premium.css">
+    <link rel="manifest" href="../manifest.json">
+    <meta name="theme-color" content="#7000ff">
+    <script src="../js/fitaura-global.js" defer></script>
+
+    <!-- Firebase SDK -->
+    <script type="module">
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
+        import { getAuth, signInWithEmailAndPassword, signInWithPopup, GoogleAuthProvider, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
+
+        // ── FIREBASE CONFIG ──
+        // Replace with your actual Firebase project config
+        const firebaseConfig = {
+            apiKey: "YOUR_API_KEY",
+            authDomain: "YOUR_PROJECT.firebaseapp.com",
+            projectId: "YOUR_PROJECT_ID",
+            storageBucket: "YOUR_PROJECT.appspot.com",
+            messagingSenderId: "YOUR_SENDER_ID",
+            appId: "YOUR_APP_ID"
+        };
+
+        // Check if config is placeholder — use local auth fallback if not configured
+        const isConfigured = firebaseConfig.apiKey !== "YOUR_API_KEY";
+
+        let auth;
+        if (isConfigured) {
+            const app = initializeApp(firebaseConfig);
+            auth = getAuth(app);
+
+            onAuthStateChanged(auth, (user) => {
+                if (user) {
+                    storeUserLocally(user.displayName || user.email, user.uid, user.photoURL);
+                    window.location.href = 'dashboard.html';
+                }
+            });
+        }
+
+        function storeUserLocally(name, uid, photo) {
+            localStorage.setItem('fitaura_auth_token', uid);
+            localStorage.setItem('fitaura_auth_name', name);
+            if (photo) localStorage.setItem('fitaura_auth_photo', photo);
+            if (!localStorage.getItem('fitaura_join_date')) {
+                localStorage.setItem('fitaura_join_date', new Date().toISOString());
+            }
+        }
+
+        // Email/Password Login
+        window.handleEmailLogin = async function(e) {
+            e.preventDefault();
+            const email = document.getElementById('lEmail').value.trim();
+            const pass = document.getElementById('lPass').value;
+            const btn = document.getElementById('loginBtn');
+            setLoading(btn, true);
+            hideError();
+
+            if (!isConfigured) {
+                // Local fallback (demo mode)
+                await new Promise(r => setTimeout(r, 600));
+                const name = email.split('@')[0].charAt(0).toUpperCase() + email.split('@')[0].slice(1);
+                storeUserLocally(name, btoa(email + Date.now()), null);
+                window.location.href = 'dashboard.html';
+                return;
+            }
+
+            try {
+                await signInWithEmailAndPassword(auth, email, pass);
+                // redirect handled by onAuthStateChanged
+            } catch(err) {
+                showError(friendlyError(err.code));
+                setLoading(btn, false);
+            }
+        };
+
+        // Google Sign In
+        window.handleGoogleLogin = async function() {
+            const btn = document.getElementById('googleBtn');
+            setLoading(btn, true);
+            hideError();
+
+            if (!isConfigured) {
+                // Local fallback demo
+                await new Promise(r => setTimeout(r, 800));
+                storeUserLocally('Demo Athlete', 'demo-' + Date.now(), null);
+                window.location.href = 'dashboard.html';
+                return;
+            }
+
+            try {
+                const provider = new GoogleAuthProvider();
+                provider.addScope('profile');
+                provider.addScope('email');
+                await signInWithPopup(auth, provider);
+            } catch(err) {
+                if (err.code !== 'auth/popup-closed-by-user') {
+                    showError(friendlyError(err.code));
+                }
+                setLoading(btn, false);
+            }
+        };
+
+        function friendlyError(code) {
+            const map = {
+                'auth/user-not-found': 'No account found with this email.',
+                'auth/wrong-password': 'Incorrect password. Please try again.',
+                'auth/invalid-email': 'Invalid email format.',
+                'auth/too-many-requests': 'Too many attempts. Please try again later.',
+                'auth/network-request-failed': 'Network error. Check your connection.',
+                'auth/invalid-credential': 'Invalid credentials. Please check and try again.',
+            };
+            return map[code] || 'Authentication failed. Please try again.';
+        }
+    </script>
+
+    <style>
+        body { display: flex; align-items: center; justify-content: center; min-height: 100vh; }
+
+        .auth-card {
+            max-width: 460px; width: 100%; padding: 3rem;
+            background: rgba(255,255,255,0.03); border: 1px solid var(--border-glass);
+            border-radius: var(--radius-lg); backdrop-filter: blur(24px);
+            box-shadow: var(--shadow-glass); animation: fadeUp 0.6s ease forwards;
+        }
+
+        .auth-brand { display: flex; align-items: center; gap: 0.6rem; margin-bottom: 2.5rem; justify-content: center; text-decoration: none; }
+        .auth-brand-text { font-family: var(--font-heading); font-size: 1.6rem; font-weight: 800; color: var(--text-primary); }
+
+        .auth-title { font-family: var(--font-heading); font-size: 1.8rem; font-weight: 700; text-align: center; margin-bottom: 0.4rem; }
+        .auth-sub { color: var(--text-secondary); text-align: center; font-size: 0.9rem; margin-bottom: 2rem; }
+
+        .google-btn {
+            width: 100%; display: flex; align-items: center; justify-content: center; gap: 0.75rem;
+            padding: 0.9rem 1.5rem; border-radius: var(--radius-sm);
+            background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.12);
+            color: var(--text-primary); font-family: var(--font-body); font-size: 0.95rem; font-weight: 600;
+            cursor: pointer; transition: var(--transition-smooth); margin-bottom: 1.5rem;
+        }
+        .google-btn:hover { background: rgba(255,255,255,0.1); border-color: rgba(255,255,255,0.25); transform: translateY(-1px); }
+        .google-btn:active { transform: translateY(0); }
+        .google-icon { width: 20px; height: 20px; }
+
+        .divider {
+            display: flex; align-items: center; gap: 1rem; margin-bottom: 1.5rem;
+            color: var(--text-muted); font-size: 0.8rem;
+        }
+        .divider::before, .divider::after { content: ''; flex: 1; height: 1px; background: var(--border-glass); }
+
+        .input-group { position: relative; }
+        .input-icon { position: absolute; left: 1rem; top: 50%; transform: translateY(-50%); color: var(--text-muted); font-size: 1rem; pointer-events: none; }
+        .form-control { padding-left: 2.8rem; }
+
+        .error-box {
+            background: rgba(255,51,102,0.08); border: 1px solid rgba(255,51,102,0.25);
+            border-radius: var(--radius-sm); padding: 0.75rem 1rem;
+            color: #ff6688; font-size: 0.85rem; margin-bottom: 1rem; display: none;
+        }
+        .error-box.show { display: flex; align-items: center; gap: 0.5rem; }
+
+        .submit-btn {
+            width: 100%; padding: 1rem; border-radius: var(--radius-sm);
+            background: var(--accent-purple); color: white; border: none;
+            font-family: var(--font-heading); font-size: 1rem; font-weight: 700;
+            cursor: pointer; transition: var(--transition-smooth);
+            display: flex; align-items: center; justify-content: center; gap: 0.5rem;
+        }
+        .submit-btn:hover:not(:disabled) { filter: brightness(1.15); transform: translateY(-1px); }
+        .submit-btn:disabled { opacity: 0.6; cursor: not-allowed; }
+
+        .spinner {
+            width: 16px; height: 16px; border: 2px solid rgba(255,255,255,0.3);
+            border-top-color: white; border-radius: 50%; animation: spin 0.7s linear infinite; display: none;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        .forgot-link { text-align: right; margin-top: 0.3rem; }
+        .forgot-link a { font-size: 0.82rem; color: var(--text-secondary); text-decoration: none; transition: color 0.2s; }
+        .forgot-link a:hover { color: var(--accent-purple); }
+
+        .signup-link { text-align: center; margin-top: 1.5rem; font-size: 0.9rem; color: var(--text-secondary); }
+        .signup-link a { color: var(--accent-purple); text-decoration: none; font-weight: 600; }
+        .signup-link a:hover { text-decoration: underline; }
+
+        .demo-note {
+            margin-top: 1.5rem; padding: 0.75rem 1rem;
+            background: rgba(0,195,255,0.05); border: 1px solid rgba(0,195,255,0.15);
+            border-radius: var(--radius-sm); font-size: 0.78rem; color: var(--accent-blue);
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="ambient-bg" style="background:radial-gradient(circle,rgba(0,255,128,0.08) 0%,rgba(0,0,0,0) 60%);"></div>
+    <div class="ambient-bg-2" style="background:radial-gradient(circle,rgba(112,0,255,0.1) 0%,rgba(0,0,0,0) 60%);"></div>
+
+    <div class="auth-card">
+        <a href="index.html" class="auth-brand">
+            <div class="brand-dot" style="background:var(--accent-green);box-shadow:var(--shadow-glow-green);width:10px;height:10px;"></div>
+            <span class="auth-brand-text">Fitaura Elite</span>
+        </a>
+
+        <h1 class="auth-title">Welcome Back</h1>
+        <p class="auth-sub">Sign in to access your performance intelligence.</p>
+
+        <!-- Google Sign In -->
+        <button class="google-btn" onclick="handleGoogleLogin()" id="googleBtn">
+            <svg class="google-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
+                <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
+                <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
+                <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
+            </svg>
+            Continue with Google
+        </button>
+
+        <div class="divider">or use email</div>
+
+        <!-- Error Box -->
+        <div class="error-box" id="errorBox">⚠️ <span id="errorText"></span></div>
+
+        <!-- Email Form -->
+        <form id="loginForm" onsubmit="handleEmailLogin(event)">
+            <div class="form-group">
+                <label class="form-label">Email Address</label>
+                <div class="input-group">
+                    <span class="input-icon">✉️</span>
+                    <input type="email" id="lEmail" class="form-control" placeholder="you@domain.com" required autocomplete="email">
+                </div>
+            </div>
+            <div class="form-group" style="margin-bottom:0.5rem;">
+                <label class="form-label">Password</label>
+                <div class="input-group">
+                    <span class="input-icon">🔒</span>
+                    <input type="password" id="lPass" class="form-control" placeholder="••••••••" required autocomplete="current-password">
+                </div>
+            </div>
+            <div class="forgot-link mb-2">
+                <a href="#" onclick="forgotPassword(event)">Forgot password?</a>
+            </div>
+            <button type="submit" class="submit-btn" id="loginBtn">
+                <span class="spinner" id="loginSpinner"></span>
+                <span id="loginBtnText">Sign In</span>
+            </button>
+        </form>
+
+        <div class="signup-link">
+            New to Fitaura? <a href="signup.html">Create your profile →</a>
+        </div>
+
+        <div class="demo-note">
+            💡 <strong>Demo Mode:</strong> Firebase not configured — any email/password will log you in for testing.
+        </div>
+    </div>
+
+    <script>
+    function setLoading(btn, loading) {
+        if (!btn) return;
+        const spinner = btn.querySelector('.spinner') || document.getElementById('loginSpinner');
+        const txt = btn.querySelector('span:last-child') || document.getElementById('loginBtnText');
+        btn.disabled = loading;
+        if (spinner) spinner.style.display = loading ? 'block' : 'none';
+        if (txt) txt.textContent = loading ? 'Signing in...' : btn.id === 'googleBtn' ? 'Continue with Google' : 'Sign In';
+    }
+
+    function showError(msg) {
+        const box = document.getElementById('errorBox');
+        document.getElementById('errorText').textContent = msg;
+        box.classList.add('show');
+    }
+    function hideError() {
+        document.getElementById('errorBox').classList.remove('show');
+    }
+
+    function forgotPassword(e) {
+        e.preventDefault();
+        const email = document.getElementById('lEmail').value.trim();
+        if (!email) { showError('Enter your email address first.'); return; }
+        // In a real app: auth.sendPasswordResetEmail(email)
+        showError(''); hideError();
+        alert(`Password reset link sent to ${email}\n(Demo mode: no actual email sent)`);
+    }
+
+    // Auto-redirect if already logged in
+    if (localStorage.getItem('fitaura_auth_token')) {
+        window.location.href = 'dashboard.html';
+    }
+
+    // Check for referral code in URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const ref = urlParams.get('ref');
+    if (ref) {
+        localStorage.setItem('fitaura_referral_code', ref);
+    }
+    </script>
+</body>
+</html>

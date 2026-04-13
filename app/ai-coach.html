@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fitaura | AI Coach</title>
+    <link rel="stylesheet" href="css/premium.css">
+    <link rel="manifest" href="../manifest.json">
+    <meta name="theme-color" content="#7000ff">
+    <script src="../js/fitaura-global.js" defer></script>
+    <script src="../js/components.js" defer></script>
+    <style>
+        .chat-container {
+            display: flex; flex-direction: column; gap: 1rem;
+            min-height: 380px; max-height: 480px;
+            overflow-y: auto; padding-right: 1rem; margin-bottom: 2rem;
+        }
+        .chat-bubble {
+            max-width: 80%; padding: 1rem 1.5rem;
+            border-radius: var(--radius-md); font-size: 0.95rem;
+            line-height: 1.6; animation: fadeUp 0.3s ease forwards;
+        }
+        .chat-ai {
+            background: rgba(255,255,255,0.05); border: 1px solid var(--border-glass);
+            align-self: flex-start; border-bottom-left-radius: 0; color: #fff;
+        }
+        .chat-user {
+            background: var(--accent-purple); color: white;
+            align-self: flex-end; border-bottom-right-radius: 0;
+        }
+        .typing-indicator {
+            display: flex; gap: 5px; align-items: center;
+            padding: 1rem 1.5rem; background: rgba(255,255,255,0.05);
+            border: 1px solid var(--border-glass); border-radius: var(--radius-md);
+            border-bottom-left-radius: 0; align-self: flex-start; max-width: 80px;
+        }
+        .typing-dot {
+            width: 7px; height: 7px; background: var(--text-secondary);
+            border-radius: 50%; animation: typingBounce 1.2s ease infinite;
+        }
+        .typing-dot:nth-child(2) { animation-delay: 0.2s; }
+        .typing-dot:nth-child(3) { animation-delay: 0.4s; }
+        @keyframes typingBounce {
+            0%,60%,100% { transform: translateY(0); }
+            30% { transform: translateY(-6px); }
+        }
+        .chat-input-wrapper {
+            display: flex; gap: 1rem; background: rgba(0,0,0,0.5);
+            padding: 1rem; border-radius: var(--radius-md);
+            border: 1px solid var(--border-glass);
+            transition: border-color 0.3s;
+        }
+        .chat-input-wrapper:focus-within { border-color: var(--accent-purple); }
+        .chat-input {
+            flex: 1; background: transparent; border: none;
+            color: white; font-size: 1rem; font-family: var(--font-body);
+        }
+        .chat-input:focus { outline: none; }
+        .quick-actions { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 2rem; }
+        .quick-btn {
+            background: rgba(255,255,255,0.02); border: 1px solid var(--border-glass);
+            color: var(--text-secondary); padding: 0.5rem 1rem;
+            border-radius: var(--radius-pill); font-size: 0.8rem;
+            cursor: pointer; transition: var(--transition-smooth); font-family: var(--font-body);
+        }
+        .quick-btn:hover { background: rgba(112,0,255,0.1); color: #fff; border-color: rgba(112,0,255,0.4); }
+
+        .context-panel {
+            background: rgba(112,0,255,0.05); border: 1px solid rgba(112,0,255,0.2);
+            border-radius: var(--radius-sm); padding: 1rem; margin-bottom: 1.5rem;
+            font-size: 0.85rem; color: var(--text-secondary);
+        }
+    </style>
+</head>
+<body>
+    <div class="ambient-bg" style="background:radial-gradient(circle,rgba(112,0,255,0.15) 0%,rgba(0,0,0,0) 60%);"></div>
+
+    <aside class="layout-sidebar">
+        <!-- Dynamic Sidebar injected via components.js -->
+    </aside>
+
+    <main class="layout-content">
+        <div class="page-header">
+            <h1 class="page-title">Intelligence Core</h1>
+            <p class="page-subtitle">Interact with the heuristic algorithms steering your protocol.</p>
+        </div>
+
+        <div class="glass-card animate-up" style="max-width:800px;margin:0 auto;padding-bottom:1rem;">
+
+            <div class="context-panel" id="contextPanel">
+                🧠 Reading your physiological state...
+            </div>
+
+            <div class="quick-actions">
+                <button class="quick-btn" onclick="sendMsg('What should I train today?')">What should I train today?</button>
+                <button class="quick-btn" onclick="sendMsg('How is my recovery looking?')">How is my recovery?</button>
+                <button class="quick-btn" onclick="sendMsg('Am I overtraining?')">Am I overtraining?</button>
+                <button class="quick-btn" onclick="sendMsg('I hit a plateau on my lifts.')">I hit a plateau.</button>
+                <button class="quick-btn" onclick="sendMsg('I need a deload week.')">I need a deload.</button>
+                <button class="quick-btn" onclick="sendMsg('What should I eat today?')">What should I eat?</button>
+                <button class="quick-btn" onclick="sendMsg('How do I improve my VO2 Max?')">Improve VO2 Max</button>
+                <button class="quick-btn" onclick="sendMsg('Give me motivation.')">Motivate me 💪</button>
+            </div>
+
+            <div class="chat-container" id="chatWindow">
+                <div class="chat-bubble chat-ai">
+                    <strong style="color:var(--accent-purple);display:block;margin-bottom:0.5rem;">Fitaura Engine v2.0</strong>
+                    Hello. I am the core intelligence governing your physiological readiness and programming. Your logs dictate my parameters. Ask me anything regarding your athletic progress.
+                </div>
+            </div>
+
+            <div class="chat-input-wrapper">
+                <input type="text" id="userInput" class="chat-input" placeholder="Ask the engine (e.g. 'Do I need a deload?')..." autocomplete="off" onkeypress="if(event.key==='Enter')sendMsg()">
+                <button class="btn btn-accent" style="padding:0.5rem 1.2rem;" onclick="sendMsg()">Send</button>
+            </div>
+        </div>
+    </main>
+
+    <script src="../js/fitnessEngine.js"></script>
+    <script>
+        function initAiCoach() {
+            if (window.initializeSidebar) window.initializeSidebar('ai-coach.html');
+            
+            const fEng = new window.FitnessEngine(); 
+            fEng.init();
+            const rec = fEng.recoveryStatus;
+            const lift = fEng.getTodayWorkout();
+
+            // Render Live Context Panel
+            updateContextUI(rec, lift);
+        }
+
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initAiCoach);
+        } else {
+            initAiCoach();
+        }
+
+        function updateContextUI(rec, lift) {
+        const panel = document.getElementById('contextPanel');
+        panel.innerHTML = `
+            <div style="display:flex; justify-content:space-between; align-items:center; width:100%;">
+                <span>
+                    <strong style="color:white;">Live Context:</strong>
+                    Recovery <strong style="color:${rec.color}">${rec.score}%</strong> (${rec.status}) ·
+                    Today: <strong style="color:white;">${lift ? lift.type : 'Rest'}</strong> 
+                    ${lift && lift.type !== 'Rest' ? `· ${lift.exercises ? lift.exercises.length : 0} exercises` : ''}
+                </span>
+            </div>
+        `;
+    }
+    updateContextUI();
+
+    const SYSTEM_PROMPT = `You are Fitaura Elite AI — an elite, data-driven fitness coach with deep expertise in strength training, nutrition science, and athletic performance. You have access to the athlete's real-time data:
+
+    Recovery Score: ${rec.score}% (${rec.status})
+    Today's Training: ${lift ? lift.type : 'Rest Day'}
+    Recovery Advice: ${rec.advice}
+
+    Respond with concise, actionable, science-backed advice. Use formatting like **bold** for key terms. Keep replies under 200 words. Be direct and high-performance oriented — like a professional coach, not a chatbot.`;
+
+    let chatHistory = [];
+
+    /**
+     * UI Functions
+     */
+    function addMessage(content, sender, isStreaming = false) {
+        const chat = document.getElementById('chatWindow');
+        const div = document.createElement('div');
+        div.className = `chat-bubble chat-${sender}`;
+        
+        if (sender === 'ai') {
+            div.innerHTML = `<strong style="color:var(--accent-purple);display:block;margin-bottom:0.5rem;">✦ Fitaura AI</strong><span class="msg-content">${content}</span>`;
+        } else {
+            div.textContent = content;
+        }
+        
+        if (isStreaming) div.id = 'streaming-bubble';
+        
+        chat.appendChild(div);
+        chat.scrollTop = chat.scrollHeight;
+        return div;
+    }
+
+    function showTyping() {
+        const chat = document.getElementById('chatWindow');
+        const d = document.createElement('div');
+        d.className = 'typing-indicator'; 
+        d.id = 'typingDot';
+        d.innerHTML = '<div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div>';
+        chat.appendChild(d); 
+        chat.scrollTop = chat.scrollHeight;
+    }
+
+    function hideTyping() { 
+        const d = document.getElementById('typingDot'); 
+        if (d) d.remove(); 
+    }
+
+    /**
+     * Local Heuristic Engine (Fallback)
+     */
+    function getLocalResponse(txt) {
+        const t = txt.toLowerCase();
+        const recScore = rec.score;
+        const todayType = lift ? lift.type : 'Rest';
+
+        if (t.includes('motiv')) return '"The algorithm never doubts. Neither should you. Your CNS is adapting. Trust the data."';
+        if (t.includes('recov') || t.includes('tired') || t.includes('sore')) {
+            if (recScore < 40) return `⚠️ Recovery critically low at **${recScore}%**. The engine recommends: (1) No heavy lifting. (2) Zone 1 cardio only. (3) 8h+ sleep. Prioritize CNS restoration.`;
+            return `Recovery at **${recScore}%**. ${recScore > 70 ? 'Prime window for progressive overload. Push for PRs.' : 'Maintain 80% intensity, avoid max efforts.'}`;
+        }
+        if (t.includes('today') || t.includes('train')) {
+            return `Today's protocol: **${todayType}**. Recovery at **${recScore}%**. ${recScore > 70 ? 'Optimal state—execute with high intensity.' : 'Manage volume, focus on movement quality.'}`;
+        }
+        if (t.includes('eat') || t.includes('food') || t.includes('macro')) {
+            return 'Maintain protein at **2.0-2.4g/kg**. Carbs timed around training. Check the **Nutrition Engine** for your precise macro split.';
+        }
+        if (t.includes('plateau')) return 'Plateau detected. The engine recommends: (1) 1 week deload. (2) 10-15% rep range variation. (3) Assessing caloric surplus stability.';
+        
+        return `Heuristic status: Recovery at **${recScore}%**, Today is **${todayType}**. Syncing with the Fitaura Core Engine...`;
+    }
+
+    /**
+     * AI Server Integration (Groq/Claude Proxy)
+     */
+    async function callAIServer(userMsg) {
+        chatHistory.push({ role: 'user', content: userMsg });
+
+        try {
+            const response = await fetch('/api/ai/coach', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    system: SYSTEM_PROMPT,
+                    messages: chatHistory,
+                    stream: true
+                })
+            });
+
+            if (!response.ok) {
+                const err = await response.json();
+                throw new Error(err.error?.message || `API Error: ${response.status}`);
+            }
+
+            hideTyping();
+            const bubble = addMessage('', 'ai', true);
+            const span = bubble.querySelector('.msg-content');
+            let fullText = '';
+
+            const reader = response.body.getReader();
+            const decoder = new TextDecoder();
+
+            while (true) {
+                const { done, value } = await reader.read();
+                if (done) break;
+                const chunk = decoder.decode(value);
+                const lines = chunk.split('\n');
+                for (const line of lines) {
+                    if (line.startsWith('data: ')) {
+                        try {
+                            const data = JSON.parse(line.slice(6));
+                            let textChunk = '';
+                            
+                            // Anthropic Format
+                            if (data.type === 'content_block_delta' && data.delta?.text) {
+                                textChunk = data.delta.text;
+                            } 
+                            // OpenAI / Groq Format
+                            else if (data.choices && data.choices[0].delta?.content) {
+                                textChunk = data.choices[0].delta.content;
+                            }
+
+                            if (textChunk) {
+                                fullText += textChunk;
+                                span.innerHTML = fullText.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>').replace(/\n/g, '<br>');
+                                document.getElementById('chatWindow').scrollTop = 999999;
+                            }
+                        } catch(e) {}
+                    }
+                }
+            }
+
+            bubble.removeAttribute('id');
+            chatHistory.push({ role: 'assistant', content: fullText });
+            return fullText;
+
+        } catch (err) {
+            console.error(err);
+            throw err;
+        }
+    }
+
+    /**
+     * Primary Message Handler
+     */
+    window.sendMsg = async function(textInput = null) {
+        const input = document.getElementById('userInput');
+        const txt = textInput || input.value.trim();
+        if (!txt) return;
+
+        addMessage(txt, 'user');
+        if (!textInput) input.value = '';
+        
+        const sendBtn = document.querySelector('.btn-accent');
+        sendBtn.disabled = true; 
+        sendBtn.textContent = '...';
+        showTyping();
+
+        try {
+            const aiReply = await callAIServer(txt);
+            if (!aiReply) {
+                // Fallback to local engine if no key
+                setTimeout(() => {
+                    hideTyping();
+                    const local = getLocalResponse(txt);
+                    addMessage(local.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>'), 'ai');
+                }, 600);
+            }
+        } catch(err) {
+            hideTyping();
+            addMessage(`⚠️ **API connection failed:** ${err.message}. Reverting to local heuristic engine.`, 'ai');
+            const local = getLocalResponse(txt);
+            addMessage(local.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>'), 'ai');
+        } finally {
+            sendBtn.disabled = false; 
+            sendBtn.textContent = 'Send';
+        }
+    }
+});
+    </script>
+</body>
+</html>

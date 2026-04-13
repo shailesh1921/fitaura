@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fitaura | Leaderboard</title>
+    <link rel="stylesheet" href="css/premium.css">
+    <link rel="manifest" href="../manifest.json">
+    <script src="../js/fitaura-global.js" defer></script>
+    <script src="../js/components.js" defer></script>
+    <style>
+        .lb-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem; }
+        .lb-tabs { display:flex; gap:0.5rem; background:rgba(255,255,255,0.03); padding:0.3rem; border-radius:var(--radius-pill); border:1px solid var(--border-glass); }
+        .lb-tab { padding:0.4rem 1.2rem; border-radius:var(--radius-pill); font-size:0.82rem; font-weight:600; cursor:pointer; border:none; background:transparent; color:var(--text-secondary); transition:var(--transition-smooth); }
+        .lb-tab.active { background:var(--accent-purple); color:#fff; }
+        .rank-1 { color: var(--accent-yellow); }
+        .rank-2 { color: #c0c0c0; }
+        .rank-3 { color: #cd7f32; }
+        .trophy { font-size:1.4rem; }
+        .invite-box { background:rgba(112,0,255,0.06); border:1px solid rgba(112,0,255,0.2); border-radius:var(--radius-md); padding:1.5rem; margin-bottom:2rem; }
+        .code-display { font-family:monospace; font-size:1.4rem; letter-spacing:0.2em; color:var(--accent-purple); font-weight:700; background:rgba(112,0,255,0.1); padding:0.75rem 1.5rem; border-radius:var(--radius-sm); display:inline-block; cursor:pointer; }
+        .score-bar-wrap { flex:1; display:flex; align-items:center; gap:0.75rem; }
+        .score-bar { height:6px; border-radius:3px; background:rgba(255,255,255,0.05); flex:1; overflow:hidden; }
+        .score-bar-fill { height:100%; border-radius:3px; transition:width 0.6s ease; }
+        .lb-you { border-color: rgba(112,0,255,0.4); background: rgba(112,0,255,0.06); }
+        .stat-badge { padding:0.2rem 0.7rem; border-radius:var(--radius-pill); font-size:0.72rem; font-weight:700; }
+    </style>
+</head>
+<body>
+<div class="ambient-bg" style="background:radial-gradient(circle,rgba(255,215,0,0.06) 0%,rgba(0,0,0,0) 70%);"></div>
+<aside class="layout-sidebar">
+    <!-- Dynamic Sidebar injected via components.js -->
+</aside>
+<main class="layout-content">
+    <div class="page-header">
+        <h1 class="page-title">🏆 Leaderboard</h1>
+        <p class="page-subtitle">Compete with friends — weekly workout streaks and volume points</p>
+    </div>
+
+    <!-- Invite Box -->
+    <div class="invite-box animate-up">
+        <div class="flex justify-between items-center flex-wrap gap-1">
+            <div>
+                <h3 style="margin-bottom:0.4rem;">Your Squad Code</h3>
+                <p style="color:var(--text-secondary);font-size:0.85rem;">Share this code with friends so they can join your leaderboard</p>
+            </div>
+            <div style="display:flex;flex-direction:column;align-items:flex-end;gap:0.75rem;">
+                <div class="code-display" id="myCode" onclick="copyCode()">LOADING</div>
+                <div class="flex gap-1">
+                    <button class="btn btn-glass" style="font-size:0.8rem;padding:0.4rem 1rem;" onclick="copyCode()">📋 Copy Code</button>
+                    <button class="btn btn-accent" style="font-size:0.8rem;padding:0.4rem 1rem;" onclick="showJoinDialog()">+ Join a Squad</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tabs + Table -->
+    <div class="glass-card animate-up delay-1">
+        <div class="lb-header">
+            <div class="lb-tabs">
+                <button class="lb-tab active" onclick="switchTab('weekly',this)">Weekly</button>
+                <button class="lb-tab" onclick="switchTab('alltime',this)">All-Time</button>
+                <button class="lb-tab" onclick="switchTab('volume',this)">Volume</button>
+            </div>
+            <span class="tag tag-green" id="weekLabel">This Week</span>
+        </div>
+
+        <!-- Top 3 podium -->
+        <div id="podium" style="display:flex;justify-content:center;align-items:flex-end;gap:1rem;margin-bottom:2rem;padding:1rem 0;"></div>
+
+        <!-- Full list -->
+        <div id="lbList"></div>
+    </div>
+
+    <!-- Your Stats Card -->
+    <div class="glass-card animate-up delay-2 mt-2">
+        <h3 style="margin-bottom:1.5rem;">Your Performance This Week</h3>
+        <div class="grid-3">
+            <div style="text-align:center;">
+                <div style="font-size:2.5rem;font-weight:800;font-family:var(--font-heading);color:var(--accent-green);" id="myScore">0</div>
+                <div style="color:var(--text-secondary);font-size:0.85rem;">Total Points</div>
+            </div>
+            <div style="text-align:center;">
+                <div style="font-size:2.5rem;font-weight:800;font-family:var(--font-heading);color:var(--accent-blue);" id="myWorkouts">0</div>
+                <div style="color:var(--text-secondary);font-size:0.85rem;">Workouts Logged</div>
+            </div>
+            <div style="text-align:center;">
+                <div style="font-size:2.5rem;font-weight:800;font-family:var(--font-heading);color:var(--accent-purple);" id="myRank">#—</div>
+                <div style="color:var(--text-secondary);font-size:0.85rem;">Current Rank</div>
+            </div>
+        </div>
+        <div style="margin-top:1.5rem;">
+            <div style="display:flex;justify-content:space-between;font-size:0.85rem;color:var(--text-secondary);margin-bottom:0.5rem;">
+                <span>Weekly progress</span>
+                <span id="myProgressLabel">0 / 500 pts to next rank</span>
+            </div>
+            <div style="height:8px;background:rgba(255,255,255,0.06);border-radius:4px;overflow:hidden;">
+                <div id="myProgressBar" style="height:100%;background:linear-gradient(90deg,var(--accent-purple),var(--accent-blue));border-radius:4px;transition:width 0.8s ease;width:0%"></div>
+            </div>
+        </div>
+        <button class="btn btn-accent mt-2" onclick="logWorkoutPoints()" style="width:100%;">+ Log Today's Workout Points</button>
+    </div>
+
+    <!-- Join modal -->
+    <div id="joinModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:9000;align-items:center;justify-content:center;">
+        <div class="glass-card" style="max-width:420px;width:90%;">
+            <h3 style="margin-bottom:1rem;">Join a Squad</h3>
+            <p style="color:var(--text-secondary);font-size:0.9rem;margin-bottom:1.5rem;">Enter your friend's squad code to join their leaderboard</p>
+            <input type="text" id="joinCodeInput" class="form-control" placeholder="Enter 6-digit code (e.g. FIT42X)" style="text-transform:uppercase;letter-spacing:0.15em;margin-bottom:1rem;" maxlength="6">
+            <div class="flex gap-1">
+                <button class="btn btn-accent" style="flex:1;" onclick="joinSquad()">Join Squad</button>
+                <button class="btn btn-glass" onclick="document.getElementById('joinModal').style.display='none'">Cancel</button>
+            </div>
+        </div>
+    </div>
+</main>
+
+<script src="../js/fitnessEngine.js"></script>
+<script>
+    function initLeaderboard() {
+        if (window.initializeSidebar) window.initializeSidebar('leaderboard.html');
+        // ── LEADERBOARD ENGINE ──
+        const EMOJIS = ['🦁','🐺','🦅','🐉','🔥','⚡','💀','🎯','🏋️','👊'];
+        const myName = localStorage.getItem('fitaura_auth_name') || 'You';
+
+        // Generate or load my code
+        let myCode = localStorage.getItem('fitaura_squad_code');
+        if (!myCode) {
+            myCode = Math.random().toString(36).substring(2,8).toUpperCase();
+            localStorage.setItem('fitaura_squad_code', myCode);
+        }
+document.getElementById('myCode').textContent = myCode;
+
+// Simulated squad members (in real app, these come from Firestore)
+let squadMembers = JSON.parse(localStorage.getItem('fitaura_squad') || 'null') || [
+    { name: myName, code: myCode, emoji: '🏋️', weekly: 0, alltime: 0, volume: 0, workouts: 0, isMe: true },
+    { name: 'Raj S.', code: 'RAJ12X', emoji: '🔥', weekly: 480, alltime: 5800, volume: 42500, workouts: 5 },
+    { name: 'Priya M.', code: 'PRI88K', emoji: '⚡', weekly: 390, alltime: 4200, volume: 31200, workouts: 4 },
+    { name: 'Arjun K.', code: 'ARJ55Z', emoji: '🦅', weekly: 610, alltime: 7100, volume: 55000, workouts: 6 },
+    { name: 'Neha T.', code: 'NEH33W', emoji: '🎯', weekly: 270, alltime: 3100, volume: 22800, workouts: 3 },
+];
+
+function saveSquad() { localStorage.setItem('fitaura_squad', JSON.stringify(squadMembers)); }
+function getMe() { return squadMembers.find(m => m.isMe); }
+
+let activeTab = 'weekly';
+
+function switchTab(tab, el) {
+    activeTab = tab;
+    document.querySelectorAll('.lb-tab').forEach(t => t.classList.remove('active'));
+    el.classList.add('active');
+    const labels = { weekly:'This Week', alltime:'All-Time', volume:'Volume (kg)' };
+    document.getElementById('weekLabel').textContent = labels[tab];
+    renderList();
+}
+
+function getScore(m, tab) {
+    return tab === 'weekly' ? m.weekly : tab === 'alltime' ? m.alltime : m.volume;
+}
+
+function renderList() {
+    const sorted = [...squadMembers].sort((a,b) => getScore(b,activeTab) - getScore(a,activeTab));
+    const maxScore = getScore(sorted[0], activeTab) || 1;
+
+    // Podium (top 3)
+    const podium = document.getElementById('podium');
+    podium.innerHTML = '';
+    const order = [1, 0, 2]; // 2nd, 1st, 3rd display order
+    const heights = [120, 160, 90];
+    const trophies = ['🥈','🥇','🥉'];
+    order.forEach((idx, pos) => {
+        if (!sorted[idx]) return;
+        const m = sorted[idx];
+        const isMe = m.isMe;
+        const div = document.createElement('div');
+        div.style.cssText = `text-align:center;display:flex;flex-direction:column;align-items:center;`;
+        div.innerHTML = `
+            <div style="font-size:${pos===1?'2.2':'1.6'}rem;margin-bottom:0.25rem;">${trophies[pos]}</div>
+            <div style="font-size:1.8rem;margin-bottom:0.25rem;">${m.emoji}</div>
+            <div style="font-weight:700;font-size:0.9rem;color:${isMe?'var(--accent-purple)':'var(--text-primary)'};margin-bottom:0.25rem;">${m.name}</div>
+            <div style="background:rgba(255,255,255,0.06);border:1px solid var(--border-glass);border-radius:var(--radius-sm) var(--radius-sm) 0 0;width:90px;height:${heights[pos]}px;display:flex;align-items:flex-start;justify-content:center;padding-top:0.75rem;font-family:var(--font-heading);font-weight:800;font-size:1rem;color:${pos===0?'var(--accent-yellow)':pos===1?'var(--accent-green)':'var(--accent-blue)'};">
+                ${getScore(m,activeTab).toLocaleString()}
+            </div>
+        `;
+        podium.appendChild(div);
+    });
+
+    // Full list
+    const list = document.getElementById('lbList');
+    list.innerHTML = '';
+    sorted.forEach((m, i) => {
+        const score = getScore(m, activeTab);
+        const pct = Math.round((score / maxScore) * 100);
+        const barColor = m.isMe ? 'var(--accent-purple)' : i === 0 ? 'var(--accent-yellow)' : 'var(--accent-green)';
+        const rankColor = i === 0 ? 'rank-1' : i === 1 ? 'rank-2' : i === 2 ? 'rank-3' : '';
+        const row = document.createElement('div');
+        row.className = 'leaderboard-row' + (m.isMe ? ' lb-you' : '');
+        row.innerHTML = `
+            <div class="lb-rank ${rankColor}">${i+1}</div>
+            <div class="lb-avatar">${m.emoji}</div>
+            <div style="flex:1;min-width:0;">
+                <div style="font-weight:600;${m.isMe?'color:var(--accent-purple)':''}">${m.name}${m.isMe?' <span style="font-size:0.7rem;background:rgba(112,0,255,0.2);color:var(--accent-purple);padding:2px 8px;border-radius:99px;">You</span>':''}</div>
+                <div class="score-bar-wrap" style="margin-top:0.4rem;">
+                    <div class="score-bar"><div class="score-bar-fill" style="width:${pct}%;background:${barColor};"></div></div>
+                    <span style="font-size:0.75rem;color:var(--text-secondary);white-space:nowrap;">${m.workouts} workouts</span>
+                </div>
+            </div>
+            <div class="lb-score">${score.toLocaleString()}</div>
+        `;
+        list.appendChild(row);
+    });
+
+    // My stats
+    const me = getMe();
+    const myRank = sorted.findIndex(m => m.isMe) + 1;
+    document.getElementById('myScore').textContent = me.weekly.toLocaleString();
+    document.getElementById('myWorkouts').textContent = me.workouts;
+    document.getElementById('myRank').textContent = '#' + myRank;
+    const nextTarget = 500;
+    const progress = Math.min(Math.round((me.weekly / nextTarget) * 100), 100);
+    document.getElementById('myProgressBar').style.width = progress + '%';
+    document.getElementById('myProgressLabel').textContent = `${me.weekly} / ${nextTarget} pts to next rank`;
+}
+
+function logWorkoutPoints() {
+    const pts = Math.round(50 + Math.random() * 100);
+    const me = getMe();
+    me.weekly += pts; me.alltime += pts; me.volume += Math.round(pts * 50); me.workouts++;
+    saveSquad(); renderList();
+    showToast(`💪 +${pts} points logged! Keep grinding.`);
+}
+
+function copyCode() {
+    navigator.clipboard.writeText(myCode).then(() => showToast('📋 Squad code copied!'));
+}
+
+function showJoinDialog() {
+    document.getElementById('joinModal').style.display = 'flex';
+    document.getElementById('joinCodeInput').value = '';
+    document.getElementById('joinCodeInput').focus();
+}
+
+function joinSquad() {
+    const code = document.getElementById('joinCodeInput').value.trim().toUpperCase();
+    if (code.length < 4) { showToast('⚠️ Enter a valid code', 'var(--accent-red)'); return; }
+    if (squadMembers.find(m => m.code === code)) { showToast('Already in your squad!', 'var(--accent-yellow)'); return; }
+    const newMember = {
+        name: 'Athlete ' + code.slice(0,3), code,
+        emoji: EMOJIS[Math.floor(Math.random() * EMOJIS.length)],
+        weekly: Math.round(Math.random()*600), alltime: Math.round(Math.random()*6000),
+        volume: Math.round(Math.random()*40000), workouts: Math.round(Math.random()*6)
+    };
+    squadMembers.push(newMember); saveSquad();
+    document.getElementById('joinModal').style.display = 'none';
+    renderList(); showToast(`✅ ${newMember.name} joined your squad!`);
+}
+
+    renderList();
+}
+
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initLeaderboard);
+} else {
+    initLeaderboard();
+}
+</script>
+</body>
+</html>

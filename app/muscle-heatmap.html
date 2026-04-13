@@ -1,0 +1,682 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fitaura | Muscle Activation Map</title>
+    <link rel="stylesheet" href="css/premium.css">
+    <link rel="manifest" href="../manifest.json">
+    <script src="../js/fitaura-global.js" defer></script>
+    <script src="../js/components.js" defer></script>
+    <style>
+        .heatmap-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; align-items: start; }
+        .body-views { display: flex; justify-content: center; gap: 3rem; flex-wrap: wrap; padding: 1.5rem 0; }
+        .body-section { text-align: center; position: relative; }
+        .body-section h4 { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.12em; color: var(--text-secondary); margin-bottom: 0.75rem; }
+        svg.body-svg { width: 190px; height: 400px; }
+        .muscle { transition: fill 0.5s cubic-bezier(0.4,0,0.2,1); cursor: pointer; stroke: transparent; stroke-width: 1.5; }
+        .muscle:hover { stroke: rgba(255,255,255,0.5); stroke-width: 1.5; }
+        .muscle.selected { stroke: #a78bfa; stroke-width: 2.5; }
+        .heat-legend { display: flex; align-items: flex-start; gap: 0.5rem; margin-bottom: 1.5rem; flex-wrap: wrap; }
+        .legend-scale { display: flex; gap: 3px; align-items: center; }
+        .legend-cell { width: 22px; height: 10px; border-radius: 2px; }
+        .muscle-detail { background: rgba(255,255,255,0.03); border: 1px solid var(--border-glass); border-radius: var(--radius-md); padding: 1.5rem; min-height: 160px; position: relative; overflow: hidden; transition: all 0.3s; }
+        .muscle-detail::before { content:''; position:absolute; top:0; left:0; width:3px; height:100%; background: var(--detail-accent, var(--accent-purple)); border-radius: 0 2px 2px 0; }
+        .muscle-name-badge { display: inline-flex; align-items: center; gap: 0.5rem; margin-bottom: 0.75rem; flex-wrap: wrap; }
+        .muscle-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+        .stat-row { display: flex; gap: 0.75rem; margin: 1rem 0; flex-wrap: wrap; }
+        .stat-chip { background: rgba(255,255,255,0.05); border: 1px solid var(--border-glass); border-radius: 8px; padding: 0.6rem 0.9rem; flex: 1; min-width: 80px; }
+        .stat-chip-label { font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-secondary); margin-bottom: 0.2rem; }
+        .stat-chip-val { font-size: 1rem; font-weight: 700; font-family: var(--font-heading); }
+        .volume-bar-wrap { margin: 0.75rem 0 0; }
+        .volume-bar-track { height: 6px; background: rgba(255,255,255,0.07); border-radius: 4px; overflow: hidden; }
+        .volume-bar-fill { height: 100%; border-radius: 4px; transition: width 0.6s cubic-bezier(0.4,0,0.2,1); }
+        .vol-labels { display: flex; justify-content: space-between; font-size: 0.65rem; color: var(--text-secondary); margin-top: 4px; }
+        .week-grid { display: grid; grid-template-columns: repeat(7,1fr); gap: 6px; margin-top: 1rem; }
+        .week-cell { border-radius: 6px; aspect-ratio: 1; border: 1px solid rgba(255,255,255,0.05); transition: transform 0.2s; cursor: default; }
+        .week-cell:hover { transform: scale(1.12); z-index: 2; }
+        .week-cell-label { font-size: 0.55rem; text-transform: uppercase; color: var(--text-secondary); text-align: center; margin-top: 4px; letter-spacing: 0.06em; }
+        .recovery-wrap { display: flex; align-items: center; gap: 1.5rem; margin-bottom: 1.5rem; }
+        .ring-svg { width: 80px; height: 80px; flex-shrink: 0; }
+        .ring-track { fill: none; stroke: rgba(255,255,255,0.07); stroke-width: 6; }
+        .ring-fill { fill: none; stroke-width: 6; stroke-linecap: round; transition: stroke-dashoffset 1s cubic-bezier(0.4,0,0.2,1); transform-origin: center; transform: rotate(-90deg); }
+        .recovery-text h4 { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-secondary); margin-bottom: 0.3rem; }
+        .recovery-score { font-family: var(--font-heading); font-size: 1.8rem; font-weight: 800; }
+        .recovery-status { font-size: 0.75rem; color: var(--text-secondary); margin-top: 0.2rem; }
+        .tab-bar { display: flex; gap: 0.5rem; margin-bottom: 1.5rem; border-bottom: 1px solid var(--border-glass); padding-bottom: 0.5rem; }
+        .tab-btn { padding: 0.45rem 1rem; border-radius: var(--radius-pill); font-size: 0.82rem; font-weight: 600; cursor: pointer; border: none; background: transparent; color: var(--text-secondary); transition: all 0.2s; font-family: var(--font-body); }
+        .tab-btn.active { background: rgba(255,255,255,0.1); color: var(--text-primary); }
+        .tab-pane { display: none; }
+        .tab-pane.active { display: block; }
+        .log-row { display: flex; gap: 0.75rem; flex-wrap: wrap; align-items: flex-end; }
+        .log-field { display: flex; flex-direction: column; gap: 0.4rem; }
+        .log-field label { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-secondary); }
+        .muscle-overview-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 0.75rem; margin-top: 1rem; }
+        .mg-card { background: rgba(255,255,255,0.03); border: 1px solid var(--border-glass); border-radius: var(--radius-sm); padding: 0.9rem; cursor: pointer; transition: all 0.2s; position: relative; overflow: hidden; }
+        .mg-card:hover { border-color: var(--border-hover); transform: translateY(-2px); }
+        .mg-card::after { content:''; position:absolute; bottom:0; left:0; right:0; height:3px; background: var(--mg-color, rgba(255,255,255,0.1)); }
+        .mg-card-name { font-size: 0.78rem; font-weight: 600; margin-bottom: 0.3rem; }
+        .mg-card-sets { font-size: 1.2rem; font-weight: 800; font-family: var(--font-heading); }
+        .mg-card-sub { font-size: 0.62rem; color: var(--text-secondary); margin-top: 2px; }
+        .hud { position: fixed; pointer-events: none; background: rgba(8,8,16,0.96); backdrop-filter: blur(16px); border: 1px solid rgba(255,255,255,0.12); padding: 0.65rem 0.9rem; border-radius: 10px; z-index: 9999; opacity: 0; transition: opacity 0.15s; min-width: 140px; box-shadow: 0 12px 32px rgba(0,0,0,0.6); }
+        .hud.show { opacity: 1; }
+        .hud-top { font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.1em; color: rgba(255,255,255,0.45); margin-bottom: 3px; }
+        .hud-val { font-size: 1rem; font-weight: 700; font-family: var(--font-heading); color: #fff; }
+        .hud-status { font-size: 0.6rem; margin-top: 4px; font-weight: 600; }
+        .suggestion-list { display: flex; flex-direction: column; gap: 0.6rem; margin-top: 0.75rem; }
+        .suggestion-item { display: flex; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.03); border: 1px solid var(--border-glass); border-radius: 8px; padding: 0.65rem 0.9rem; font-size: 0.82rem; transition: all 0.2s; gap: 0.5rem; }
+        .suggestion-item:hover { border-color: var(--border-hover); background: rgba(255,255,255,0.06); }
+        .sug-label { color: var(--text-secondary); flex: 1; }
+        .sug-badge { font-size: 0.65rem; font-weight: 700; padding: 2px 8px; border-radius: var(--radius-pill); white-space: nowrap; flex-shrink: 0; }
+        .sug-rest { background: rgba(0,255,128,0.1); color: #00ff80; }
+        .sug-train { background: rgba(112,0,255,0.2); color: #a78bfa; }
+        .sug-warn { background: rgba(255,51,102,0.15); color: #ff3366; }
+        .fatigue-alert { display: flex; align-items: center; gap: 0.75rem; padding: 0.85rem 1.1rem; border-radius: var(--radius-md); border: 1px solid; margin-bottom: 1.5rem; font-size: 0.85rem; }
+        .fatigue-alert.green { border-color: rgba(0,255,128,0.2); background: rgba(0,255,128,0.05); color: #00ff80; }
+        .fatigue-alert.yellow { border-color: rgba(255,215,0,0.2); background: rgba(255,215,0,0.05); color: #ffd700; }
+        .fatigue-alert.red { border-color: rgba(255,51,102,0.2); background: rgba(255,51,102,0.05); color: #ff3366; }
+        .alert-icon { width: 20px; height: 20px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 0.75rem; font-weight: 800; background: rgba(255,255,255,0.1); }
+        .compare-row { display: flex; align-items: center; gap: 0.75rem; padding: 0.6rem 0; border-bottom: 1px solid var(--border-glass); }
+        .compare-label { width: 90px; font-size: 0.78rem; color: var(--text-secondary); flex-shrink: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .compare-bar-track { flex: 1; height: 5px; background: rgba(255,255,255,0.07); border-radius: 4px; overflow: hidden; }
+        .compare-bar { height: 100%; border-radius: 4px; transition: width 0.5s ease; }
+        .compare-val { width: 42px; font-size: 0.75rem; font-weight: 600; text-align: right; font-family: var(--font-heading); flex-shrink: 0; }
+        .split-cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 0.75rem; margin-top: 1rem; }
+        .split-card { background: rgba(255,255,255,0.03); border: 1px solid var(--border-glass); border-radius: var(--radius-sm); padding: 1rem; transition: all 0.2s; cursor: pointer; }
+        .split-card:hover { border-color: var(--border-hover); }
+        .split-card.recommended { border-color: rgba(112,0,255,0.4); background: rgba(112,0,255,0.06); }
+        .split-card-name { font-size: 0.85rem; font-weight: 700; margin-bottom: 0.3rem; }
+        .split-card-days { font-size: 0.7rem; color: var(--text-secondary); }
+        .split-card-reason { font-size: 0.68rem; color: #a78bfa; margin-top: 0.5rem; }
+        .section-label { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-secondary); margin-bottom: 0.6rem; }
+        @media (max-width: 900px) { .heatmap-grid { grid-template-columns: 1fr; } }
+    </style>
+</head>
+<body>
+    <div class="ambient-bg"></div>
+    <aside class="layout-sidebar"></aside>
+    <main class="layout-content">
+        <div class="page-header">
+            <h1 class="page-title">Muscle Activation Map</h1>
+            <p class="page-subtitle">Real-time volume heatmap · synergist tracking · recovery intelligence · imbalance detection</p>
+        </div>
+
+        <div id="fatigueAlert" class="fatigue-alert green" style="display:none;">
+            <div class="alert-icon" id="alertIcon">!</div>
+            <span id="alertText">Analysing recovery…</span>
+        </div>
+
+        <div class="heatmap-grid" style="margin-bottom:2rem;">
+
+            <!-- LEFT: Body SVG card -->
+            <div class="glass-card animate-up">
+                <div class="heat-legend">
+                    <div style="flex:1;">
+                        <div class="legend-scale">
+                            <span style="font-size:0.65rem;color:var(--text-secondary);margin-right:4px;">Volume</span>
+                            <div class="legend-cell" style="background:#1d1d33;border:1px solid #333;"></div>
+                            <div class="legend-cell" style="background:#22c55e;"></div>
+                            <div class="legend-cell" style="background:#84cc16;"></div>
+                            <div class="legend-cell" style="background:#eab308;"></div>
+                            <div class="legend-cell" style="background:#f97316;"></div>
+                            <div class="legend-cell" style="background:#ef4444;"></div>
+                            <div class="legend-cell" style="background:#991b1b;"></div>
+                        </div>
+                        <div style="display:flex;justify-content:space-between;font-size:0.6rem;color:var(--text-secondary);margin-top:3px;width:154px;margin-left:52px;">
+                            <span>0</span><span>Low</span><span>Mid</span><span>High</span><span>Max</span>
+                        </div>
+                    </div>
+                    <div style="display:flex;gap:0.5rem;">
+                        <button class="btn btn-glass" style="padding:0.4rem 0.85rem;font-size:0.78rem;" onclick="resetDay()">Reset Day</button>
+                        <button class="btn btn-glass" style="padding:0.4rem 0.85rem;font-size:0.78rem;" onclick="clearAll()">Clear All</button>
+                    </div>
+                </div>
+
+                <div class="body-views">
+                    <!-- FRONT VIEW -->
+                    <div class="body-section">
+                        <h4>Front</h4>
+                        <svg class="body-svg" viewBox="0 0 200 420" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M100,20 L120,25 L135,60 L155,75 L165,120 L155,180 L135,192 L145,320 L130,410 L100,410 L70,410 L55,320 L65,192 L45,180 L35,120 L45,75 L65,60 L80,25 Z" fill="none" stroke="rgba(255,255,255,0.08)" stroke-width="1.5"/>
+                            <ellipse cx="100" cy="32" rx="18" ry="20" fill="rgba(255,255,255,0.04)" stroke="rgba(255,255,255,0.08)" stroke-width="1"/>
+                            <rect x="93" y="50" width="14" height="14" rx="3" fill="rgba(255,255,255,0.04)" stroke="rgba(255,255,255,0.06)" stroke-width="1"/>
+                            <path id="f-chest"      class="muscle" data-muscle="Chest"       d="M72,72 Q86,65 100,72 Q114,65 128,72 L133,100 Q100,112 67,100 Z"    fill="#1d1d33"/>
+                            <path id="f-delt-l"     class="muscle" data-muscle="Shoulders"   d="M56,68 Q44,82 57,108 L68,102 Q63,80 73,72 Z"                        fill="#1d1d33"/>
+                            <path id="f-delt-r"     class="muscle" data-muscle="Shoulders"   d="M144,68 Q156,82 143,108 L132,102 Q137,80 127,72 Z"                  fill="#1d1d33"/>
+                            <path id="f-bicep-l"    class="muscle" data-muscle="Biceps"      d="M48,112 Q41,132 51,160 L65,152 Q57,124 68,108 Z"                    fill="#1d1d33"/>
+                            <path id="f-bicep-r"    class="muscle" data-muscle="Biceps"      d="M152,112 Q159,132 149,160 L135,152 Q143,124 132,108 Z"              fill="#1d1d33"/>
+                            <path id="f-forearm-l"  class="muscle" data-muscle="Forearms"    d="M44,165 Q40,185 48,210 L60,205 Q54,182 58,165 Z"                    fill="#1d1d33"/>
+                            <path id="f-forearm-r"  class="muscle" data-muscle="Forearms"    d="M156,165 Q160,185 152,210 L140,205 Q146,182 142,165 Z"              fill="#1d1d33"/>
+                            <path id="f-abs"        class="muscle" data-muscle="Abs"         d="M85,110 Q100,104 115,110 L118,172 Q100,180 82,172 Z"                fill="#1d1d33"/>
+                            <path id="f-oblique-l"  class="muscle" data-muscle="Abs"         d="M68,103 Q75,138 82,172 L75,182 Q65,140 67,108 Z"                   fill="#1d1d33"/>
+                            <path id="f-oblique-r"  class="muscle" data-muscle="Abs"         d="M132,103 Q125,138 118,172 L125,182 Q135,140 133,108 Z"             fill="#1d1d33"/>
+                            <path id="f-hip-l"      class="muscle" data-muscle="Hip Flexors" d="M75,182 Q83,192 88,210 L100,210 Q96,192 85,182 Z"                  fill="#1d1d33"/>
+                            <path id="f-hip-r"      class="muscle" data-muscle="Hip Flexors" d="M125,182 Q117,192 112,210 L100,210 Q104,192 115,182 Z"             fill="#1d1d33"/>
+                            <path id="f-quad-l"     class="muscle" data-muscle="Quads"       d="M66,212 Q59,255 84,314 L100,314 Q94,254 96,212 Z"                  fill="#1d1d33"/>
+                            <path id="f-quad-r"     class="muscle" data-muscle="Quads"       d="M134,212 Q141,255 116,314 L100,314 Q106,254 104,212 Z"             fill="#1d1d33"/>
+                            <path id="f-shin-l"     class="muscle" data-muscle="Calves"      d="M80,338 Q74,368 80,408 L94,408 Q90,368 88,338 Z"                   fill="#1d1d33"/>
+                            <path id="f-shin-r"     class="muscle" data-muscle="Calves"      d="M120,338 Q126,368 120,408 L106,408 Q110,368 112,338 Z"             fill="#1d1d33"/>
+                        </svg>
+                    </div>
+
+                    <!-- BACK VIEW -->
+                    <div class="body-section">
+                        <h4>Back</h4>
+                        <svg class="body-svg" viewBox="0 0 200 420" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M100,20 L120,25 L135,60 L155,75 L165,120 L155,180 L135,192 L145,320 L130,410 L100,410 L70,410 L55,320 L65,192 L45,180 L35,120 L45,75 L65,60 L80,25 Z" fill="none" stroke="rgba(255,255,255,0.08)" stroke-width="1.5"/>
+                            <ellipse cx="100" cy="32" rx="18" ry="20" fill="rgba(255,255,255,0.04)" stroke="rgba(255,255,255,0.08)" stroke-width="1"/>
+                            <rect x="93" y="50" width="14" height="14" rx="3" fill="rgba(255,255,255,0.04)" stroke="rgba(255,255,255,0.06)" stroke-width="1"/>
+                            <path id="b-traps"      class="muscle" data-muscle="Traps"       d="M76,58 Q100,44 124,58 L138,90 Q100,76 62,90 Z"                     fill="#1d1d33"/>
+                            <path id="b-delt-l"     class="muscle" data-muscle="Shoulders"   d="M60,76 Q44,90 56,116 L66,110 Q60,90 70,96 Z"                       fill="#1d1d33"/>
+                            <path id="b-delt-r"     class="muscle" data-muscle="Shoulders"   d="M140,76 Q156,90 144,116 L134,110 Q140,90 130,96 Z"                 fill="#1d1d33"/>
+                            <path id="b-lats-l"     class="muscle" data-muscle="Back"        d="M76,96 Q64,132 80,170 L100,165 Q90,130 100,100 Z"                  fill="#1d1d33"/>
+                            <path id="b-lats-r"     class="muscle" data-muscle="Back"        d="M124,96 Q136,132 120,170 L100,165 Q110,130 100,100 Z"              fill="#1d1d33"/>
+                            <path id="b-rhomboid"   class="muscle" data-muscle="Back"        d="M80,96 Q100,88 120,96 L120,128 Q100,122 80,128 Z"                  fill="#1d1d33"/>
+                            <path id="b-lower-back" class="muscle" data-muscle="Back"        d="M86,132 Q100,126 114,132 L118,172 Q100,180 82,172 Z"               fill="#1d1d33"/>
+                            <path id="b-tricep-l"   class="muscle" data-muscle="Triceps"     d="M50,116 Q43,142 54,170 L68,162 Q62,136 72,122 Z"                   fill="#1d1d33"/>
+                            <path id="b-tricep-r"   class="muscle" data-muscle="Triceps"     d="M150,116 Q157,142 146,170 L132,162 Q138,136 128,122 Z"             fill="#1d1d33"/>
+                            <path id="b-forearm-bl" class="muscle" data-muscle="Forearms"    d="M46,174 Q42,194 50,215 L62,210 Q56,190 60,174 Z"                   fill="#1d1d33"/>
+                            <path id="b-forearm-br" class="muscle" data-muscle="Forearms"    d="M154,174 Q158,194 150,215 L138,210 Q144,190 140,174 Z"             fill="#1d1d33"/>
+                            <path id="b-glutes"     class="muscle" data-muscle="Glutes"      d="M66,182 Q100,170 134,182 L140,228 Q100,242 60,228 Z"               fill="#1d1d33"/>
+                            <path id="b-hams-l"     class="muscle" data-muscle="Hamstrings"  d="M65,232 Q60,268 82,316 L98,316 Q92,268 96,232 Z"                   fill="#1d1d33"/>
+                            <path id="b-hams-r"     class="muscle" data-muscle="Hamstrings"  d="M135,232 Q140,268 118,316 L102,316 Q108,268 104,232 Z"             fill="#1d1d33"/>
+                            <path id="b-calves-l"   class="muscle" data-muscle="Calves"      d="M78,328 Q70,358 82,408 L96,408 Q90,360 90,328 Z"                   fill="#1d1d33"/>
+                            <path id="b-calves-r"   class="muscle" data-muscle="Calves"      d="M122,328 Q130,358 118,408 L104,408 Q110,360 110,328 Z"             fill="#1d1d33"/>
+                        </svg>
+                    </div>
+                </div>
+
+                <!-- Quick Log -->
+                <div style="border-top:1px solid var(--border-glass);padding-top:1.25rem;margin-top:0.5rem;">
+                    <div class="log-row">
+                        <div class="log-field">
+                            <label>Muscle Group</label>
+                            <select id="logMuscle" class="form-control" style="max-width:175px;padding:0.6rem 0.8rem;">
+                                <option>Chest</option><option>Back</option><option>Shoulders</option>
+                                <option>Biceps</option><option>Triceps</option><option>Abs</option>
+                                <option>Quads</option><option>Hamstrings</option><option>Glutes</option>
+                                <option>Calves</option><option>Traps</option><option>Forearms</option>
+                                <option>Hip Flexors</option>
+                            </select>
+                        </div>
+                        <div class="log-field">
+                            <label>Sets</label>
+                            <input type="number" id="logSets" class="form-control" style="max-width:80px;padding:0.6rem 0.8rem;" value="4" min="1" max="20">
+                        </div>
+                        <div class="log-field">
+                            <label>RPE (1-10)</label>
+                            <input type="number" id="logRPE" class="form-control" style="max-width:80px;padding:0.6rem 0.8rem;" value="7" min="1" max="10" step="0.5">
+                        </div>
+                        <div class="log-field" style="justify-content:flex-end;">
+                            <label>&nbsp;</label>
+                            <button class="btn btn-accent" onclick="logVolume()">Log Sets</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- RIGHT: Info Panel -->
+            <div class="glass-card animate-up delay-1">
+                <div class="tab-bar">
+                    <button class="tab-btn active" onclick="switchTab('detail')">Selected</button>
+                    <button class="tab-btn" onclick="switchTab('overview')">Overview</button>
+                    <button class="tab-btn" onclick="switchTab('recovery')">Recovery</button>
+                    <button class="tab-btn" onclick="switchTab('planner')">Planner</button>
+                </div>
+
+                <!-- TAB: Selected Muscle Detail -->
+                <div id="tab-detail" class="tab-pane active">
+                    <div class="muscle-detail" id="muscleDetail">
+                        <p style="color:var(--text-secondary);font-size:0.88rem;">Click any muscle on the body map to see detailed training data, weekly history, and exercise suggestions.</p>
+                    </div>
+                    <div id="weeklySection" style="display:none;margin-top:1.25rem;">
+                        <p class="section-label">7-Day Training History</p>
+                        <div class="week-grid" id="weekGrid"></div>
+                        <div style="display:flex;justify-content:space-between;margin-top:4px;">
+                            <span id="weekStart" style="font-size:0.6rem;color:var(--text-secondary);"></span>
+                            <span style="font-size:0.6rem;color:var(--text-secondary);">Today</span>
+                        </div>
+                    </div>
+                    <div id="exerciseSuggestions" style="display:none;margin-top:1.25rem;">
+                        <p class="section-label">Suggested Exercises</p>
+                        <div class="suggestion-list" id="sugList"></div>
+                    </div>
+                </div>
+
+                <!-- TAB: All Muscles Overview -->
+                <div id="tab-overview" class="tab-pane">
+                    <p class="section-label">All Muscle Groups — Weekly Volume</p>
+                    <div class="muscle-overview-grid" id="overviewGrid"></div>
+                </div>
+
+                <!-- TAB: Recovery -->
+                <div id="tab-recovery" class="tab-pane">
+                    <div class="recovery-wrap">
+                        <svg class="ring-svg" viewBox="0 0 80 80">
+                            <circle class="ring-track" cx="40" cy="40" r="34"/>
+                            <circle class="ring-fill" id="ringFill" cx="40" cy="40" r="34" stroke="#00ff80" stroke-dasharray="213.6" stroke-dashoffset="213.6"/>
+                        </svg>
+                        <div class="recovery-text">
+                            <h4>Overall Recovery</h4>
+                            <div class="recovery-score" id="recScore" style="color:#00ff80;">—</div>
+                            <div class="recovery-status" id="recStatus">Calculating…</div>
+                        </div>
+                    </div>
+                    <p class="section-label">Muscle Readiness</p>
+                    <div id="compareRows"></div>
+                    <div style="margin-top:1.25rem;">
+                        <p class="section-label">Today's Training Suggestions</p>
+                        <div class="suggestion-list" id="daySuggestions"></div>
+                    </div>
+                </div>
+
+                <!-- TAB: Planner -->
+                <div id="tab-planner" class="tab-pane">
+                    <p class="section-label">Recommended Training Split</p>
+                    <div class="split-cards" id="splitCards"></div>
+                    <div style="margin-top:1.5rem;">
+                        <p class="section-label">Volume Targets vs Actual (sets/week)</p>
+                        <div id="volumeTargetRows"></div>
+                    </div>
+                    <div style="margin-top:1.5rem;">
+                        <p class="section-label">Antagonist Pair Imbalance Detector</p>
+                        <div class="suggestion-list" id="imbalanceRows"></div>
+                    </div>
+                </div>
+            </div>
+        </div><!-- end .heatmap-grid -->
+
+        <!-- HUD -->
+        <div class="hud" id="hud">
+            <div class="hud-top" id="hudMuscle">Muscle Group</div>
+            <div class="hud-val"><span id="hudSets">0</span> <span style="font-size:0.65rem;color:rgba(255,255,255,0.4);font-weight:400;">sets</span></div>
+            <div class="hud-status" id="hudStatus">Ready</div>
+        </div>
+    </main>
+
+    <script src="../js/fitnessEngine.js"></script>
+    <script>
+    function initHeatmap() {
+        if (window.initializeSidebar) window.initializeSidebar('muscle-heatmap.html');
+
+        /* ═══ DATA ═══ */
+        const MUSCLE_INFO = {
+            Chest:       { desc:'Pectoralis major & minor — primary horizontal push muscle.',          optimal:'10–20', exercises:['Barbell Bench Press','Incline DB Press','Cable Flyes','Dips'],             pair:'Back' },
+            Back:        { desc:'Lats, rhomboids, erector spinae — pulling power & posture control.',  optimal:'10–20', exercises:['Deadlifts','Weighted Pull-ups','Barbell Rows','Lat Pulldown'],            pair:'Chest' },
+            Shoulders:   { desc:'Anterior, lateral & posterior deltoids — overhead stability & width.',optimal:'8–16',  exercises:['Overhead Press','Lateral Raises','Face Pulls','Arnold Press'],            pair:null },
+            Biceps:      { desc:'Biceps brachii — elbow flexion and supination strength.',             optimal:'6–14',  exercises:['Barbell Curls','Hammer Curls','Incline DB Curls','Cable Curls'],          pair:'Triceps' },
+            Triceps:     { desc:'Three-headed elbow extensor — makes up 2/3 of arm size.',             optimal:'6–14',  exercises:['Skull Crushers','Rope Pushdowns','Dips','Close-Grip Bench Press'],        pair:'Biceps' },
+            Abs:         { desc:'Rectus abdominis, transverse abdominis & obliques — core stability.', optimal:'6–16',  exercises:['Cable Crunches','Hanging Leg Raises','Ab Wheel','Planks'],                pair:null },
+            Quads:       { desc:'Quadriceps femoris — four-headed primary knee extensor.',             optimal:'8–16',  exercises:['Back Squat','Leg Press','Bulgarian Split Squat','Hack Squat'],            pair:'Hamstrings' },
+            Hamstrings:  { desc:'Biceps femoris, semimembranosus & semitendinosus — hip hinge power.',optimal:'6–12',  exercises:['Romanian Deadlift','Leg Curls','Good Mornings','Nordic Curls'],           pair:'Quads' },
+            Glutes:      { desc:'Gluteus maximus, medius & minimus — hip extension & lateral stability.',optimal:'6–16',exercises:['Hip Thrusts','Cable Kickbacks','Sumo Deadlift','Step-ups'],               pair:null },
+            Calves:      { desc:'Gastrocnemius & soleus — plantarflexion power and ankle stability.',  optimal:'8–16',  exercises:['Standing Calf Raises','Seated Calf Raises','Jump Rope','Donkey Raises'],  pair:null },
+            Traps:       { desc:'Trapezius upper/mid/lower — scapular elevation and retraction.',      optimal:'4–10',  exercises:['Barbell Shrugs','Face Pulls','Cable Upright Rows','Rack Pulls'],          pair:null },
+            Forearms:    { desc:'Flexor & extensor groups — grip, wrist stability and carry strength.',optimal:'4–10',  exercises:['Wrist Curls','Farmer Carries','Reverse Curls','Dead Hangs'],              pair:null },
+            'Hip Flexors':{ desc:'Iliopsoas & TFL — hip mobility and anterior chain activation.',      optimal:'3–8',   exercises:['Hanging Knee Raises','Cable Hip Flexion','Walking Lunges','Step-ups'],   pair:'Glutes' }
+        };
+
+        const HEAT_COLORS = ['#1d1d33','#22c55e','#84cc16','#a3e635','#eab308','#f59e0b','#f97316','#ef4444','#dc2626','#991b1b'];
+        const SYNERGISTS = {
+            Chest:     { Triceps:0.4, Shoulders:0.3 },
+            Back:      { Biceps:0.4, Traps:0.2 },
+            Shoulders: { Triceps:0.3 },
+            Quads:     { Glutes:0.4, Hamstrings:0.2 },
+            Hamstrings:{ Glutes:0.5, Back:0.15 },
+            Glutes:    { Hamstrings:0.2, Back:0.1 }
+        };
+        const VOL_TARGETS = { Chest:15, Back:18, Shoulders:12, Quads:14, Hamstrings:10, Glutes:12, Biceps:10, Triceps:10, Abs:10, Calves:12 };
+
+        /* ═══ STATE ═══ */
+        let volumeLog = JSON.parse(localStorage.getItem('fitaura_volume_log')  || '{}');
+        let weeklyLog = JSON.parse(localStorage.getItem('fitaura_weekly_log')  || '{}');
+        let rpeLog    = JSON.parse(localStorage.getItem('fitaura_rpe_log')     || '{}');
+        let selectedMuscle = null;
+        const today = new Date().toDateString();
+
+        /* ═══ HEAT COLOR ═══ */
+        function heatColor(sets) {
+            if (!sets || sets <= 0) return HEAT_COLORS[0];
+            return HEAT_COLORS[Math.min(Math.floor((sets / 20) * 9) + 1, 9)];
+        }
+
+        /* ═══ DECAY ENGINE ═══ */
+        (function() {
+            const last = localStorage.getItem('fitaura_volume_last_sync');
+            if (last) {
+                const hrs = (Date.now() - parseInt(last)) / 3600000;
+                if (hrs >= 1) {
+                    for (let m in volumeLog) volumeLog[m] = Math.max(0, volumeLog[m] * Math.pow(0.985, hrs));
+                    localStorage.setItem('fitaura_volume_log', JSON.stringify(volumeLog));
+                }
+            }
+            localStorage.setItem('fitaura_volume_last_sync', Date.now().toString());
+        })();
+
+        /* ═══ PAINT ALL ═══ */
+        function paintAll() {
+            document.querySelectorAll('.muscle').forEach(el => {
+                const col = heatColor(volumeLog[el.dataset.muscle] || 0);
+                el.setAttribute('fill', col);
+                el.style.setProperty('--muscle-color', col);
+            });
+            updateOverviewGrid();
+            updateRecoveryTab();
+            updatePlannerTab();
+            updateFatigueAlert();
+        }
+
+        /* ═══ LOG VOLUME ═══ */
+        window.logVolume = function() {
+            const muscle = document.getElementById('logMuscle').value;
+            const sets   = parseFloat(document.getElementById('logSets').value) || 0;
+            const rpe    = parseFloat(document.getElementById('logRPE').value)  || 7;
+            if (sets <= 0) return;
+            volumeLog[muscle] = (volumeLog[muscle] || 0) + sets;
+            rpeLog[muscle]    = rpe;
+            if (!weeklyLog[muscle]) weeklyLog[muscle] = {};
+            weeklyLog[muscle][today] = (weeklyLog[muscle][today] || 0) + sets;
+            const syn = SYNERGISTS[muscle] || {};
+            for (let m in syn) {
+                const share = sets * syn[m];
+                volumeLog[m] = (volumeLog[m] || 0) + share;
+                if (!weeklyLog[m]) weeklyLog[m] = {};
+                weeklyLog[m][today] = (weeklyLog[m][today] || 0) + share;
+            }
+            localStorage.setItem('fitaura_volume_log',  JSON.stringify(volumeLog));
+            localStorage.setItem('fitaura_weekly_log',  JSON.stringify(weeklyLog));
+            localStorage.setItem('fitaura_rpe_log',     JSON.stringify(rpeLog));
+            localStorage.setItem('fitaura_volume_last_sync', Date.now().toString());
+            paintAll();
+            if (selectedMuscle === muscle) { showMuscleDetail(muscle); showWeeklyGrid(muscle); }
+            showToast('Logged ' + sets + ' sets · ' + muscle + ' + synergists');
+        };
+
+        window.resetDay = function() {
+            for (let m in weeklyLog) {
+                const todayVol = weeklyLog[m][today] || 0;
+                if (todayVol > 0) { volumeLog[m] = Math.max(0, (volumeLog[m] || 0) - todayVol); delete weeklyLog[m][today]; }
+            }
+            localStorage.setItem('fitaura_volume_log', JSON.stringify(volumeLog));
+            localStorage.setItem('fitaura_weekly_log', JSON.stringify(weeklyLog));
+            paintAll();
+            showToast("Today's volume reset", 'var(--accent-blue)');
+        };
+
+        window.clearAll = function() {
+            volumeLog = {}; weeklyLog = {}; rpeLog = {};
+            ['fitaura_volume_log','fitaura_weekly_log','fitaura_rpe_log'].forEach(k => localStorage.removeItem(k));
+            paintAll();
+            selectedMuscle = null;
+            document.getElementById('muscleDetail').innerHTML = '<p style="color:var(--text-secondary);font-size:0.88rem;">Click any muscle on the body map.</p>';
+            document.getElementById('weeklySection').style.display = 'none';
+            document.getElementById('exerciseSuggestions').style.display = 'none';
+            showToast('All data cleared', 'var(--accent-blue)');
+        };
+
+        /* ═══ MUSCLE CLICK DETAIL ═══ */
+        function showMuscleDetail(m) {
+            const info   = MUSCLE_INFO[m] || { desc: m, optimal:'8–16', exercises:[], pair:null };
+            const sets   = volumeLog[m] || 0;
+            const rpe    = rpeLog[m] || 0;
+            const col    = heatColor(sets);
+            const optMax = parseInt(info.optimal.split('–')[1]) || 16;
+            const pct    = Math.min(100, (sets / optMax) * 100);
+            let statusLabel = 'Undertrained', statusCol = 'var(--text-secondary)';
+            if (sets > 0 && sets < optMax * 0.4)           { statusLabel = 'Light Load';  statusCol = '#22c55e'; }
+            if (sets >= optMax * 0.4 && sets < optMax * 0.75) { statusLabel = 'Moderate';   statusCol = '#eab308'; }
+            if (sets >= optMax * 0.75 && sets < optMax)    { statusLabel = 'High Load';   statusCol = '#f97316'; }
+            if (sets >= optMax)                             { statusLabel = 'Max Volume';  statusCol = '#ef4444'; }
+            document.getElementById('muscleDetail').style.setProperty('--detail-accent', col);
+            document.getElementById('muscleDetail').innerHTML = `
+                <div class="muscle-name-badge">
+                    <div class="muscle-dot" style="background:${col};box-shadow:0 0 8px ${col};"></div>
+                    <strong style="color:${col};font-size:1.1rem;">${m}</strong>
+                    <span style="font-size:0.68rem;background:rgba(255,255,255,0.06);color:var(--text-secondary);padding:2px 8px;border-radius:20px;">Optimal: ${info.optimal} sets/wk</span>
+                </div>
+                <p style="color:var(--text-secondary);font-size:0.84rem;margin-bottom:0.75rem;">${info.desc}</p>
+                <div class="stat-row">
+                    <div class="stat-chip">
+                        <div class="stat-chip-label">Volume</div>
+                        <div class="stat-chip-val" style="color:${col};">${sets.toFixed(1)}</div>
+                        <div style="font-size:0.6rem;color:var(--text-secondary);">sets this week</div>
+                    </div>
+                    <div class="stat-chip">
+                        <div class="stat-chip-label">Last RPE</div>
+                        <div class="stat-chip-val" style="color:${rpe>=9?'#ef4444':rpe>=7?'#eab308':'#22c55e'};">${rpe > 0 ? rpe.toFixed(1) : '—'}</div>
+                        <div style="font-size:0.6rem;color:var(--text-secondary);">session intensity</div>
+                    </div>
+                    <div class="stat-chip">
+                        <div class="stat-chip-label">Status</div>
+                        <div class="stat-chip-val" style="font-size:0.78rem;color:${statusCol};">${statusLabel}</div>
+                    </div>
+                </div>
+                <div class="volume-bar-wrap">
+                    <div style="display:flex;justify-content:space-between;font-size:0.65rem;color:var(--text-secondary);margin-bottom:4px;">
+                        <span>Weekly Progress to Target</span><span>${sets.toFixed(1)} / ${optMax} sets</span>
+                    </div>
+                    <div class="volume-bar-track"><div class="volume-bar-fill" style="width:${pct}%;background:${col};"></div></div>
+                    <div class="vol-labels"><span>0</span><span>${Math.round(optMax*0.5)}</span><span>${optMax}</span></div>
+                </div>
+                ${info.pair ? `<p style="font-size:0.72rem;color:var(--text-secondary);margin-top:0.75rem;">⚖️ Antagonist: <strong style="color:var(--text-primary);">${info.pair}</strong> — keep balanced to prevent injury.</p>` : ''}
+            `;
+            document.getElementById('exerciseSuggestions').style.display = 'block';
+            document.getElementById('sugList').innerHTML = info.exercises.map(ex =>
+                `<div class="suggestion-item"><span>${ex}</span><span class="sug-badge sug-train">Log →</span></div>`
+            ).join('');
+            const sel = document.getElementById('logMuscle');
+            const opt = Array.from(sel.options).find(o => o.value === m);
+            if (opt) sel.value = m;
+        }
+
+        function showWeeklyGrid(muscle) {
+            document.getElementById('weeklySection').style.display = 'block';
+            const dayLabels = ['Su','Mo','Tu','We','Th','Fr','Sa'];
+            const days = [];
+            for (let i = 6; i >= 0; i--) { const d = new Date(); d.setDate(d.getDate()-i); days.push(d); }
+            const mWeek = weeklyLog[muscle] || {};
+            document.getElementById('weekGrid').innerHTML = days.map((d, idx) => {
+                const vol = mWeek[d.toDateString()] || 0;
+                const col = heatColor(vol);
+                const isToday = idx === 6;
+                return `<div>
+                    <div class="week-cell" style="background:${col};${isToday?'box-shadow:0 0 0 2px rgba(255,255,255,0.4);':''}" title="${dayLabels[d.getDay()]} ${d.toLocaleDateString('en',{month:'short',day:'numeric'})} — ${vol.toFixed(1)} sets"></div>
+                    <div class="week-cell-label">${dayLabels[d.getDay()]}</div>
+                </div>`;
+            }).join('');
+            const start = days[0];
+            document.getElementById('weekStart').textContent = start.toLocaleDateString('en',{month:'short',day:'numeric'});
+        }
+
+        /* ═══ HUD TOOLTIP ═══ */
+        const hud = document.getElementById('hud');
+        document.querySelectorAll('.muscle').forEach(el => {
+            el.addEventListener('mouseenter', () => hud.classList.add('show'));
+            el.addEventListener('mouseleave', () => hud.classList.remove('show'));
+            el.addEventListener('mousemove', e => {
+                const m = el.dataset.muscle;
+                const sets = (volumeLog[m] || 0).toFixed(1);
+                document.getElementById('hudMuscle').textContent = m;
+                document.getElementById('hudSets').textContent   = sets;
+                let st = '● Ready', sc = '#22c55e';
+                if (parseFloat(sets) > 8)  { st = '● Moderate Load'; sc = '#eab308'; }
+                if (parseFloat(sets) > 14) { st = '● High Fatigue';  sc = '#f97316'; }
+                if (parseFloat(sets) > 18) { st = '● Max Volume';    sc = '#ef4444'; }
+                const hudSt = document.getElementById('hudStatus');
+                hudSt.textContent = st; hudSt.style.color = sc;
+                hud.style.left = (e.clientX + 16) + 'px';
+                hud.style.top  = (e.clientY + 16) + 'px';
+            });
+            el.addEventListener('click', () => {
+                const m = el.dataset.muscle;
+                document.querySelectorAll('.muscle').forEach(x => x.classList.remove('selected'));
+                document.querySelectorAll(`.muscle[data-muscle="${m}"]`).forEach(x => x.classList.add('selected'));
+                selectedMuscle = m;
+                showMuscleDetail(m);
+                showWeeklyGrid(m);
+                switchTab('detail');
+            });
+        });
+
+        /* ═══ TAB SWITCHER ═══ */
+        window.switchTab = function(id) {
+            const ids = ['detail','overview','recovery','planner'];
+            document.querySelectorAll('.tab-btn').forEach((b, i) => b.classList.toggle('active', ids[i] === id));
+            document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
+            document.getElementById('tab-' + id).classList.add('active');
+        };
+
+        /* ═══ OVERVIEW GRID ═══ */
+        function updateOverviewGrid() {
+            const muscles = Object.keys(MUSCLE_INFO);
+            document.getElementById('overviewGrid').innerHTML = muscles.map(m => {
+                const sets = volumeLog[m] || 0;
+                const col  = heatColor(sets);
+                const optMax = parseInt((MUSCLE_INFO[m].optimal||'16').split('–')[1]) || 16;
+                return `<div class="mg-card" style="--mg-color:${col};" onclick="clickOverviewCard('${m}')">
+                    <div class="mg-card-name">${m}</div>
+                    <div class="mg-card-sets" style="color:${col};">${sets.toFixed(1)}</div>
+                    <div class="mg-card-sub">${Math.min(100,(sets/optMax*100)).toFixed(0)}% of target</div>
+                </div>`;
+            }).join('');
+        }
+        window.clickOverviewCard = function(m) {
+            selectedMuscle = m;
+            document.querySelectorAll('.muscle').forEach(x => x.classList.remove('selected'));
+            document.querySelectorAll(`.muscle[data-muscle="${m}"]`).forEach(x => x.classList.add('selected'));
+            showMuscleDetail(m); showWeeklyGrid(m); switchTab('detail');
+        };
+
+        /* ═══ RECOVERY TAB ═══ */
+        function recoveryScore(m) {
+            const sets   = volumeLog[m] || 0;
+            const rpe    = rpeLog[m]    || 5;
+            const optMax = parseInt((MUSCLE_INFO[m]||{optimal:'16'}).optimal.split('–')[1]) || 16;
+            const fatigue = Math.min(100, (sets / optMax) * 80 + (rpe >= 9 ? 30 : rpe >= 8 ? 15 : 0));
+            return Math.max(0, Math.round(100 - fatigue));
+        }
+
+        function updateRecoveryTab() {
+            const muscles = ['Chest','Back','Shoulders','Quads','Hamstrings','Glutes','Biceps','Triceps','Calves','Traps'];
+            const avg = Math.round(muscles.reduce((a, m) => a + recoveryScore(m), 0) / muscles.length);
+            const circumference = 213.6;
+            const rCol = avg > 70 ? '#00ff80' : avg > 45 ? '#ffd700' : '#ff3366';
+            const ring = document.getElementById('ringFill');
+            ring.style.strokeDashoffset = circumference - (circumference * avg / 100);
+            ring.setAttribute('stroke', rCol);
+            document.getElementById('recScore').textContent = avg + '%';
+            document.getElementById('recScore').style.color = rCol;
+            document.getElementById('recStatus').textContent = avg > 70 ? 'Optimal — ready to train hard' : avg > 45 ? 'Moderate fatigue — train smart' : 'High fatigue — consider a deload';
+
+            document.getElementById('compareRows').innerHTML = muscles.map(m => {
+                const sc = recoveryScore(m);
+                const col = sc > 70 ? '#22c55e' : sc > 45 ? '#eab308' : '#ef4444';
+                return `<div class="compare-row">
+                    <span class="compare-label">${m}</span>
+                    <div class="compare-bar-track"><div class="compare-bar" style="width:${sc}%;background:${col};"></div></div>
+                    <span class="compare-val" style="color:${col};">${sc}%</span>
+                </div>`;
+            }).join('');
+
+            const sorted = muscles.map(m => ({ m, sc: recoveryScore(m) })).sort((a,b) => b.sc - a.sc);
+            const train  = sorted.filter(x => x.sc >= 70).slice(0,3).map(x => x.m);
+            const rest   = sorted.filter(x => x.sc < 45).slice(0,3).map(x => x.m);
+            let html = '';
+            train.forEach(m => html += `<div class="suggestion-item"><span>${m}</span><span class="sug-badge sug-train">Train Today</span></div>`);
+            rest.forEach(m  => html += `<div class="suggestion-item"><span>${m}</span><span class="sug-badge sug-warn">Rest / Deload</span></div>`);
+            if (!html) html = '<div class="suggestion-item"><span class="sug-label">All groups at baseline — great time for a full-body session.</span></div>';
+            document.getElementById('daySuggestions').innerHTML = html;
+        }
+
+        /* ═══ FATIGUE ALERT BANNER ═══ */
+        function updateFatigueAlert() {
+            const muscles  = Object.keys(MUSCLE_INFO);
+            const overload = muscles.filter(m => (volumeLog[m] || 0) > 20);
+            const total    = muscles.reduce((a, m) => a + (volumeLog[m] || 0), 0);
+            const el = document.getElementById('fatigueAlert');
+            const ic = document.getElementById('alertIcon');
+            const tx = document.getElementById('alertText');
+            if (overload.length > 0) {
+                el.className = 'fatigue-alert red'; ic.textContent = '!';
+                tx.textContent = 'Overreach risk: ' + overload.join(', ') + ' exceeds max weekly volume. Consider deloading.';
+                el.style.display = 'flex';
+            } else if (total > 80) {
+                el.className = 'fatigue-alert yellow'; ic.textContent = '~';
+                tx.textContent = 'High total volume (' + total.toFixed(0) + ' sets). Monitor recovery closely.';
+                el.style.display = 'flex';
+            } else if (total > 10) {
+                el.className = 'fatigue-alert green'; ic.textContent = '✓';
+                tx.textContent = 'Volume distribution looks healthy. Keep training smart.';
+                el.style.display = 'flex';
+            } else {
+                el.style.display = 'none';
+            }
+        }
+
+        /* ═══ PLANNER TAB ═══ */
+        function updatePlannerTab() {
+            const splits = [
+                { name:'Full Body',          days:'3× / week',   rec: false },
+                { name:'Upper / Lower',      days:'4× / week',   rec: true,  reason:'Ideal volume balance for your current load' },
+                { name:'Push / Pull / Legs', days:'5–6× / week', rec: false },
+                { name:'Bro Split',          days:'5× / week',   rec: false }
+            ];
+            document.getElementById('splitCards').innerHTML = splits.map(s => `
+                <div class="split-card ${s.rec ? 'recommended' : ''}">
+                    <div class="split-card-name">${s.name}</div>
+                    <div class="split-card-days">${s.days}</div>
+                    ${s.rec ? `<div class="split-card-reason">${s.reason}</div>` : ''}
+                </div>
+            `).join('');
+
+            document.getElementById('volumeTargetRows').innerHTML = Object.entries(VOL_TARGETS).map(([m, target]) => {
+                const actual = volumeLog[m] || 0;
+                const pct    = Math.min(100, (actual / target) * 100);
+                const col    = pct >= 90 ? '#22c55e' : pct >= 60 ? '#eab308' : pct >= 30 ? '#f97316' : 'rgba(255,255,255,0.2)';
+                return `<div class="compare-row">
+                    <span class="compare-label">${m}</span>
+                    <div class="compare-bar-track"><div class="compare-bar" style="width:${pct}%;background:${col};"></div></div>
+                    <span class="compare-val" style="color:${col};font-size:0.7rem;">${actual.toFixed(0)}/${target}</span>
+                </div>`;
+            }).join('');
+
+            const pairs = [['Chest','Back'],['Biceps','Triceps'],['Quads','Hamstrings'],['Glutes','Hip Flexors']];
+            document.getElementById('imbalanceRows').innerHTML = pairs.map(([a, b]) => {
+                const va = volumeLog[a] || 0, vb = volumeLog[b] || 0;
+                const ratio = (va > 0 && vb > 0) ? (va / vb).toFixed(2) : '—';
+                const balanced = ratio === '—' || (parseFloat(ratio) >= 0.75 && parseFloat(ratio) <= 1.33);
+                return `<div class="suggestion-item">
+                    <span>${a} / ${b}</span>
+                    <span style="font-size:0.75rem;color:var(--text-secondary);">${ratio}</span>
+                    <span class="sug-badge ${balanced ? 'sug-rest' : 'sug-warn'}">${balanced ? 'Balanced' : 'Fix imbalance'}</span>
+                </div>`;
+            }).join('');
+        }
+
+        /* ═══ TOAST ═══ */
+        window.showToast = function(msg, col) {
+            if (!window._tc) {
+                window._tc = document.createElement('div');
+                window._tc.className = 'toast-container';
+                document.body.appendChild(window._tc);
+            }
+            const t = document.createElement('div');
+            t.className = 'toast';
+            t.textContent = msg;
+            if (col) t.style.borderColor = col;
+            window._tc.appendChild(t);
+            setTimeout(() => t.remove(), 3500);
+        };
+
+        /* ═══ BOOT ═══ */
+        paintAll();
+    }
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initHeatmap);
+    } else {
+        initHeatmap();
+    }
+    </script>
+</body>
+</html>

@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fitaura | Create Your Profile</title>
+    <meta name="description" content="Join Fitaura Elite — set up your athlete profile and start your AI-powered transformation.">
+    <link rel="stylesheet" href="css/premium.css">
+    <link rel="manifest" href="../manifest.json">
+    <meta name="theme-color" content="#7000ff">
+    <script src="../js/fitaura-global.js" defer></script>
+
+    <!-- Firebase SDK -->
+    <script type="module">
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
+        import { getAuth, createUserWithEmailAndPassword, updateProfile, signInWithPopup, GoogleAuthProvider, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
+
+        // ── FIREBASE CONFIG ──
+        const firebaseConfig = {
+            apiKey: "YOUR_API_KEY",
+            authDomain: "YOUR_PROJECT.firebaseapp.com",
+            projectId: "YOUR_PROJECT_ID",
+            storageBucket: "YOUR_PROJECT.appspot.com",
+            messagingSenderId: "YOUR_SENDER_ID",
+            appId: "YOUR_APP_ID"
+        };
+
+        const isConfigured = firebaseConfig.apiKey !== "YOUR_API_KEY";
+        let auth;
+        if (isConfigured) {
+            const app = initializeApp(firebaseConfig);
+            auth = getAuth(app);
+            onAuthStateChanged(auth, (user) => {
+                if (user) {
+                    storeUserLocally(user.displayName || user.email, user.uid, user.photoURL);
+                    window.location.href = 'dashboard.html';
+                }
+            });
+        }
+
+        function storeUserLocally(name, uid, photo) {
+            localStorage.setItem('fitaura_auth_token', uid);
+            localStorage.setItem('fitaura_auth_name', name);
+            if (photo) localStorage.setItem('fitaura_auth_photo', photo);
+            if (!localStorage.getItem('fitaura_join_date')) {
+                localStorage.setItem('fitaura_join_date', new Date().toISOString());
+            }
+        }
+
+        // Email/Password Signup
+        window.handleEmailSignup = async function(e) {
+            e.preventDefault();
+            const name = document.getElementById('sName').value.trim();
+            const email = document.getElementById('sEmail').value.trim();
+            const pass = document.getElementById('sPass').value;
+            const confirm = document.getElementById('sConfirm').value;
+            const btn = document.getElementById('signupBtn');
+
+            hideError();
+            if (pass !== confirm) { showError('Passwords do not match.'); return; }
+            if (pass.length < 8) { showError('Password must be at least 8 characters.'); return; }
+            if (!name) { showError('Please enter your name.'); return; }
+
+            setLoading(btn, true);
+
+            if (!isConfigured) {
+                await new Promise(r => setTimeout(r, 700));
+                localStorage.setItem('fitaura_weight', document.getElementById('sWeight').value || '75');
+                localStorage.setItem('fitaura_height', document.getElementById('sHeight').value || '175');
+                localStorage.setItem('fitaura_goal', document.getElementById('sGoal').value);
+                storeUserLocally(name, btoa(email + Date.now()), null);
+                window.location.href = 'dashboard.html';
+                return;
+            }
+
+            try {
+                const cred = await createUserWithEmailAndPassword(auth, email, pass);
+                await updateProfile(cred.user, { displayName: name });
+                localStorage.setItem('fitaura_weight', document.getElementById('sWeight').value || '75');
+                localStorage.setItem('fitaura_height', document.getElementById('sHeight').value || '175');
+                localStorage.setItem('fitaura_goal', document.getElementById('sGoal').value);
+            } catch(err) {
+                showError(friendlyError(err.code));
+                setLoading(btn, false);
+            }
+        };
+
+        // Google Sign Up
+        window.handleGoogleSignup = async function() {
+            const btn = document.getElementById('googleBtn');
+            setLoading(btn, true);
+            hideError();
+
+            if (!isConfigured) {
+                await new Promise(r => setTimeout(r, 800));
+                storeUserLocally('Google Athlete', 'google-' + Date.now(), null);
+                window.location.href = 'dashboard.html';
+                return;
+            }
+
+            try {
+                const provider = new GoogleAuthProvider();
+                await signInWithPopup(auth, provider);
+            } catch(err) {
+                if (err.code !== 'auth/popup-closed-by-user') showError(friendlyError(err.code));
+                setLoading(btn, false);
+            }
+        };
+
+        function friendlyError(code) {
+            const map = {
+                'auth/email-already-in-use': 'An account with this email already exists.',
+                'auth/invalid-email': 'Invalid email format.',
+                'auth/weak-password': 'Password is too weak. Use 8+ characters.',
+                'auth/network-request-failed': 'Network error. Check your connection.',
+            };
+            return map[code] || 'Sign up failed. Please try again.';
+        }
+    </script>
+
+    <style>
+        body { display: flex; align-items: center; justify-content: center; min-height: 100vh; padding: 2rem 1rem; }
+
+        .auth-card {
+            max-width: 520px; width: 100%; padding: 3rem;
+            background: rgba(255,255,255,0.03); border: 1px solid var(--border-glass);
+            border-radius: var(--radius-lg); backdrop-filter: blur(24px);
+            box-shadow: var(--shadow-glass); animation: fadeUp 0.6s ease forwards;
+        }
+
+        .auth-brand { display: flex; align-items: center; gap: 0.6rem; margin-bottom: 2rem; justify-content: center; text-decoration: none; }
+        .auth-brand-text { font-family: var(--font-heading); font-size: 1.6rem; font-weight: 800; color: var(--text-primary); }
+
+        .auth-title { font-family: var(--font-heading); font-size: 1.8rem; font-weight: 700; text-align: center; margin-bottom: 0.4rem; }
+        .auth-sub { color: var(--text-secondary); text-align: center; font-size: 0.9rem; margin-bottom: 2rem; }
+
+        .google-btn {
+            width: 100%; display: flex; align-items: center; justify-content: center; gap: 0.75rem;
+            padding: 0.9rem 1.5rem; border-radius: var(--radius-sm);
+            background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.12);
+            color: var(--text-primary); font-family: var(--font-body); font-size: 0.95rem; font-weight: 600;
+            cursor: pointer; transition: var(--transition-smooth); margin-bottom: 1.5rem;
+        }
+        .google-btn:hover { background: rgba(255,255,255,0.1); border-color: rgba(255,255,255,0.25); transform: translateY(-1px); }
+        .google-icon { width: 20px; height: 20px; }
+
+        .divider {
+            display: flex; align-items: center; gap: 1rem; margin-bottom: 1.5rem;
+            color: var(--text-muted); font-size: 0.8rem;
+        }
+        .divider::before, .divider::after { content: ''; flex: 1; height: 1px; background: var(--border-glass); }
+
+        .input-group { position: relative; }
+        .input-icon { position: absolute; left: 1rem; top: 50%; transform: translateY(-50%); color: var(--text-muted); font-size: 1rem; pointer-events: none; }
+        .form-control { padding-left: 2.8rem; }
+
+        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+
+        .error-box {
+            background: rgba(255,51,102,0.08); border: 1px solid rgba(255,51,102,0.25);
+            border-radius: var(--radius-sm); padding: 0.75rem 1rem;
+            color: #ff6688; font-size: 0.85rem; margin-bottom: 1rem; display: none;
+        }
+        .error-box.show { display: flex; align-items: center; gap: 0.5rem; }
+
+        .submit-btn {
+            width: 100%; padding: 1rem; border-radius: var(--radius-sm);
+            background: var(--accent-green); color: #000; border: none;
+            font-family: var(--font-heading); font-size: 1rem; font-weight: 800;
+            cursor: pointer; transition: var(--transition-smooth);
+            display: flex; align-items: center; justify-content: center; gap: 0.5rem;
+        }
+        .submit-btn:hover:not(:disabled) { filter: brightness(1.1); transform: translateY(-1px); box-shadow: var(--shadow-glow-green); }
+        .submit-btn:disabled { opacity: 0.6; cursor: not-allowed; }
+
+        .spinner { width: 16px; height: 16px; border: 2px solid rgba(0,0,0,0.2); border-top-color: #000; border-radius: 50%; animation: spin 0.7s linear infinite; display: none; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        .login-link { text-align: center; margin-top: 1.5rem; font-size: 0.9rem; color: var(--text-secondary); }
+        .login-link a { color: var(--accent-purple); text-decoration: none; font-weight: 600; }
+        .login-link a:hover { text-decoration: underline; }
+
+        .strength-bar { height: 3px; background: rgba(255,255,255,0.06); border-radius: 99px; margin-top: 0.4rem; overflow: hidden; }
+        .strength-fill { height: 3px; border-radius: 99px; transition: width 0.3s, background 0.3s; width: 0%; }
+
+        .goal-select { appearance: none; cursor: pointer; }
+
+        .terms-check { display: flex; align-items: flex-start; gap: 0.75rem; margin-bottom: 1.5rem; }
+        .terms-check input[type="checkbox"] { margin-top: 3px; width: 16px; height: 16px; accent-color: var(--accent-purple); flex-shrink: 0; }
+        .terms-check label { font-size: 0.82rem; color: var(--text-secondary); line-height: 1.5; }
+        .terms-check a { color: var(--accent-purple); text-decoration: none; }
+
+        .demo-note {
+            margin-top: 1.5rem; padding: 0.75rem 1rem;
+            background: rgba(0,195,255,0.05); border: 1px solid rgba(0,195,255,0.15);
+            border-radius: var(--radius-sm); font-size: 0.78rem; color: var(--accent-blue);
+            text-align: center;
+        }
+
+        @media (max-width: 500px) { .form-row { grid-template-columns: 1fr; } .auth-card { padding: 2rem 1.5rem; } }
+    </style>
+</head>
+<body>
+    <div class="ambient-bg" style="background:radial-gradient(circle,rgba(0,255,128,0.08) 0%,rgba(0,0,0,0) 60%);"></div>
+    <div class="ambient-bg-2" style="background:radial-gradient(circle,rgba(112,0,255,0.1) 0%,rgba(0,0,0,0) 60%);"></div>
+
+    <div class="auth-card">
+        <a href="index.html" class="auth-brand">
+            <div class="brand-dot" style="background:var(--accent-green);box-shadow:var(--shadow-glow-green);width:10px;height:10px;"></div>
+            <span class="auth-brand-text">Fitaura Elite</span>
+        </a>
+
+        <h1 class="auth-title">Activate Your Profile</h1>
+        <p class="auth-sub">Join the elite. Your data-driven transformation starts now.</p>
+
+        <!-- Google Sign Up -->
+        <button class="google-btn" onclick="handleGoogleSignup()" id="googleBtn">
+            <svg class="google-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
+                <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
+                <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
+                <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
+            </svg>
+            Sign up with Google
+        </button>
+
+        <div class="divider">or create with email</div>
+
+        <div class="error-box" id="errorBox">⚠️ <span id="errorText"></span></div>
+
+        <form id="signupForm" onsubmit="handleEmailSignup(event)">
+            <!-- Full Name -->
+            <div class="form-group">
+                <label class="form-label">Full Name</label>
+                <div class="input-group">
+                    <span class="input-icon">👤</span>
+                    <input type="text" id="sName" class="form-control" placeholder="John Doe" required autocomplete="name">
+                </div>
+            </div>
+
+            <!-- Email -->
+            <div class="form-group">
+                <label class="form-label">Email Address</label>
+                <div class="input-group">
+                    <span class="input-icon">✉️</span>
+                    <input type="email" id="sEmail" class="form-control" placeholder="you@domain.com" required autocomplete="email">
+                </div>
+            </div>
+
+            <!-- Passwords -->
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label">Password</label>
+                    <div class="input-group">
+                        <span class="input-icon">🔒</span>
+                        <input type="password" id="sPass" class="form-control" placeholder="8+ chars" required minlength="8" autocomplete="new-password" oninput="checkStrength(this.value)">
+                    </div>
+                    <div class="strength-bar"><div class="strength-fill" id="strengthFill"></div></div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Confirm Password</label>
+                    <div class="input-group">
+                        <span class="input-icon">🔒</span>
+                        <input type="password" id="sConfirm" class="form-control" placeholder="Repeat" required autocomplete="new-password">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Athlete Info -->
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label">Bodyweight (kg)</label>
+                    <div class="input-group">
+                        <span class="input-icon">⚖️</span>
+                        <input type="number" id="sWeight" class="form-control" placeholder="75" min="30" max="300" step="0.5">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Height (cm)</label>
+                    <div class="input-group">
+                        <span class="input-icon">📏</span>
+                        <input type="number" id="sHeight" class="form-control" placeholder="175" min="100" max="250">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Goal -->
+            <div class="form-group mb-2">
+                <label class="form-label">Primary Goal</label>
+                <div class="input-group">
+                    <span class="input-icon">🎯</span>
+                    <select id="sGoal" class="form-control goal-select">
+                        <option value="muscle_gain">Muscle Gain</option>
+                        <option value="fat_loss">Fat Loss</option>
+                        <option value="strength">Strength / Powerlifting</option>
+                        <option value="endurance">Endurance / Cardio</option>
+                        <option value="recomp">Body Recomposition</option>
+                        <option value="general">General Fitness</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Terms -->
+            <div class="terms-check">
+                <input type="checkbox" id="termsCheck" required>
+                <label for="termsCheck">I agree to the <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a>. I understand Fitaura Elite uses my data to personalize my training protocol.</label>
+            </div>
+
+            <button type="submit" class="submit-btn" id="signupBtn">
+                <span class="spinner" id="signupSpinner"></span>
+                <span id="signupBtnText">🚀 Activate Profile</span>
+            </button>
+        </form>
+
+        <div class="login-link">
+            Already a member? <a href="login.html">Sign in →</a>
+        </div>
+
+        <div class="demo-note">
+            💡 <strong>Demo Mode:</strong> Firebase not configured — sign up with any credentials to test.
+        </div>
+    </div>
+
+    <script>
+    function setLoading(btn, loading) {
+        if (!btn) return;
+        btn.disabled = loading;
+        const spinner = document.getElementById(btn.id === 'googleBtn' ? 'googleSpinner' : 'signupSpinner');
+        const txt = document.getElementById(btn.id === 'googleBtn' ? 'googleBtnText' : 'signupBtnText');
+        if (spinner) spinner.style.display = loading ? 'block' : 'none';
+        if (txt) txt.textContent = loading ? 'Setting up...' : btn.id === 'googleBtn' ? 'Sign up with Google' : '🚀 Activate Profile';
+    }
+
+    function showError(msg) {
+        const box = document.getElementById('errorBox');
+        document.getElementById('errorText').textContent = msg;
+        box.classList.add('show');
+        box.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+    function hideError() { document.getElementById('errorBox').classList.remove('show'); }
+
+    function checkStrength(val) {
+        const fill = document.getElementById('strengthFill');
+        let strength = 0;
+        if (val.length >= 8) strength += 25;
+        if (/[A-Z]/.test(val)) strength += 25;
+        if (/[0-9]/.test(val)) strength += 25;
+        if (/[^A-Za-z0-9]/.test(val)) strength += 25;
+
+        fill.style.width = strength + '%';
+        fill.style.background = strength <= 25 ? '#ff3366' : strength <= 50 ? '#ffd700' : strength <= 75 ? '#00c3ff' : '#00ff80';
+    }
+
+    // Auto-redirect if already logged in
+    if (localStorage.getItem('fitaura_auth_token')) {
+        window.location.href = 'dashboard.html';
+    }
+    </script>
+</body>
+</html>
