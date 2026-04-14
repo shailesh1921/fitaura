@@ -592,6 +592,8 @@
             { id: 'garmin',  name: 'Garmin',         icon: '🟠', color: '#ff6a00' },
             { id: 'samsung', name: 'Samsung Health', icon: '💙', color: '#1428a0' },
         ];
+        // Estimated daily basal + resting calories added on top of active calories from activityEngine
+        const BASAL_CALORIES = 1600;
 
         // State
         const wState = {
@@ -660,6 +662,10 @@
                     wState.connectedDevices.push(deviceId);
                     wSaveState();
                     renderDeviceGrid();
+                    // Start real sensor tracking via activityEngine
+                    if (window.activityEngine && !window.activityEngine.data.isTracking) {
+                        window.activityEngine.requestPermission();
+                    }
                     // Show syncing state, then connected
                     closeWearableModal();
                     showSyncingUI('Syncing data 🔄');
@@ -709,12 +715,17 @@
         }
 
         function generateMetrics() {
-            // Realistic dummy metrics
+            // Use real sensor data for steps and calories when available
+            const sensorData = window.activityEngine ? window.activityEngine.getDailyStats() : null;
             const hrBase = 58 + Math.floor(Math.random() * 22);
             const hrv     = 42 + Math.floor(Math.random() * 38);
             const recovery= 55 + Math.floor(Math.random() * 40);
-            const steps   = 4200 + Math.floor(Math.random() * 8000);
-            const cals    = 1600 + Math.floor(Math.random() * 1100);
+            const steps   = (sensorData && sensorData.steps > 0)
+                ? sensorData.steps
+                : 4200 + Math.floor(Math.random() * 8000);
+            const cals    = (sensorData && sensorData.activeCalories > 0)
+                ? BASAL_CALORIES + sensorData.activeCalories
+                : BASAL_CALORIES + Math.floor(Math.random() * 1100);
             const sleep   = (5.5 + Math.random() * 3).toFixed(1);
             wState.metrics = { hr: hrBase, hrv, recovery, steps, cals, sleep };
 
@@ -797,12 +808,13 @@
             wState.isSyncing = true;
             const syncBtn = document.getElementById('syncNowBtn');
             if (syncBtn) { syncBtn.disabled = true; syncBtn.textContent = '⏳ Syncing…'; }
-            // Small metric update to simulate real-time
+            // Update metrics with real sensor data where available
             const m = wState.metrics;
+            const sensorData = window.activityEngine ? window.activityEngine.getDailyStats() : null;
             if (m.hr) {
                 m.hr   = Math.max(50, Math.min(120, m.hr   + Math.floor((Math.random()-0.5)*6)));
-                m.steps= m.steps + Math.floor(Math.random() * 400);
-                m.cals = m.cals  + Math.floor(Math.random() * 60);
+                m.steps= (sensorData && sensorData.steps > 0) ? sensorData.steps : m.steps + Math.floor(Math.random() * 400);
+                m.cals = (sensorData && sensorData.activeCalories > 0) ? BASAL_CALORIES + sensorData.activeCalories : m.cals + Math.floor(Math.random() * 60);
                 m.hrv  = Math.max(20, Math.min(100, m.hrv  + Math.floor((Math.random()-0.5)*5)));
             }
             setTimeout(() => {
@@ -824,10 +836,25 @@
         // ── INIT: restore state on load ──
         wLoadState();
         if (wState.connectedDevices.length > 0) {
+            // Resume real sensor tracking if devices were previously connected
+            if (window.activityEngine && !window.activityEngine.data.isTracking) {
+                window.activityEngine.requestPermission();
+            }
             generateMetrics();
             showConnectedUI();
             startAutoSync();
         }
+
+        // Live sensor updates: refresh steps and calories whenever activityEngine fires
+        window.addEventListener('fitaura_activity_update', function(e) {
+            if (wState.connectedDevices.length === 0) return;
+            const d = e.detail;
+            if (d.steps > 0) {
+                wState.metrics.steps = d.steps;
+                wState.metrics.cals  = BASAL_CALORIES + d.activeCalories;
+                updateMetricsUI();
+            }
+        });
     }());
     </script>
 </body>
