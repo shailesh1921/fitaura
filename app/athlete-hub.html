@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fitaura | Athlete Hub</title>
+<link rel="stylesheet" href="css/premium.css">
+<link rel="manifest" href="../manifest.json">
+<meta name="theme-color" content="#7000ff">
+<script src="../js/fitaura-global.js" defer></script>
+<script src="../js/components.js" defer></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+.hub-profile{background:linear-gradient(135deg,rgba(112,0,255,.08),rgba(0,195,255,.04));border:1px solid rgba(112,0,255,.2);border-radius:var(--radius-lg);padding:2rem;margin-bottom:2rem;position:relative;overflow:hidden}
+.hub-profile::before{content:'';position:absolute;top:-50%;right:-30%;width:400px;height:400px;background:radial-gradient(circle,rgba(112,0,255,.06),transparent 70%);pointer-events:none}
+.hub-profile-grid{display:grid;grid-template-columns:auto 1fr;gap:2rem;align-items:center;position:relative;z-index:1}
+.hub-avatar{width:80px;height:80px;border-radius:50%;background:linear-gradient(135deg,var(--accent-purple),var(--accent-blue));display:flex;align-items:center;justify-content:center;font-size:2rem;border:3px solid rgba(255,255,255,.2)}
+.hub-name{font-family:var(--font-heading);font-size:1.8rem;font-weight:800}
+.hub-meta{font-size:.85rem;color:var(--text-secondary)}
+.hub-stats{display:flex;gap:2rem;margin-top:1rem;flex-wrap:wrap}
+.hub-stat-value{font-family:var(--font-heading);font-size:1.3rem;font-weight:800;line-height:1}
+.hub-stat-label{font-size:.65rem;color:var(--text-secondary);text-transform:uppercase;letter-spacing:.06em;margin-top:.2rem}
+.section-title{font-family:var(--font-heading);font-size:1.1rem;font-weight:700;margin-bottom:1rem;display:flex;align-items:center;gap:.5rem}
+.section-title .icon{font-size:1.1rem}
+.input-row{display:flex;gap:1rem;margin-bottom:1rem;flex-wrap:wrap;align-items:flex-end}
+.input-field{display:flex;flex-direction:column;gap:.3rem;flex:1;min-width:120px}
+.input-field label{font-size:.65rem;text-transform:uppercase;letter-spacing:.08em;color:var(--text-secondary)}
+.input-field input{background:rgba(0,0,0,.4);border:1px solid var(--border-glass);border-radius:var(--radius-sm);padding:.6rem;color:var(--text-primary);font-family:var(--font-body);transition:var(--transition-smooth)}
+.input-field input:focus{outline:none;border-color:var(--accent-blue)}
+.body-chart-wrap{height:250px;margin-top:1rem;position:relative}
+.body-chart-wrap canvas{border-radius:var(--radius-sm)}
+.comp-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:1rem;margin-top:1rem}
+.comp-card{background:rgba(255,255,255,.03);border:1px solid var(--border-glass);border-radius:var(--radius-md);padding:1.2rem;text-align:center;transition:var(--transition-smooth)}
+.comp-card:hover{border-color:var(--border-hover);transform:translateY(-2px)}
+.comp-value{font-family:var(--font-heading);font-size:1.5rem;font-weight:800}
+.comp-label{font-size:.65rem;color:var(--text-secondary);text-transform:uppercase;letter-spacing:.06em;margin-top:.3rem}
+.comp-change{font-size:.7rem;margin-top:.2rem}
+.badge-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(100px,1fr));gap:.8rem;margin-top:1rem}
+.badge{background:rgba(255,255,255,.03);border:1px solid var(--border-glass);border-radius:var(--radius-md);padding:1rem;text-align:center;transition:all .3s;position:relative;overflow:hidden}
+.badge.unlocked{border-color:rgba(255,215,0,.25);background:rgba(255,215,0,.04)}
+.badge.unlocked .badge-icon{filter:none}
+.badge.locked .badge-icon{filter:grayscale(1) opacity(.3)}
+.badge-icon{font-size:1.8rem;margin-bottom:.4rem;transition:filter .3s}
+.badge-name{font-size:.68rem;font-weight:700;margin-bottom:.2rem}
+.badge-desc{font-size:.58rem;color:var(--text-secondary)}
+.badge-date{font-size:.55rem;color:var(--accent-yellow);margin-top:.3rem}
+.goal-card{background:rgba(255,255,255,.03);border:1px solid var(--border-glass);border-radius:var(--radius-md);padding:1.2rem;margin-bottom:.8rem;transition:all .2s}
+.goal-card:hover{border-color:var(--border-hover)}
+.goal-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:.6rem}
+.goal-title{font-weight:700;font-size:.9rem}
+.goal-pct{font-family:var(--font-heading);font-weight:700;font-size:.85rem}
+.goal-target{font-size:.72rem;color:var(--text-secondary);margin-bottom:.5rem}
+.goal-bar-track{height:6px;background:rgba(255,255,255,.07);border-radius:999px;overflow:hidden}
+.goal-bar-fill{height:100%;border-radius:999px;transition:width .6s ease}
+.log-entry{display:flex;align-items:center;gap:1rem;padding:.8rem 1rem;border-bottom:1px solid rgba(255,255,255,.04);font-size:.82rem;transition:background .2s}
+.log-entry:hover{background:rgba(255,255,255,.02)}
+.log-date{color:var(--text-secondary);font-size:.72rem;min-width:60px;flex-shrink:0}
+.log-type{font-weight:600;min-width:80px;flex-shrink:0}
+.log-detail{flex:1;color:var(--text-secondary)}
+.meas-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:.6rem;margin-top:1rem}
+.meas-item{background:rgba(255,255,255,.03);border:1px solid var(--border-glass);border-radius:var(--radius-sm);padding:.8rem;text-align:center}
+.meas-val{font-family:var(--font-heading);font-weight:700;font-size:1.05rem}
+.meas-label{font-size:.6rem;color:var(--text-secondary);text-transform:uppercase;letter-spacing:.06em;margin-top:.2rem}
+.meas-change{font-size:.65rem;margin-top:.1rem}
+@media(max-width:900px){.hub-profile-grid{grid-template-columns:1fr;text-align:center}.hub-stats{justify-content:center}.badge-grid{grid-template-columns:repeat(3,1fr)}.comp-grid{grid-template-columns:repeat(2,1fr)}}
+</style>
+</head>
+<body>
+<div class="ambient-bg"></div><div class="ambient-bg-2"></div>
+<aside class="layout-sidebar"></aside>
+<main class="layout-content">
+<div class="page-header"><h1 class="page-title">🏅 Athlete Hub</h1><p class="page-subtitle">PRs · body composition · achievements · goals · measurements</p></div>
+
+<!-- Profile Card -->
+<div class="hub-profile animate-up">
+<div class="hub-profile-grid">
+<div class="hub-avatar">🏋️</div>
+<div><div class="hub-name" id="hubName">Athlete</div><div class="hub-meta" id="hubMeta">Building something great</div>
+<div class="hub-stats">
+<div><div class="hub-stat-value" style="color:var(--accent-purple)" id="hubWorkouts">0</div><div class="hub-stat-label">Workouts</div></div>
+<div><div class="hub-stat-value" style="color:var(--accent-green)" id="hubTotalVol">0</div><div class="hub-stat-label">Total Volume (t)</div></div>
+<div><div class="hub-stat-value" style="color:var(--accent-blue)" id="hubPRs">0</div><div class="hub-stat-label">PRs</div></div>
+<div><div class="hub-stat-value" style="color:var(--accent-yellow)" id="hubStreak">0</div><div class="hub-stat-label">Day Streak</div></div>
+</div></div>
+</div>
+</div>
+
+<!-- Body Composition -->
+<div class="glass-card animate-up delay-1" style="margin-bottom:2rem">
+<div class="section-title"><span class="icon">🧬</span> Body Composition</div>
+<div class="input-row">
+<div class="input-field"><label>Weight (kg)</label><input type="number" id="bcWeight" step="0.1" placeholder="75"></div>
+<div class="input-field"><label>Body Fat %</label><input type="number" id="bcBF" step="0.1" placeholder="15"></div>
+<div class="input-field"><label>Height (cm)</label><input type="number" id="bcHeight" step="0.1" placeholder="180"></div>
+<div class="input-field" style="justify-content:flex-end"><label>&nbsp;</label><button class="btn btn-accent" onclick="logBodyComp()">Log</button></div>
+</div>
+<div class="comp-grid" id="compGrid"></div>
+<div class="body-chart-wrap"><canvas id="bodyChart"></canvas></div>
+</div>
+
+<!-- Body Measurements -->
+<div class="glass-card animate-up delay-1" style="margin-bottom:2rem">
+<div class="section-title"><span class="icon">📐</span> Body Measurements</div>
+<div class="input-row">
+<div class="input-field"><label>Chest (cm)</label><input type="number" id="mChest" step="0.1" placeholder="100"></div>
+<div class="input-field"><label>Waist (cm)</label><input type="number" id="mWaist" step="0.1" placeholder="80"></div>
+<div class="input-field"><label>Arms (cm)</label><input type="number" id="mArms" step="0.1" placeholder="35"></div>
+<div class="input-field"><label>Thighs (cm)</label><input type="number" id="mThighs" step="0.1" placeholder="58"></div>
+<div class="input-field"><label>Shoulders (cm)</label><input type="number" id="mShoulders" step="0.1" placeholder="45"></div>
+<div class="input-field"><label>Calves (cm)</label><input type="number" id="mCalves" step="0.1" placeholder="38"></div>
+<div class="input-field" style="justify-content:flex-end"><label>&nbsp;</label><button class="btn btn-accent" onclick="logMeasurements()">Save</button></div>
+</div>
+<div class="meas-grid" id="measGrid"></div>
+</div>
+
+<!-- Goals -->
+<div class="glass-card animate-up delay-2" style="margin-bottom:2rem">
+<div class="flex justify-between items-center"><div class="section-title"><span class="icon">🎯</span> Goals</div><button class="btn btn-glass" style="font-size:.8rem;padding:.5rem 1rem" onclick="openGoalModal()">+ Add Goal</button></div>
+<div id="goalsContainer"></div>
+</div>
+
+<!-- Achievements -->
+<div class="glass-card animate-up delay-2" style="margin-bottom:2rem">
+<div class="section-title"><span class="icon">🏆</span> Achievements</div>
+<div class="badge-grid" id="badgeGrid"></div>
+</div>
+
+<!-- Training Log -->
+<div class="glass-card animate-up delay-3">
+<div class="section-title"><span class="icon">📋</span> Recent Activity</div>
+<div id="trainingLog"></div>
+</div>
+
+<!-- Goal Modal -->
+<div class="modal-overlay" id="goalModal" style="position:fixed;inset:0;background:rgba(0,0,0,.7);backdrop-filter:blur(8px);z-index:1000;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .3s;">
+<div class="modal-box" style="background:#111;border:1px solid var(--border-glass);border-radius:var(--radius-lg);padding:2rem;width:90%;max-width:420px;">
+<div class="flex justify-between items-center mb-2"><div class="section-title" style="margin-bottom:0">Add Goal</div><button class="btn btn-glass" onclick="closeGoalModal()" style="padding:.4rem .8rem;font-size:.8rem">✕</button></div>
+<div class="input-field" style="margin-bottom:1rem"><label>Goal</label><input type="text" id="goalTitle" placeholder="Bench 120kg"></div>
+<div class="input-field" style="margin-bottom:1rem"><label>Current Value</label><input type="number" id="goalCurrent" placeholder="100" step="0.1"></div>
+<div class="input-field" style="margin-bottom:1rem"><label>Target Value</label><input type="number" id="goalTarget" placeholder="120" step="0.1"></div>
+<div class="input-field" style="margin-bottom:1rem"><label>Unit</label><input type="text" id="goalUnit" placeholder="kg"></div>
+<button class="btn btn-accent w-full" onclick="saveGoal()">Save Goal</button>
+</div></div>
+</main>
+<script>
+function initHub(){
+if(window.initializeSidebar)window.initializeSidebar('athlete-hub.html');
+const profile=JSON.parse(localStorage.getItem('fitaura_profile')||'{}');
+const name=localStorage.getItem('fitaura_auth_name')||'Athlete';
+document.getElementById('hubName').textContent=name;
+document.getElementById('hubMeta').textContent=`${profile.goal==='fat_loss'?'Fat Loss':profile.goal==='recomposition'?'Recomposition':'Hypertrophy'} Protocol · ${profile.experience||'Intermediate'} · ${profile.daysPerWeek||4}x/week`;
+updateStats();renderBodyComp();renderMeasurements();renderGoals();renderAchievements();renderTrainingLog();initBodyChart();
+
+// Load last body comp values into inputs
+const bcLog=JSON.parse(localStorage.getItem('fitaura_body_comp_log')||'[]');
+if(bcLog.length>0){const last=bcLog[bcLog.length-1];document.getElementById('bcWeight').value=last.weight||'';document.getElementById('bcBF').value=last.bf||'';document.getElementById('bcHeight').value=last.height||profile.height||''}
+const meas=JSON.parse(localStorage.getItem('fitaura_measurements')||'{}');
+if(meas){document.getElementById('mChest').value=meas.chest||'';document.getElementById('mWaist').value=meas.waist||'';document.getElementById('mArms').value=meas.arms||'';document.getElementById('mThighs').value=meas.thighs||'';document.getElementById('mShoulders').value=meas.shoulders||'';document.getElementById('mCalves').value=meas.calves||''}
+}
+
+function updateStats(){
+const prs=JSON.parse(localStorage.getItem('fitaura_prs')||'{}');
+const bcLog=JSON.parse(localStorage.getItem('fitaura_body_comp_log')||'[]');
+const weeklyLog=JSON.parse(localStorage.getItem('fitaura_weekly_log')||'{}');
+let totalSets=0;Object.values(weeklyLog).forEach(d=>Object.values(d).forEach(v=>totalSets+=v));
+document.getElementById('hubWorkouts').textContent=Math.max(1,Math.ceil(totalSets/20));
+document.getElementById('hubTotalVol').textContent=(totalSets*8/1000).toFixed(0);
+document.getElementById('hubPRs').textContent=Object.keys(prs).length;
+document.getElementById('hubStreak').textContent=Math.min(7,Math.ceil(totalSets/10));
+}
+
+window.logBodyComp=function(){
+const w=parseFloat(document.getElementById('bcWeight').value);
+const bf=parseFloat(document.getElementById('bcBF').value);
+const h=parseFloat(document.getElementById('bcHeight').value)||180;
+if(!w||!bf)return showToast('Enter weight and body fat %');
+const log=JSON.parse(localStorage.getItem('fitaura_body_comp_log')||'[]');
+log.push({weight:w,bf,h,date:new Date().toISOString()});
+if(log.length>100)log.shift();
+localStorage.setItem('fitaura_body_comp_log',JSON.stringify(log));
+renderBodyComp();initBodyChart();updateStats();showToast('Body composition logged');
+};
+
+function renderBodyComp(){
+const log=JSON.parse(localStorage.getItem('fitaura_body_comp_log')||'[]');
+if(log.length===0){document.getElementById('compGrid').innerHTML='<p style="color:var(--text-secondary);grid-column:span 3;text-align:center;padding:1rem;">No data yet. Log your first entry above.</p>';return}
+const latest=log[log.length-1];
+const prev=log.length>1?log[log.length-2]:null;
+const w=latest.weight,bf=latest.bf/100,h=latest.h/100;
+const leanMass=w*(1-bf);const fatMass=w*bf;
+const bmi=w/(h*h);
+const ffmi=leanMass/(h*h);
+const wPrev=prev?prev.weight:null;const bfPrev=prev?prev.bf:null;
+const bmiClass=bmi<18.5?'Underweight':bmi<25?'Normal':bmi<30?'Overweight':'Obese';
+const bmiColor=bmi<25?'var(--accent-green)':bmi<30?'var(--accent-yellow)':'var(--accent-red)';
+const wChange=wPrev?(w-wPrev).toFixed(1):null;const bfChange=bfPrev?(bf-bfPrev).toFixed(1):null;
+const cc=v=>v>0?'#ff3366':v<0?'#00ff80':'var(--text-secondary)';
+document.getElementById('compGrid').innerHTML=`
+<div class="comp-card"><div class="comp-value" style="color:var(--accent-green)">${leanMass.toFixed(1)}</div><div class="comp-label">Lean Mass (kg)</div></div>
+<div class="comp-card"><div class="comp-value" style="color:var(--accent-red)">${fatMass.toFixed(1)}</div><div class="comp-label">Fat Mass (kg)</div></div>
+<div class="comp-card"><div class="comp-value" style="color:var(--accent-blue)">${bmi.toFixed(1)}</div><div class="comp-label">BMI</div><div style="font-size:.7rem;color:${bmiColor};margin-top:.2rem">${bmiClass}</div></div>
+<div class="comp-card"><div class="comp-value" style="color:var(--accent-purple)">${ffmi.toFixed(1)}</div><div class="comp-label">FFMI</div><div style="font-size:.7rem;color:${ffmi>=25?'#00ff80':ffmi>=22?'var(--accent-blue)':'var(--text-secondary)'};margin-top:.2rem">${ffmi>=25?'Advanced':ffmi>=22?'Good':'Developing'}</div></div>
+<div class="comp-card"><div class="comp-value">${w.toFixed(1)}${wChange!==null?`<span style="font-size:.7rem;color:${cc(wChange)}"> (${wChange>0?'+':''}${wChange})</span>`:''}</div><div class="comp-label">Weight (kg)</div></div>
+<div class="comp-card"><div class="comp-value">${latest.bf.toFixed(1)}%${bfChange!==null?`<span style="font-size:.7rem;color:${cc(-bfChange)}"> (${bfChange>0?'+':''}${bfChange})</span>`:''}</div><div class="comp-label">Body Fat %</div></div>`;
+}
+
+function initBodyChart(){
+const log=JSON.parse(localStorage.getItem('fitaura_body_comp_log')||'[]');
+const last30=log.slice(-30);
+const labels=last30.map(e=>new Date(e.date).toLocaleDateString('en',{month:'short',day:'numeric'}));
+const weights=last30.map(e=>e.weight);const bfs=last30.map(e=>e.bf);
+if(window._bodyChart)window._bodyChart.destroy();
+window._bodyChart=new Chart(document.getElementById('bodyChart'),{type:'line',data:{labels,datasets:[
+{label:'Weight (kg)',data:weights,borderColor:'#00c3ff',backgroundColor:'rgba(0,195,255,0.08)',tension:.4,fill:true,pointRadius:3,yAxisID:'y'},
+{label:'Body Fat %',data:bfs,borderColor:'#ff3366',backgroundColor:'rgba(255,51,102,0.08)',tension:.4,fill:true,pointRadius:3,yAxisID:'y1'}
+]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:'#888',font:{size:10}}}},scales:{x:{grid:{color:'rgba(255,255,255,.04)'},ticks:{color:'#666',font:{size:9},maxRotation:0}},y:{position:'left',grid:{color:'rgba(255,255,255,.04)'},ticks:{color:'#00c3ff'},title:{display:true,text:'kg',color:'#00c3ff'}},y1:{position:'right',grid:{display:false},ticks:{color:'#ff3366'},title:{display:true,text:'%',color:'#ff3366'}}}}});
+}
+
+window.logMeasurements=function(){
+const fields={chest:'mChest',waist:'mWaist',arms:'mArms',thighs:'mThighs',shoulders:'mShoulders',calves:'mCalves'};
+const vals={};const prev=JSON.parse(localStorage.getItem('fitaura_measurements')||'{}');
+Object.entries(fields).forEach(([key,id])=>{const v=parseFloat(document.getElementById(id).value)||0;vals[key]=v});
+localStorage.setItem('fitaura_measurements',JSON.stringify(vals));
+localStorage.setItem('fitaura_meas_prev',JSON.stringify(prev));
+renderMeasurements();showToast('Measurements saved');
+};
+
+function renderMeasurements(){
+const m=JSON.parse(localStorage.getItem('fitaura_measurements')||'{}');
+const prev=JSON.parse(localStorage.getItem('fitaura_meas_prev')||'{}');
+const items=[['Chest','chest'],['Waist','waist'],['Arms','arms'],['Thighs','thighs'],['Shoulders','shoulders'],['Calves','calves']];
+document.getElementById('measGrid').innerHTML=items.map(([label,key])=>{
+const v=m[key]||0;const p=prev[key];const change=p?(v-p).toFixed(1):null;
+const cc=change>0?'#00ff80':change<0?'#ff3366':'var(--text-secondary)';
+return`<div class="meas-item"><div class="meas-val">${v>0?v+'cm':'—'}</div><div class="meas-label">${label}</div>${change!==null?`<div class="meas-change" style="color:${cc}">${change>0?'+':''}${change}cm</div>`:''}</div>`}).join('');
+}
+
+// Goals
+window.openGoalModal=function(){document.getElementById('goalModal').style.opacity='1';document.getElementById('goalModal').style.pointerEvents='all'};
+window.closeGoalModal=function(){document.getElementById('goalModal').style.opacity='0';document.getElementById('goalModal').style.pointerEvents='none'};
+window.saveGoal=function(){
+const title=document.getElementById('goalTitle').value.trim();
+const current=parseFloat(document.getElementById('goalCurrent').value)||0;
+const target=parseFloat(document.getElementById('goalTarget').value)||0;
+const unit=document.getElementById('goalUnit').value.trim()||'';
+if(!title)return;
+const goals=JSON.parse(localStorage.getItem('fitaura_goals')||'[]');
+goals.push({title,current,target,unit,created:new Date().toISOString()});
+localStorage.setItem('fitaura_goals',JSON.stringify(goals));
+renderGoals();closeGoalModal();showToast('Goal added');
+document.getElementById('goalTitle').value='';document.getElementById('goalCurrent').value='';document.getElementById('goalTarget').value='';document.getElementById('goalUnit').value='';
+};
+
+function renderGoals(){
+const goals=JSON.parse(localStorage.getItem('fitaura_goals')||'[]');
+if(goals.length===0){document.getElementById('goalsContainer').innerHTML='<p style="color:var(--text-secondary);text-align:center;padding:1rem;">No goals set yet. Add your first fitness goal!</p>';return}
+document.getElementById('goalsContainer').innerHTML=goals.map((g,i)=>{
+const pct=g.target>0?Math.min(100,Math.max(0,(g.current/g.target)*100)):0;
+const color=pct>=100?'var(--accent-green)':pct>=50?'var(--accent-blue)':'var(--accent-yellow)';
+const done=pct>=100;
+return`<div class="goal-card" style="${done?'opacity:.6':''}">
+<div class="goal-header"><div class="goal-title">${done?'✅ ':''}${g.title}</div><div class="goal-pct" style="color:${color}">${pct.toFixed(0)}%</div></div>
+<div class="goal-target">${g.current} / ${g.target} ${g.unit}</div>
+<div class="goal-bar-track"><div class="goal-bar-fill" style="width:${pct}%;background:${color}"></div></div></div>`}).join('');
+}
+
+// Achievements
+function renderAchievements(){
+const prs=JSON.parse(localStorage.getItem('fitaura_prs')||'{}');
+const bcLog=JSON.parse(localStorage.getItem('fitaura_body_comp_log')||'[]');
+const weeklyLog=JSON.parse(localStorage.getItem('fitaura_weekly_log')||'{}');
+const rpeLog=JSON.parse(localStorage.getItem('fitaura_rpe_log')||'{}');
+const wilks=JSON.parse(localStorage.getItem('fitaura_wilks')||'{}');
+const sleep=JSON.parse(localStorage.getItem('fitaura_last_sleep')||'{}');
+const totalSets=Object.values(weeklyLog).reduce((a,d)=>Object.values(d).reduce((b,v)=>b+v,0),a);
+const muscleGroupsTrained=Object.keys(weeklyLog).length;
+const maxRPE=Math.max(0,...Object.values(rpeLog));
+const latestBF=bcLog.length>0?bcLog[bcLog.length-1].bf:99;
+const hasMaxRPE=maxRPE>=10;
+const hasCentury=Object.values(prs).some(p=>p.weight>=100);
+const hasTwoPlates=Object.values(prs).some(p=>p.weight>=100);
+const totalPRs=Object.keys(prs).length;
+const bigThree=prs['Back Squat']&&prs['Barbell Bench Press']&&prs['Deadlift']?prs['Back Squat'].weight+prs['Barbell Bench Press'].weight+prs['Deadlift'].weight:0;
+const hasBigThree=bigThree>=400;
+const hasLean=latestBF<12;
+const hasPower=wilks.score>=300;
+const hasWeekWarrior=totalSets>=35;
+const hasIronWill=totalSets>=100;
+const hasVolumeBeast=totalSets>=50;
+const hasConsistency=Math.ceil(totalSets/20)>=30;
+const hasHeavy=hasMaxRPE;
+const hasBalanced=muscleGroupsTrained>=13;
+const hasSleep=sleep.hours>=8;
+const hasFiveDays=Math.ceil(totalSets/20)>=5;
+const hasFirstWorkout=totalSets>0;
+const hasFirstPR=totalPRs>0;
+const hasWilks=!!wilks.score;
+const hasBodyComp=bcLog.length>0;
+const hasMeasurements=!!localStorage.getItem('fitaura_measurements');
+const hasGoal=JSON.parse(localStorage.getItem('fitaura_goals')||'[]').length>0;
+const hasSynced=JSON.parse(localStorage.getItem('fitaura_synced_devices')||'[]').length>0;
+const badges=[
+{id:'first_workout',icon:'🏃',name:'First Step',desc:'Log your first workout',unlocked:hasFirstWorkout},
+{id:'first_pr',icon:'🏆',name:'First PR',desc:'Set your first personal record',unlocked:hasFirstPR},
+{id:'week_warrior',icon:'⚔️',name:'Week Warrior',desc:'35+ sets in one week',unlocked:hasWeekWarrior},
+{id:'iron_will',icon:'🔨',name:'Iron Will',desc:'100+ total sets logged',unlocked:hasIronWill},
+{id:'century_club',icon:'💯',name:'Century Club',desc:'Any lift at 100kg+',unlocked:hasCentury},
+{id:'two_plates',icon:'🥈',name:'Two Plates',desc:'Bench 100kg+',unlocked:hasTwoPlates},
+{id:'big_three',icon:'🥇',name:'Big Three',desc:'Squat+Bench+DL = 400kg+',unlocked:hasBigThree},
+{id:'lean_machine',icon:'🧊',name:'Lean Machine',desc:'Body fat under 12%',unlocked:hasLean},
+{id:'powerhouse',icon:'⚡',name:'Powerhouse',desc:'Wilks score 300+',unlocked:hasPower},
+{id:'volume_beast',icon:'💪',name:'Volume Beast',desc:'50+ sets in one week',unlocked:hasVolumeBeast},
+{id:'heavy_hitter',icon:'💥',name:'Heavy Hitter',desc:'Train at RPE 10',unlocked:hasHeavy},
+{id:'balanced',icon:'⚖️',name:'Balanced',desc:'All 13 muscles trained',unlocked:hasBalanced},
+{id:'sleep_champ',icon:'😴',name:'Sleep Champion',desc:'8+ hours sleep logged',unlocked:hasSleep},
+{id:'data_driven',icon:'📊',name:'Data Driven',desc:'Log body composition',unlocked:hasBodyComp},
+{id:'measured',icon:'📐',name:'Measured',desc:'Log body measurements',unlocked:hasMeasurements},
+{id:'goal_setter',icon:'🎯',name:'Goal Setter',desc:'Set a fitness goal',unlocked:hasGoal},
+{id:'wilks_scored',icon:'🏅',name:'Wilks Rated',desc:'Calculate Wilks score',unlocked:hasWilks},
+{id:'synced',icon:'🔗',name:'Connected',desc:'Sync a wearable device',unlocked:hasSynced},
+{id:'dedicated',icon:'🔥',name:'Dedicated',desc:'30+ workouts logged',unlocked:hasConsistency},
+{id:'five_day',icon:'📅',name:'5-Day Warrior',desc:'Train 5+ days/week',unlocked:hasFiveDays},
+{id:'data_vault',icon:'🗄️',name:'Data Vault',desc:'10+ body comp logs',unlocked:bcLog.length>=10}
+];
+document.getElementById('badgeGrid').innerHTML=badges.map(b=>`<div class="badge ${b.unlocked?'unlocked':'locked'}"><div class="badge-icon">${b.icon}</div><div class="badge-name">${b.name}</div><div class="badge-desc">${b.desc}</div></div>`).join('');
+}
+
+function renderTrainingLog(){
+const prs=JSON.parse(localStorage.getItem('fitaura_prs')||'{}');
+const bcLog=JSON.parse(localStorage.getItem('fitaura_body_comp_log')||'[]');
+const entries=[];
+Object.entries(prs).forEach(([name,d])=>entries.push({date:d.date,type:'🏆 PR',detail:`${name}: ${d.weight}kg`}));
+bcLog.slice(-5).forEach(d=>entries.push({date:d.date,type:'🧬 Body',detail:`${d.weight}kg @ ${d.bf}% BF`}));
+entries.sort((a,b)=>new Date(b.date)-new Date(a.date));
+document.getElementById('trainingLog').innerHTML=entries.length>0?entries.slice(0,15).map(e=>`<div class="log-entry">
+<div class="log-date">${new Date(e.date).toLocaleDateString('en',{month:'short',day:'numeric'})}</div>
+<div class="log-type">${e.type}</div>
+<div class="log-detail">${e.detail}</div></div>`).join(''):'<p style="color:var(--text-secondary);text-align:center;padding:1rem;">No activity logged yet.</p>';
+}
+
+window.showToast=function(msg){if(!window._tc){window._tc=document.createElement('div');window._tc.className='toast-container';document.body.appendChild(window._tc)}const t=document.createElement('div');t.className='toast';t.textContent=msg;window._tc.appendChild(t);setTimeout(()=>t.remove(),3500)};
+
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',initHub);else initHub();
+</script>
+</body>
+</html>

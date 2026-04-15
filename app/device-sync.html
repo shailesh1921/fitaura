@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fitaura | Device Sync Center</title>
+    <link rel="stylesheet" href="css/premium.css">
+    <link rel="manifest" href="../manifest.json">
+    <meta name="theme-color" content="#7000ff">
+    <script src="../js/fitaura-global.js" defer></script>
+    <script src="../js/components.js" defer></script>
+    <style>
+        .sync-hero{background:linear-gradient(145deg,rgba(112,0,255,0.1),rgba(0,195,255,0.06));border:1px solid rgba(112,0,255,0.25);border-radius:var(--radius-lg);padding:2.5rem;margin-bottom:2rem;position:relative;overflow:hidden}
+        .sync-hero::before{content:'';position:absolute;top:-50%;right:-30%;width:400px;height:400px;background:radial-gradient(circle,rgba(112,0,255,0.08) 0%,transparent 70%);pointer-events:none}
+        .sync-hero h2{font-family:var(--font-heading);font-size:2rem;font-weight:800;margin-bottom:.5rem;position:relative}
+        .sync-hero p{color:var(--text-secondary);position:relative}
+        .connection-bar{display:flex;gap:1.5rem;margin-bottom:2rem;flex-wrap:wrap}
+        .conn-stat{flex:1;min-width:160px;background:var(--bg-surface);border:1px solid var(--border-glass);border-radius:var(--radius-md);padding:1.2rem;text-align:center;transition:var(--transition-smooth)}
+        .conn-stat:hover{border-color:var(--border-hover);transform:translateY(-2px)}
+        .conn-stat-icon{font-size:1.6rem;margin-bottom:.5rem}
+        .conn-stat-value{font-family:var(--font-heading);font-size:1.8rem;font-weight:800;line-height:1}
+        .conn-stat-label{font-size:.7rem;color:var(--text-secondary);text-transform:uppercase;letter-spacing:.1em;margin-top:4px}
+        .device-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:1.5rem;margin-bottom:2rem}
+        .device-card{background:var(--bg-surface);border:1px solid var(--border-glass);border-radius:var(--radius-lg);padding:1.8rem;transition:var(--transition-smooth);position:relative;overflow:hidden}
+        .device-card:hover{border-color:var(--border-hover);transform:translateY(-3px);box-shadow:var(--shadow-glass)}
+        .device-card.connected{border-color:rgba(0,255,128,0.3);background:linear-gradient(145deg,rgba(0,255,128,0.04),var(--bg-surface))}
+        .device-card.syncing{border-color:rgba(0,195,255,0.4)}
+        .device-header{display:flex;align-items:center;gap:1rem;margin-bottom:1.2rem}
+        .device-icon{width:56px;height:56px;border-radius:var(--radius-md);display:flex;align-items:center;justify-content:center;font-size:1.8rem;flex-shrink:0}
+        .device-info{flex:1}
+        .device-name{font-family:var(--font-heading);font-weight:700;font-size:1.05rem}
+        .device-type{font-size:.78rem;color:var(--text-secondary)}
+        .device-status-badge{display:inline-flex;align-items:center;gap:6px;padding:4px 12px;border-radius:999px;font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em}
+        .badge-disconnected{background:rgba(255,255,255,0.06);color:var(--text-secondary);border:1px solid var(--border-glass)}
+        .badge-connected{background:rgba(0,255,128,0.12);color:var(--accent-green);border:1px solid rgba(0,255,128,0.3)}
+        .badge-connecting{background:rgba(0,195,255,0.12);color:var(--accent-blue);border:1px solid rgba(0,195,255,0.3)}
+        .badge-syncing{background:rgba(255,215,0,0.12);color:var(--accent-yellow);border:1px solid rgba(255,215,0,0.3)}
+        .badge-error{background:rgba(255,51,102,0.12);color:var(--accent-red);border:1px solid rgba(255,51,102,0.3)}
+        .device-metrics{display:grid;grid-template-columns:1fr 1fr;gap:.8rem;margin-top:1.2rem;padding-top:1.2rem;border-top:1px solid var(--border-glass)}
+        .device-metric{text-align:center}
+        .device-metric-value{font-family:var(--font-heading);font-weight:700;font-size:1.1rem}
+        .device-metric-label{font-size:.68rem;color:var(--text-secondary);text-transform:uppercase;letter-spacing:.08em}
+        .device-actions{display:flex;gap:.75rem;margin-top:1.2rem}
+        .device-actions .btn{flex:1;font-size:.85rem;padding:.7rem 1rem}
+        .btn-connect{background:linear-gradient(135deg,var(--accent-purple),#5b21b6);color:#fff;border:none}
+        .btn-connect:hover{filter:brightness(1.15)}
+        .btn-disconnect{background:rgba(255,51,102,0.12);color:var(--accent-red);border:1px solid rgba(255,51,102,0.3)}
+        .btn-disconnect:hover{background:rgba(255,51,102,0.2)}
+        .btn-sync-now{background:rgba(0,195,255,0.12);color:var(--accent-blue);border:1px solid rgba(0,195,255,0.3)}
+        .btn-sync-now:hover{background:rgba(0,195,255,0.2)}
+        .sync-progress{width:100%;height:4px;background:rgba(255,255,255,0.06);border-radius:999px;overflow:hidden;margin-top:1rem;display:none}
+        .sync-progress.active{display:block}
+        .sync-progress-bar{height:100%;width:0%;border-radius:999px;background:linear-gradient(90deg,var(--accent-purple),var(--accent-blue),var(--accent-green));transition:width .4s ease}
+        .stream-card{background:var(--bg-surface);border:1px solid var(--border-glass);border-radius:var(--radius-md);padding:1.2rem 1.5rem;margin-bottom:.8rem;display:flex;align-items:center;gap:1.2rem;transition:var(--transition-smooth)}
+        .stream-card:hover{border-color:var(--border-hover)}
+        .stream-icon{font-size:1.4rem;flex-shrink:0}
+        .stream-info{flex:1}
+        .stream-name{font-weight:600;font-size:.92rem;margin-bottom:2px}
+        .stream-desc{font-size:.78rem;color:var(--text-secondary)}
+        .stream-status{flex-shrink:0}
+        .toggle-switch{position:relative;width:44px;height:24px;cursor:pointer}
+        .toggle-switch input{opacity:0;width:0;height:0}
+        .toggle-slider{position:absolute;inset:0;background:rgba(255,255,255,0.1);border-radius:999px;transition:var(--transition-smooth)}
+        .toggle-slider::before{content:'';position:absolute;width:18px;height:18px;left:3px;bottom:3px;background:#fff;border-radius:50%;transition:var(--transition-smooth)}
+        .toggle-switch input:checked+.toggle-slider{background:var(--accent-green)}
+        .toggle-switch input:checked+.toggle-slider::before{transform:translateX(20px)}
+        .sync-log{max-height:400px;overflow-y:auto}
+        .sync-entry{display:flex;align-items:flex-start;gap:1rem;padding:1rem 1.2rem;border-bottom:1px solid rgba(255,255,255,0.04);font-size:.85rem;transition:background .2s}
+        .sync-entry:hover{background:rgba(255,255,255,0.02)}
+        .sync-entry:last-child{border-bottom:none}
+        .sync-entry-icon{font-size:1.1rem;flex-shrink:0;margin-top:2px}
+        .sync-entry-content{flex:1}
+        .sync-entry-title{font-weight:600;margin-bottom:2px}
+        .sync-entry-time{font-size:.75rem;color:var(--text-secondary)}
+        .sync-entry-detail{font-size:.78rem;color:var(--text-secondary);margin-top:2px}
+        .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.7);backdrop-filter:blur(8px);z-index:1000;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .3s}
+        .modal-overlay.active{opacity:1;pointer-events:all}
+        .modal-box{background:#111;border:1px solid var(--border-glass);border-radius:var(--radius-lg);padding:2rem;width:90%;max-width:500px;transform:scale(.95);transition:transform .3s;max-height:80vh;overflow-y:auto}
+        .modal-overlay.active .modal-box{transform:scale(1)}
+        .modal-title{font-family:var(--font-heading);font-size:1.3rem;font-weight:700;margin-bottom:1rem}
+        .scanning-animation{width:80px;height:80px;margin:1.5rem auto;border:3px solid rgba(112,0,255,0.15);border-top-color:var(--accent-purple);border-radius:50%;animation:spin 1s linear infinite}
+        @keyframes spin{to{transform:rotate(360deg)}}
+        .discover-grid{display:grid;grid-template-columns:1fr 1fr;gap:.8rem;margin-top:1rem}
+        .discover-item{background:rgba(255,255,255,0.04);border:1px solid var(--border-glass);border-radius:var(--radius-sm);padding:1rem;text-align:center;cursor:pointer;transition:var(--transition-smooth)}
+        .discover-item:hover{border-color:var(--accent-purple);background:rgba(112,0,255,0.08)}
+        .discover-item-icon{font-size:1.5rem;margin-bottom:.4rem}
+        .discover-item-name{font-size:.82rem;font-weight:600}
+        .discover-item-type{font-size:.7rem;color:var(--text-secondary)}
+        .schedule-row{display:flex;align-items:center;justify-content:space-between;padding:1rem 0;border-bottom:1px solid rgba(255,255,255,0.04)}
+        .schedule-row:last-child{border-bottom:none}
+        .bt-indicator{display:inline-flex;align-items:center;gap:6px;padding:3px 10px;border-radius:999px;font-size:.7rem;font-weight:600}
+        .bt-on{background:rgba(0,195,255,0.12);color:var(--accent-blue)}
+        .bt-off{background:rgba(255,255,255,0.06);color:var(--text-secondary)}
+        .last-sync{font-size:.78rem;color:var(--text-secondary);display:flex;align-items:center;gap:6px}
+        .last-sync .pulse-dot{width:5px;height:5px}
+        .battery-bar{width:32px;height:14px;border:1.5px solid var(--text-secondary);border-radius:3px;position:relative;display:inline-flex;align-items:center;padding:1.5px}
+        .battery-bar::after{content:'';position:absolute;right:-5px;top:3px;width:3px;height:6px;background:var(--text-secondary);border-radius:0 2px 2px 0}
+        .battery-level{height:100%;border-radius:1.5px;transition:width .3s}
+        .battery-high{background:var(--accent-green)}
+        .battery-mid{background:var(--accent-yellow)}
+        .battery-low{background:var(--accent-red)}
+        .api-card{background:linear-gradient(145deg,rgba(0,195,255,0.06),rgba(112,0,255,0.04));border:1px solid rgba(0,195,255,0.2);border-radius:var(--radius-lg);padding:2rem}
+        .api-perm-grid{display:grid;grid-template-columns:1fr 1fr;gap:.6rem;margin-top:1rem}
+        .api-perm{display:flex;align-items:center;gap:.6rem;font-size:.85rem;padding:.6rem .8rem;background:rgba(255,255,255,0.03);border-radius:var(--radius-sm);border:1px solid rgba(255,255,255,0.05)}
+        .api-perm-icon{font-size:1rem}
+        @keyframes pulseRing{0%{box-shadow:0 0 0 0 rgba(0,255,128,0.4)}70%{box-shadow:0 0 0 10px rgba(0,255,128,0)}100%{box-shadow:0 0 0 0 rgba(0,255,128,0)}}
+        .pulse-ring{animation:pulseRing 2s ease infinite}
+        @media(max-width:768px){.device-grid{grid-template-columns:1fr}.api-perm-grid{grid-template-columns:1fr}.discover-grid{grid-template-columns:1fr}.connection-bar{flex-direction:column}}
+    </style>
+</head>
+<body>
+    <div class="ambient-bg"></div>
+    <div class="ambient-bg-2"></div>
+    <aside class="layout-sidebar"></aside>
+
+    <main class="layout-content">
+        <div class="page-header flex justify-between items-center">
+            <div>
+                <h1 class="page-title">Device Sync Center</h1>
+                <p class="page-subtitle">Connect wearables, sensors, and health APIs to supercharge your Fitaura Engine.</p>
+            </div>
+            <div class="flex items-center gap-1">
+                <span class="bt-indicator" id="btStatus"><span class="pulse-dot" style="background:var(--text-secondary)"></span><span id="btLabel">Checking...</span></span>
+                <span class="last-sync" id="lastSyncTime"><span class="pulse-dot" style="background:var(--accent-green)"></span><span>Last sync: --</span></span>
+            </div>
+        </div>
+
+        <div class="connection-bar animate-up">
+            <div class="conn-stat"><div class="conn-stat-icon">🔗</div><div class="conn-stat-value" id="connectedCount" style="color:var(--accent-green)">0</div><div class="conn-stat-label">Connected</div></div>
+            <div class="conn-stat"><div class="conn-stat-icon">📊</div><div class="conn-stat-value" id="dataPoints" style="color:var(--accent-blue)">0</div><div class="conn-stat-label">Data Points Synced</div></div>
+            <div class="conn-stat"><div class="conn-stat-icon">⚡</div><div class="conn-stat-value" id="syncFrequency" style="color:var(--accent-purple)">15m</div><div class="conn-stat-label">Auto-Sync Interval</div></div>
+            <div class="conn-stat"><div class="conn-stat-icon">🔋</div><div class="conn-stat-value" id="avgBattery" style="color:var(--accent-yellow)">--</div><div class="conn-stat-label">Avg. Device Battery</div></div>
+        </div>
+
+        <div class="animate-up delay-1">
+            <div class="flex justify-between items-center mb-2">
+                <h3 style="font-family:var(--font-heading);font-size:1.3rem;font-weight:700">Wearable Devices</h3>
+                <div class="flex gap-1">
+                    <button class="btn btn-glass" onclick="openDiscoverModal()" style="font-size:.85rem;padding:.6rem 1.2rem">🔍 Discover</button>
+                    <button class="btn btn-glass" onclick="openPairModal()" style="font-size:.85rem;padding:.6rem 1.2rem">🔗 Manual Pair</button>
+                </div>
+            </div>
+            <div class="device-grid" id="deviceGrid"></div>
+        </div>
+
+        <div class="animate-up delay-2">
+            <h3 style="font-family:var(--font-heading);font-size:1.3rem;font-weight:700;margin-bottom:1.2rem">Data Streams</h3>
+            <div id="dataStreams"></div>
+        </div>
+
+        <div class="animate-up delay-2">
+            <h3 style="font-family:var(--font-heading);font-size:1.3rem;font-weight:700;margin-bottom:1.2rem">Native Health APIs</h3>
+            <div class="grid-2">
+                <div class="api-card">
+                    <div class="flex items-center gap-1 mb-1">
+                        <span style="font-size:1.6rem">🍎</span>
+                        <div><div style="font-family:var(--font-heading);font-weight:700">Apple Health</div><div style="font-size:.78rem;color:var(--text-secondary)">iOS · HealthKit Integration</div></div>
+                    </div>
+                    <div class="api-perm-grid">
+                        <div class="api-perm"><span class="api-perm-icon">❤️</span> Heart Rate</div>
+                        <div class="api-perm"><span class="api-perm-icon">😴</span> Sleep Analysis</div>
+                        <div class="api-perm"><span class="api-perm-icon">🚶</span> Step Count</div>
+                        <div class="api-perm"><span class="api-perm-icon">🔥</span> Active Energy</div>
+                        <div class="api-perm"><span class="api-perm-icon">🫁</span> SpO2</div>
+                        <div class="api-perm"><span class="api-perm-icon">⚡</span> HRV</div>
+                    </div>
+                    <button class="btn btn-accent w-full mt-2" id="appleHealthBtn" onclick="connectHealthAPI('apple')" style="margin-top:1rem">Connect Apple Health</button>
+                </div>
+                <div class="api-card" style="background:linear-gradient(145deg,rgba(0,195,255,0.06),rgba(0,255,128,0.04));border-color:rgba(0,195,255,0.2)">
+                    <div class="flex items-center gap-1 mb-1">
+                        <span style="font-size:1.6rem">🤖</span>
+                        <div><div style="font-family:var(--font-heading);font-weight:700">Google Fit / Health Connect</div><div style="font-size:.78rem;color:var(--text-secondary)">Android · Health Connect API</div></div>
+                    </div>
+                    <div class="api-perm-grid">
+                        <div class="api-perm"><span class="api-perm-icon">❤️</span> Heart Rate</div>
+                        <div class="api-perm"><span class="api-perm-icon">😴</span> Sleep Stages</div>
+                        <div class="api-perm"><span class="api-perm-icon">🚶</span> Step Count</div>
+                        <div class="api-perm"><span class="api-perm-icon">🔥</span> Calories</div>
+                        <div class="api-perm"><span class="api-perm-icon">⚡</span> Exercise</div>
+                        <div class="api-perm"><span class="api-perm-icon">🩸</span> Blood Pressure</div>
+                    </div>
+                    <button class="btn btn-accent w-full mt-2" id="googleFitBtn" onclick="connectHealthAPI('google')" style="margin-top:1rem">Connect Google Fit</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="glass-card animate-up delay-3 mt-2">
+            <h3 style="font-family:var(--font-heading);font-weight:700;margin-bottom:1rem">Auto-Sync Schedule</h3>
+            <div class="schedule-row"><div><div style="font-weight:600">Background Sync</div><div style="font-size:.8rem;color:var(--text-secondary)">Automatically pull data from all connected devices</div></div><label class="toggle-switch"><input type="checkbox" checked id="bgSyncToggle" onchange="saveSyncSettings()"><span class="toggle-slider"></span></label></div>
+            <div class="schedule-row"><div><div style="font-weight:600">Sync Interval</div><div style="font-size:.8rem;color:var(--text-secondary)">How often to check for new data</div></div><select class="form-control" id="syncInterval" style="width:160px" onchange="saveSyncSettings()"><option value="5">Every 5 min</option><option value="15" selected>Every 15 min</option><option value="30">Every 30 min</option><option value="60">Every hour</option><option value="manual">Manual Only</option></select></div>
+            <div class="schedule-row"><div><div style="font-weight:600">Sync on Workout Start</div><div style="font-size:.8rem;color:var(--text-secondary)">Pull latest biometrics before training begins</div></div><label class="toggle-switch"><input type="checkbox" checked id="syncOnWorkout" onchange="saveSyncSettings()"><span class="toggle-slider"></span></label></div>
+            <div class="schedule-row"><div><div style="font-weight:600">Live Sync During Exercise</div><div style="font-size:.8rem;color:var(--text-secondary)">Stream HR & metrics in real-time during workouts</div></div><label class="toggle-switch"><input type="checkbox" checked id="syncDuringWorkout" onchange="saveSyncSettings()"><span class="toggle-slider"></span></label></div>
+            <div class="schedule-row"><div><div style="font-weight:600">Sleep Data Sync</div><div style="font-size:.8rem;color:var(--text-secondary)">Import sleep analysis every morning at 7:00 AM</div></div><label class="toggle-switch"><input type="checkbox" checked id="syncSleep" onchange="saveSyncSettings()"><span class="toggle-slider"></span></label></div>
+            <div class="schedule-row"><div><div style="font-weight:600">Disconnect Alerts</div><div style="font-size:.8rem;color:var(--text-secondary)">Alert when a device loses connection mid-workout</div></div><label class="toggle-switch"><input type="checkbox" checked id="notifyDisconnect" onchange="saveSyncSettings()"><span class="toggle-slider"></span></label></div>
+        </div>
+
+        <div class="glass-card animate-up delay-3 mt-2">
+            <div class="flex justify-between items-center mb-2">
+                <h3 style="font-family:var(--font-heading);font-weight:700">Sync History</h3>
+                <button class="btn btn-glass" onclick="clearSyncHistory()" style="font-size:.8rem;padding:.5rem 1rem">Clear Log</button>
+            </div>
+            <div class="sync-log" id="syncLog"></div>
+        </div>
+    </main>
+
+    <!-- Discover Modal -->
+    <div class="modal-overlay" id="discoverModal">
+        <div class="modal-box">
+            <div class="flex justify-between items-center mb-2">
+                <div class="modal-title">🔍 Discovering Nearby Devices</div>
+                <button class="btn btn-glass" onclick="closeModal('discoverModal')" style="padding:.4rem .8rem;font-size:.8rem">✕</button>
+            </div>
+            <div id="discoverScanning"><div class="scanning-animation"></div><p style="text-align:center;color:var(--text-secondary);font-size:.9rem">Scanning for Bluetooth LE devices...</p><p style="text-align:center;color:var(--text-muted);font-size:.78rem;margin-top:.5rem">Make sure your wearable is in pairing mode</p></div>
+            <div id="discoverResults" style="display:none"><div class="discover-grid" id="discoverGrid"></div></div>
+        </div>
+    </div>
+
+    <!-- Manual Pair Modal -->
+    <div class="modal-overlay" id="pairModal">
+        <div class="modal-box">
+            <div class="flex justify-between items-center mb-2">
+                <div class="modal-title">🔗 Manual Pairing</div>
+                <button class="btn btn-glass" onclick="closeModal('pairModal')" style="padding:.4rem .8rem;font-size:.8rem">✕</button>
+            </div>
+            <p style="color:var(--text-secondary);font-size:.9rem;margin-bottom:1.5rem">Select your device brand to begin pairing.</p>
+            <div class="discover-grid">
+                <div class="discover-item" onclick="manualPairDevice('Apple Watch','apple-watch','🍎')"><div class="discover-item-icon">🍎</div><div class="discover-item-name">Apple Watch</div><div class="discover-item-type">Series 4+</div></div>
+                <div class="discover-item" onclick="manualPairDevice('Fitbit','fitbit','👟')"><div class="discover-item-icon">👟</div><div class="discover-item-name">Fitbit</div><div class="discover-item-type">Sense / Versa / Charge</div></div>
+                <div class="discover-item" onclick="manualPairDevice('Garmin','garmin','⌚')"><div class="discover-item-icon">⌚</div><div class="discover-item-name">Garmin</div><div class="discover-item-type">Forerunner / Fenix / Venu</div></div>
+                <div class="discover-item" onclick="manualPairDevice('Samsung Watch','samsung-watch','⌚')"><div class="discover-item-icon">⌚</div><div class="discover-item-name">Samsung Watch</div><div class="discover-item-type">Galaxy Watch 4+</div></div>
+                <div class="discover-item" onclick="manualPairDevice('Whoop 4.0','whoop','💪')"><div class="discover-item-icon">💪</div><div class="discover-item-name">Whoop 4.0</div><div class="discover-item-type">Strain / Recovery</div></div>
+                <div class="discover-item" onclick="manualPairDevice('Oura Ring','oura','💍')"><div class="discover-item-icon">💍</div><div class="discover-item-name">Oura Ring</div><div class="discover-item-type">Gen 3</div></div>
+                <div class="discover-item" onclick="manualPairDevice('Polar','polar','❤️')"><div class="discover-item-icon">❤️</div><div class="discover-item-name">Polar</div><div class="discover-item-type">H10 / Vantage / Ignite</div></div>
+                <div class="discover-item" onclick="manualPairDevice('Xiaomi Band','xiaomi','⌚')"><div class="discover-item-icon">⌚</div><div class="discover-item-name">Xiaomi / Mi Band</div><div class="discover-item-type">Band 7 / Band 8</div></div>
+            </div>
+        </div>
+    </div>
+
+    <script src="../js/deviceSyncEngine.js"></script>
+    <script>
+    document.addEventListener('DOMContentLoaded', () => {
+        if (window.initializeSidebar) window.initializeSidebar('device-sync.html');
+        if (window.DeviceSyncEngine) window.deviceSyncEngine = new DeviceSyncEngine();
+    });
+    </script>
+</body>
+</html>

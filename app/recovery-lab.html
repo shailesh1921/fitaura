@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fitaura | Recovery Lab</title>
+<link rel="stylesheet" href="css/premium.css">
+<link rel="manifest" href="../manifest.json">
+<meta name="theme-color" content="#7000ff">
+<script src="../js/fitaura-global.js" defer></script>
+<script src="../js/components.js" defer></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+.gauge-wrap{display:flex;align-items:center;gap:1.5rem;margin-bottom:1.5rem;flex-wrap:wrap}
+.gauge-svg{width:120px;height:120px;flex-shrink:0}
+.gauge-track{fill:none;stroke:rgba(255,255,255,.06);stroke-width:8}
+.gauge-fill{fill:none;stroke-width:8;stroke-linecap:round;transform-origin:center;transform:rotate(-90deg);transition:stroke-dashoffset 1.2s cubic-bezier(.4,0,.2,1)}
+.gauge-info h4{font-size:.72rem;text-transform:uppercase;letter-spacing:.1em;color:var(--text-secondary);margin-bottom:.3rem}
+.gauge-score{font-family:var(--font-heading);font-size:2.5rem;font-weight:800;line-height:1}
+.gauge-status{font-size:.82rem;color:var(--text-secondary);margin-top:.3rem}
+.factor-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:1rem;margin-bottom:2rem}
+.factor-card{background:var(--bg-surface);border:1px solid var(--border-glass);border-radius:var(--radius-md);padding:1.2rem;transition:var(--transition-smooth)}
+.factor-card:hover{border-color:var(--border-hover);transform:translateY(-2px)}
+.factor-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:.8rem}
+.factor-icon{font-size:1.3rem}
+.factor-name{font-size:.88rem;font-weight:700;flex:1}
+.factor-score{font-family:var(--font-heading);font-weight:700;font-size:1.1rem}
+.factor-track{height:5px;background:rgba(255,255,255,.06);border-radius:999px;overflow:hidden}
+.factor-fill{height:100%;border-radius:999px;transition:width .8s ease}
+.factor-desc{font-size:.68rem;color:var(--text-secondary);margin-top:.5rem}
+.acwr-gauge-wrap{display:flex;align-items:center;gap:2rem;margin-bottom:1.5rem;padding:1.5rem;background:var(--bg-surface);border:1px solid var(--border-glass);border-radius:var(--radius-lg)}
+.acwr-zones{flex:1}
+.acwr-zone{display:flex;align-items:center;gap:.6rem;padding:.4rem 0;font-size:.78rem}
+.acwr-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+.sleep-chart-wrap{height:200px;margin-top:1rem;position:relative}
+.sleep-chart-wrap canvas{border-radius:var(--radius-sm)}
+.deload-card{background:var(--bg-surface);border:1px solid var(--border-glass);border-radius:var(--radius-lg);padding:1.5rem;margin-bottom:2rem;display:flex;align-items:center;gap:1.2rem}
+.deload-icon{width:50px;height:50px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.5rem;flex-shrink:0}
+.deload-info{flex:1}
+.deload-title{font-family:var(--font-heading);font-weight:700;font-size:1rem;margin-bottom:.2rem}
+.deload-desc{font-size:.78rem;color:var(--text-secondary)}
+.mobility-exercise{display:flex;align-items:center;gap:1rem;padding:.8rem 1rem;background:rgba(255,255,255,.03);border:1px solid var(--border-glass);border-radius:var(--radius-sm);margin-bottom:.5rem;transition:all .2s}
+.mobility-exercise:hover{border-color:var(--border-hover)}
+.mobility-name{font-weight:600;font-size:.85rem;flex:1}
+.mobility-time{font-size:.72rem;color:var(--text-secondary)}
+.mobility-target{font-size:.65rem;color:var(--accent-blue);min-width:100px;text-align:right}
+.supplement-card{display:flex;align-items:center;gap:1rem;padding:1rem 1.2rem;background:rgba(255,255,255,.03);border:1px solid var(--border-glass);border-radius:var(--radius-md);margin-bottom:.6rem;transition:all .2s}
+.supplement-card:hover{border-color:var(--border-hover)}
+.supplement-icon{font-size:1.4rem;flex-shrink:0}
+.supplement-info{flex:1}
+.supplement-name{font-weight:700;font-size:.88rem}
+.supplement-reason{font-size:.72rem;color:var(--text-secondary);margin-top:.2rem}
+.supplement-badge{font-size:.6rem;font-weight:700;padding:2px 8px;border-radius:999px;text-transform:uppercase;letter-spacing:.03em;flex-shrink:0}
+.badge-research{background:rgba(0,255,128,.1);color:#00ff80;border:1px solid rgba(0,255,128,.25)}
+.badge-optional{background:rgba(255,255,255,.06);color:var(--text-secondary);border:1px solid var(--border-glass)}
+.section-title{font-family:var(--font-heading);font-size:1.1rem;font-weight:700;margin-bottom:1rem;display:flex;align-items:center;gap:.5rem}
+@media(max-width:900px){.factor-grid{grid-template-columns:1fr}.acwr-gauge-wrap{flex-direction:column}}
+</style>
+</head>
+<body>
+<div class="ambient-bg"></div><div class="ambient-bg-2"></div>
+<aside class="layout-sidebar"></aside>
+<main class="layout-content">
+<div class="page-header"><h1 class="page-title">🧬 Recovery Lab</h1><p class="page-subtitle">CNS fatigue · ACWR · sleep analysis · deload scheduling · supplements</p></div>
+
+<!-- CNS Fatigue -->
+<div class="glass-card animate-up" style="margin-bottom:2rem">
+<div class="section-title">🧠 Central Nervous System Fatigue</div>
+<div class="gauge-wrap">
+<svg class="gauge-svg" viewBox="0 0 120 120">
+<circle class="gauge-track" cx="60" cy="60" r="50"/>
+<circle class="gauge-fill" id="cnsFill" cx="60" cy="60" r="50" stroke="#00ff80" stroke-dasharray="314.16" stroke-dashoffset="314.16"/>
+</svg>
+<div class="gauge-info">
+<h4>CNS Fatigue</h4>
+<div class="gauge-score" id="cnsScore" style="color:#00ff80">0%</div>
+<div class="gauge-status" id="cnsStatus">Calculating...</div>
+</div>
+</div>
+</div>
+
+<!-- Recovery Factors -->
+<div class="glass-card animate-up delay-1" style="margin-bottom:2rem">
+<div class="section-title">📊 Recovery Factor Breakdown</div>
+<div class="factor-grid" id="factorGrid"></div>
+</div>
+
+<!-- ACWR -->
+<div class="glass-card animate-up delay-1" style="margin-bottom:2rem">
+<div class="section-title">📈 Acute:Chronic Workload Ratio</div>
+<div class="acwr-gauge-wrap">
+<svg style="width:100px;height:100px;flex-shrink:0" viewBox="0 0 100 100">
+<circle class="gauge-track" cx="50" cy="50" r="42" stroke-width="8"/>
+<circle class="gauge-fill" id="acwrFill" cx="50" cy="50" r="42" stroke-width="8" stroke-dasharray="263.9" stroke-dashoffset="263.9"/>
+</svg>
+<div style="flex:1">
+<div style="font-family:var(--font-heading);font-size:2rem;font-weight:800" id="acwrScore">0.00</div>
+<div style="font-size:.82rem;color:var(--text-secondary);margin-bottom:.8rem" id="acwrStatus">Calculating...</div>
+<div class="acwr-zones">
+<div class="acwr-zone"><div class="acwr-dot" style="background:var(--accent-red)"></div><span style="color:var(--text-secondary)">High Risk</span><span style="color:var(--text-secondary);margin-left:auto">< 0.8</span></div>
+<div class="acwr-zone"><div class="acwr-dot" style="background:var(--accent-green)"></div><span style="color:var(--accent-green)">Sweet Spot</span><span style="color:var(--text-secondary);margin-left:auto">0.8 – 1.3</span></div>
+<div class="acwr-zone"><div class="acwr-dot" style="background:var(--accent-yellow)"></div><span style="color:var(--text-secondary)">Caution</span><span style="color:var(--text-secondary);margin-left:auto">> 1.3</span></div>
+</div>
+</div>
+</div>
+</div>
+
+<!-- Sleep Analysis -->
+<div class="glass-card animate-up delay-2" style="margin-bottom:2rem">
+<div class="section-title">😴 Sleep Analysis</div>
+<div id="sleepContent"></div>
+<div class="sleep-chart-wrap"><canvas id="sleepChart"></canvas></div>
+</div>
+
+<!-- Deload Scheduler -->
+<div class="glass-card animate-up delay-2" style="margin-bottom:2rem">
+<div class="section-title">📅 Deload Scheduler</div>
+<div id="deloadContent"></div>
+</div>
+
+<!-- Mobility Protocol -->
+<div class="glass-card animate-up delay-2" style="margin-bottom:2rem">
+<div class="section-title">🧘 Mobility Protocol Generator</div>
+<p style="font-size:.82rem;color:var(--text-secondary);margin-bottom:1rem">Personalized stretching routines based on your training load.</p>
+<div id="mobilityContent"></div>
+</div>
+
+<!-- Supplements -->
+<div class="glass-card animate-up delay-3">
+<div class="section-title">💊 Supplement Recommendations</div>
+<p style="font-size:.82rem;color:var(--text-secondary);margin-bottom:1rem">Based on your training intensity and recovery data.</p>
+<div id="supplementContent"></div>
+</div>
+</main>
+<script>
+function initRecovery(){
+if(window.initializeSidebar)window.initializeSidebar('recovery-lab.html');
+updateCNS();updateFactors();updateACWR();updateSleep();updateDeload();updateMobility();updateSupplements();
+}
+
+function getVolLog(){return JSON.parse(localStorage.getItem('fitaura_volume_log')||'{}')}
+function getWeeklyLog(){return JSON.parse(localStorage.getItem('fitaura_weekly_log')||'{}')}
+function getRPELog(){return JSON.parse(localStorage.getItem('fitaura_rpe_log')||'{}')}
+
+function updateCNS(){
+const vol=getVolLog();const rpe=getRPELog();
+const muscles=Object.keys(vol);
+let totalLoad=0,rpeSum=0,rpeCount=0;
+muscles.forEach(m=>{totalLoad+=(vol[m]||0)*(rpe[m]||7)/10});
+Object.values(rpe).forEach(r=>{rpeSum+=r;rpeCount++});
+const avgIntensity=rpeCount>0?rpeSum/rpeCount:0;
+const hrv=JSON.parse(localStorage.getItem('fitaura_last_hrv')||'{}');
+const sleep=JSON.parse(localStorage.getItem('fitaura_last_sleep')||'{}');
+let fatigue=Math.min(100,totalLoad*1.5+avgIntensity*8);
+if(hrv.rmssd&&hrv.rmssd<35)fatigue+=15;
+if(sleep.hours&&sleep.hours<7)fatigue+=20;
+else if(sleep.hours&&sleep.hours>=8)fatigue-=10;
+const score=Math.max(0,Math.min(100,Math.round(fatigue)));
+const circ=314.16;const col=score<30?'#00ff80':score<60?'#ffd700':'#ff3366';
+const fill=circ-(circ*score/100);
+document.getElementById('cnsFill').style.strokeDashoffset=fill;
+document.getElementById('cnsFill').setAttribute('stroke',col);
+document.getElementById('cnsScore').textContent=score+'%';
+document.getElementById('cnsScore').style.color=col;
+document.getElementById('cnsStatus').textContent=score<30?'Fully recovered — train hard':score<60?'Moderate fatigue — train smart':'High fatigue — rest recommended';
+}
+
+function updateFactors(){
+const vol=getVolLog();const rpe=getRPELog();
+const muscles=Object.keys(vol);const totalVol=muscles.reduce((a,m)=>a+(vol[m]||0),0);
+const avgRPE=Object.values(rpe).length>0?Object.values(rpe).reduce((a,b)=>a+b,0)/Object.values(rpe).length:5;
+const hrv=JSON.parse(localStorage.getItem('fitaura_last_hrv')||'{}');
+const sleep=JSON.parse(localStorage.getItem('fitaura_last_sleep')||'{}');
+const diet=JSON.parse(localStorage.getItem('fitaura_todays_diet')||'{}');
+const macroHit=diet.percentHit||0;
+const factors=[
+{name:'Muscular Recovery',icon:'💪',desc:'Based on total volume and per-muscle load',score:Math.max(0,Math.round(100-totalVol*3)),color:null},
+{name:'Sleep Quality',icon:'😴',desc:'Deep + REM recovery phases',score:sleep.hours?Math.min(100,Math.round(sleep.hours/9*100)):50,color:null},
+{name:'HRV Status',icon:'⚡',desc:'Autonomic nervous system balance',score:hrv.rmssd?Math.min(100,Math.round((hrv.rmssd/80)*100)):40,color:null},
+{name:'Nutrition Status',icon:'🍽️',desc:'Macro target adherence',score:macroHit||65,color:null},
+{name:'Training Load',icon:'🏋️',desc:'RPE-weighted session intensity',score:Math.max(0,Math.round(100-avgRPE*10)),color:null}
+];
+factors.forEach(f=>{f.color=f.score>70?'#00ff80':f.score>45?'#ffd700':'#ff3366'});
+document.getElementById('factorGrid').innerHTML=factors.map(f=>`<div class="factor-card">
+<div class="factor-header"><span class="factor-icon">${f.icon}</span><span class="factor-name">${f.name}</span><span class="factor-score" style="color:${f.color}">${f.score}%</span></div>
+<div class="factor-track"><div class="factor-fill" style="width:${f.score}%;background:${f.color}"></div></div>
+<div class="factor-desc">${f.desc}</div></div>`).join('');
+}
+
+function updateACWR(){
+const weeklyLog=getWeeklyLog();
+const today=new Date();
+let acuteLoad=0,chronicLoad=0;
+for(let w=0;w<7;w++){const d=new Date(today);d.setDate(d.getDate()-w);const ds=d.toDateString();Object.values(weeklyLog).forEach(m=>{acuteLoad+=(weeklyLog[m]&&weeklyLog[m][ds])||0})}
+for(let w=0;w<28;w++){const d=new Date(today);d.setDate(d.getDate()-w);const ds=d.toDateString();Object.values(weeklyLog).forEach(m=>{chronicLoad+=(weeklyLog[m]&&weeklyLog[m][ds])||0})}
+acuteLoad/=7;chronicLoad/=28;
+const ratio=chronicLoad>0?acuteLoad/chronicLoad:0;
+const circ=263.9;const col=ratio<0.8?'#ff3366':ratio<=1.3?'#00ff80':'#ffd700';
+document.getElementById('acwrFill').style.strokeDashoffset=circ-(circ*Math.min(ratio,2)/2);
+document.getElementById('acwrFill').setAttribute('stroke',col);
+document.getElementById('acwrScore').textContent=ratio.toFixed(2);
+document.getElementById('acwrScore').style.color=col;
+document.getElementById('acwrStatus').textContent=ratio<0.8?'⚠️ Undertraining — risk of detraining':ratio<=1.3?'✅ Sweet spot — optimal training zone':'⚠️ Overreaching — injury risk increasing';
+}
+
+function updateSleep(){
+const sleep=JSON.parse(localStorage.getItem('fitaura_last_sleep')||'{}');
+if(!sleep.hours){document.getElementById('sleepContent').innerHTML=`<div style="text-align:center;padding:2rem;color:var(--text-secondary)">
+<div style="font-size:2rem;margin-bottom:.5rem">📡</div>
+<p>No sleep data available.</p>
+<p style="font-size:.78rem;margin-top:.5rem">Connect a wearable device via <a href="device-sync.html" style="color:var(--accent-blue)">Device Sync</a> to track sleep phases.</p>
+</div>`;
+const ctx=document.getElementById('sleepChart').getContext('2d');
+if(window._sleepChart)window._sleepChart.destroy();
+window._sleepChart=new Chart(ctx,{type:'doughnut',data:{labels:['Deep','Light','REM','Awake'],datasets:[{data:[sleep.deep||0,sleep.light||0,sleep.rem||0,sleep.awake||0],backgroundColor:['#7000ff','rgba(112,0,255,0.3)','#00c3ff','rgba(255,255,255,0.08)'],borderWidth:0}]},options:{responsive:true,maintainAspectRatio:false,cutout:'65%',plugins:{legend:{position:'bottom',labels:{color:'#888',font:{size:10},padding:15}}}}});
+return}
+const total=sleep.deep+sleep.light+sleep.rem+sleep.awake||1;
+const data=[sleep.deep||0,sleep.light||0,sleep.rem||0,sleep.awake||0];
+const labels=['Deep','Light','REM','Awake'];
+const colors=['#7000ff','rgba(112,0,255,0.3)','#00c3ff','rgba(255,255,255,0.08)'];
+document.getElementById('sleepContent').innerHTML=`<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;margin-bottom:1rem;">
+<div style="text-align:center"><div style="font-family:var(--font-heading);font-size:1.8rem;font-weight:800;color:var(--accent-green)">${sleep.hours||0}</div><div style="font-size:.65rem;color:var(--text-secondary);text-transform:uppercase">Hours</div></div>
+<div style="text-align:center"><div style="font-family:var(--font-heading);font-size:1.4rem;font-weight:800;color:#7000ff">${sleep.deep||0}</div><div style="font-size:.65rem;color:var(--text-secondary);text-transform:uppercase">Deep</div></div>
+<div style="text-align:center"><div style="font-family:var(--font-heading);font-size:1.4rem;font-weight:800;color:#00c3ff">${sleep.rem||0}</div><div style="font-size:.65rem;color:var(--text-secondary);text-transform:uppercase">REM</div></div>
+<div style="text-align:center"><div style="font-family:var(--font-heading);font-size:1.4rem;font-weight:800;color:var(--accent-yellow)">${sleep.awake||0}</div><div style="font-size:.65rem;color:var(--text-secondary);text-transform:uppercase">Awake</div></div>
+</div>`;
+if(window._sleepChart)window._sleepChart.destroy();
+window._sleepChart=new Chart(document.getElementById('sleepChart'),{type:'doughnut',data:{labels,datasets:[{data,backgroundColor:colors,borderWidth:0}]},options:{responsive:true,maintainAspectRatio:false,cutout:'65%',plugins:{legend:{position:'bottom',labels:{color:'#888',font:{size:10},padding:15}}}}});
+}
+
+function updateDeload(){
+const vol=getVolLog();const muscles=Object.keys(vol);
+const totalVol=muscles.reduce((a,m)=>a+(vol[m]||0),0);
+const rpe=getRPELog();const avgRPE=Object.values(rpe).length>0?Object.values(rpe).reduce((a,b)=>a+b,0)/Object.values(rpe).length:5;
+const hrv=JSON.parse(localStorage.getItem('fitaura_last_hrv')||'{}');
+let severity='none',msg,icon,bg,col;
+if(totalVol>100||avgRPE>8.5){severity='immediate';msg='Immediate deload recommended. Your CNS fatigue is critically high. Take 3-5 days of active recovery with light mobility work only. Focus on sleep, nutrition, and hydration.';icon='🔴';bg='rgba(255,51,102,.06)';col='var(--accent-red)'}
+else if(totalVol>70||avgRPE>7.5){severity='this_week';msg='Schedule a deload week this week. Reduce volume to 40-50% and intensity to RPE 5-6. Include extra rest days and focus on recovery modalities.';icon='🟡';bg='rgba(255,215,0,.04)';col='var(--accent-yellow)'}
+else{msg='No deload needed. Your training load is within healthy ranges. Keep training smart and monitor recovery markers weekly.';icon='🟢';bg='rgba(0,255,128,.04)';col='var(--accent-green)'}
+document.getElementById('deloadContent').innerHTML=`<div class="deload-card" style="background:${bg};border-color:${col}30">
+<div class="deload-icon" style="background:${bg}">${icon}</div>
+<div class="deload-info"><div class="deload-title" style="color:${col}">${severity==='immediate'?'Immediate Deload':severity==='this_week'?'Deload This Week':'No Deload Needed'}</div>
+<div class="deload-desc">${msg}</div></div></div>`;
+}
+
+function updateMobility(){
+const vol=getVolLog();
+const fatigued=Object.entries(vol).filter(([_,v])=>v>5).map(([m])=>m).sort((a,b)=>(vol[b]||0)-(vol[a]||0));
+const dynamic=[
+{name:'Hip 90/90 Stretch',target:'Hip Flexors',time:'30s each'},
+{name:'World\'s Greatest Stretch',target:'Full Body',time:'45s each'},
+{name:'Cat-Cow Spinal Flow',target:'Back / Abs',time:'10 reps'},
+{name:'Arm Circles + Band Pull-aparts',target:'Shoulders',time:'30s'},
+{name:'Ankle Dorsiflexion Mobilization',target:'Calves',time:'30s each'},
+{name:'Thoracic Spine Rotations',target:'Back / Traps',time:'20 reps'}
+];
+const static_=[
+{name:'Standing Hamstring Stretch',target:'Hamstrings',time:'30s each'},
+{name:'Pigeon Pose',target:'Glutes / Hip Flexors',time:'45s each'},
+{name:'Doorway Chest Stretch',target:'Chest / Shoulders',time:'30s'},
+{name:'Wall Quad Stretch',target:'Quads / Hip Flexors',time:'30s each'},
+{name:'Calf Wall Stretch',target:'Calves',time:'30s each'},
+{name:'Lat Hang / Foam Roll',target:'Back / Traps',time:'60s'}
+];
+document.getElementById('mobilityContent').innerHTML=`
+<div style="font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--accent-green);margin-bottom:.6rem">Dynamic Warm-up (Pre-Workout)</div>
+${dynamic.map(e=>`<div class="mobility-exercise"><div class="mobility-name">${e.name}</div><div class="mobility-time">${e.time}</div><div class="mobility-target">→ ${e.target}</div></div>`).join('')}
+<div style="font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--accent-purple);margin:1rem 0 .6rem">Static Stretching (Post-Workout)</div>
+${static_.map(e=>`<div class="mobility-exercise"><div class="mobility-name">${e.name}</div><div class="mobility-time">${e.time}</div><div class="mobility-target">→ ${e.target}</div></div>`).join('')}
+${fatigued.length>0?`<div style="margin-top:1rem;padding:.8rem 1rem;background:rgba(0,195,255,.06);border:1px solid rgba(0,195,255,.2);border-radius:var(--radius-sm);font-size:.8rem;color:var(--accent-blue)">💡 <strong>Priority muscles:</strong> ${fatigued.slice(0,5).join(', ')} — spend extra time on these during static stretching.</div>`:''}`;
+}
+
+function updateSupplements(){
+const vol=getVolLog();const rpe=getRPELog();
+const totalVol=Object.values(vol).reduce((a,v)=>a+v,0);
+const avgRPE=Object.values(rpe).length>0?Object.values(rpe).reduce((a,b)=>a+b,0)/Object.values(rpe).length:5;
+const hrv=JSON.parse(localStorage.getItem('fitaura_last_hrv')||'{}');
+const sleep=JSON.parse(localStorage.getItem('fitaura_last_sleep')||'{}');
+const diet=JSON.parse(localStorage.getItem('fitaura_todays_diet')||'{}');
+const highVolume=totalVol>50;const highIntensity=avgRPE>7;const lowSleep=sleep.hours&&sleep.hours<7;const lowHRV=hrv.rmssd&&hrv.rmssd<35;const lowProtein=diet.protein&&diet.protein<(diet.proteinTarget||150);
+const recs=[
+{name:'Creatine Monohydrate',icon:'⚡',reason:'Increases ATP production, strength, and lean mass. Most researched supplement.',badge:'Research-backed',badgeClass:'badge-research',show:highVolume},
+{name:'Magnesium Glycinate',icon:'🌙',reason:'Improves sleep quality, reduces muscle cramps, supports recovery.',badge:'Research-backed',badgeClass:'badge-research',show:lowSleep||highIntensity},
+{name:'Omega-3 Fish Oil',icon:'🐟',reason:'Reduces inflammation, supports joint health and cardiovascular function.',badge:'Research-backed',badgeClass:'badge-research',show:highIntensity},
+{name:'Whey Protein Isolate',icon:'🥛',reason:'Fast-absorbing protein for post-workout recovery.',badge:lowProtein?'Recommended':'Optional',badgeClass:lowProtein?'badge-research':'badge-optional',show:true},
+{name:'Caffeine (Pre-workout)',icon:'☕',reason:'Enhances focus, power output, and reduces perceived exertion.',badge:'Research-backed',badgeClass:'badge-research',show:highIntensity},
+{name:'Vitamin D3 + K2',icon:'☀️',reason:'Supports testosterone, bone density, and immune function.',badge:'Research-backed',badgeClass:'badge-research',show:lowHRV},
+{name:'Tart Cherry Extract',icon:'🍒',reason:'Reduces muscle soreness and inflammation post-exercise.',badge:'Optional',badgeClass:'badge-optional',show:highVolume},
+{name:'Ashwagandha',icon:'🌿',reason:'Lowers cortisol, improves stress response and recovery.',badge:'Optional',badgeClass:'badge-optional',show:lowHRV||lowSleep},
+{name:'Beta-Alanine',icon:'🔥',reason:'Buffers lactic acid, improves endurance performance.',badge:'Optional',badgeClass:'badge-optional',show:highVolume&&highIntensity},
+{name:'Electrolytes',icon:'💧',reason:'Replaces sodium, potassium, magnesium lost in sweat.',badge:'Optional',badgeClass:'badge-optional',show:highVolume}
+].filter(s=>s.show);
+document.getElementById('supplementContent').innerHTML=recs.map(s=>`<div class="supplement-card">
+<div class="supplement-icon">${s.icon}</div>
+<div class="supplement-info"><div class="supplement-name">${s.name}</div><div class="supplement-reason">${s.reason}</div></div>
+<span class="supplement-badge ${s.badgeClass}">${s.badge}</span></div>`).join('');
+}
+
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',initRecovery);else initRecovery();
+</script>
+</body>
+</html>

@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fitaura | Performance Lab</title>
+<link rel="stylesheet" href="css/premium.css">
+<link rel="manifest" href="../manifest.json">
+<meta name="theme-color" content="#7000ff">
+<script src="../js/fitaura-global.js" defer></script>
+<script src="../js/components.js" defer></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+.lab-section{margin-bottom:2rem}
+.lab-card{background:var(--bg-surface);border:1px solid var(--border-glass);border-radius:var(--radius-lg);padding:2rem;transition:var(--transition-smooth)}
+.lab-card:hover{border-color:var(--border-hover)}
+.lab-card-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:1.2rem}
+.lab-title{font-family:var(--font-heading);font-size:1.2rem;font-weight:700}
+.lab-subtitle{font-size:.82rem;color:var(--text-secondary);margin-bottom:1rem}
+.input-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:1rem;margin-bottom:1rem}
+.input-group label{display:block;font-size:.68rem;text-transform:uppercase;letter-spacing:.08em;color:var(--text-secondary);margin-bottom:.3rem}
+.input-group input,.input-group select{width:100%;background:rgba(0,0,0,.4);border:1px solid var(--border-glass);border-radius:var(--radius-sm);padding:.7rem;color:var(--text-primary);font-family:var(--font-body);font-size:.95rem;transition:var(--transition-smooth)}
+.input-group input:focus{outline:none;border-color:var(--accent-blue)}
+.result-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:.8rem;margin-top:1rem}
+.result-item{background:rgba(255,255,255,.03);border:1px solid var(--border-glass);border-radius:var(--radius-sm);padding:1rem;text-align:center;transition:var(--transition-smooth)}
+.result-item:hover{border-color:var(--border-hover);transform:translateY(-2px)}
+.result-value{font-family:var(--font-heading);font-size:1.6rem;font-weight:800;line-height:1}
+.result-label{font-size:.65rem;color:var(--text-secondary);text-transform:uppercase;letter-spacing:.08em;margin-top:.3rem}
+.result-formula{font-size:.6rem;color:var(--accent-purple);margin-top:.2rem}
+.pr-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:1rem;margin-top:1rem}
+.pr-card{background:rgba(255,255,255,.03);border:1px solid var(--border-glass);border-radius:var(--radius-md);padding:1.2rem;transition:var(--transition-smooth);cursor:pointer;position:relative;overflow:hidden}
+.pr-card:hover{border-color:var(--border-hover);transform:translateY(-3px);box-shadow:var(--shadow-glass)}
+.pr-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:var(--pr-color,var(--accent-purple))}
+.pr-exercise{font-family:var(--font-heading);font-weight:700;font-size:1rem;margin-bottom:.3rem}
+.pr-weight{font-family:var(--font-heading);font-size:2rem;font-weight:800;line-height:1}
+.pr-change{font-size:.75rem;margin-top:.4rem}
+.pr-date{font-size:.65rem;color:var(--text-secondary);margin-top:.2rem}
+.phase-timeline{display:flex;gap:.5rem;margin:1rem 0;position:relative}
+.phase-timeline::before{content:'';position:absolute;top:50%;left:0;right:0;height:3px;background:rgba(255,255,255,.06);border-radius:999px;transform:translateY(-50%)}
+.phase-node{flex:1;text-align:center;position:relative;z-index:1}
+.phase-dot{width:20px;height:20px;border-radius:50%;margin:0 auto .5rem;border:2px solid var(--border-glass);background:var(--bg-dark);transition:all .3s}
+.phase-dot.active{border-color:var(--accent-purple);background:var(--accent-purple);box-shadow:0 0 12px rgba(112,0,255,.5)}
+.phase-dot.done{border-color:var(--accent-green);background:var(--accent-green)}
+.phase-label{font-size:.72rem;color:var(--text-secondary);font-weight:600;text-transform:uppercase;letter-spacing:.05em}
+.phase-pct{font-size:.6rem;color:var(--text-muted);margin-top:.2rem}
+.rpe-heatmap{overflow-x:auto;margin-top:1rem}
+.rpe-heatmap table{width:100%;border-collapse:collapse;font-size:.75rem}
+.rpe-heatmap th{padding:.5rem;text-align:center;color:var(--text-secondary);font-weight:600;font-size:.65rem;text-transform:uppercase}
+.rpe-heatmap td{padding:.4rem;text-align:center;border:1px solid rgba(255,255,255,.04)}
+.rpe-cell{width:32px;height:32px;border-radius:6px;display:inline-flex;align-items:center;justify-content:center;font-size:.65rem;font-weight:700;transition:all .2s;cursor:default}
+.rpe-cell:hover{transform:scale(1.15)}
+.chart-wrap{position:relative;height:220px;margin-top:1rem}
+.summary-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:1rem}
+.summary-item{background:rgba(255,255,255,.03);border:1px solid var(--border-glass);border-radius:var(--radius-md);padding:1.2rem;display:flex;align-items:center;gap:1rem}
+.summary-icon{font-size:1.8rem;flex-shrink:0}
+.summary-val{font-family:var(--font-heading);font-size:1.5rem;font-weight:800;line-height:1}
+.summary-label{font-size:.65rem;color:var(--text-secondary);text-transform:uppercase;letter-spacing:.06em;margin-top:.2rem}
+.tag-pill{display:inline-flex;align-items:center;gap:4px;font-size:.65rem;font-weight:700;padding:3px 10px;border-radius:999px;text-transform:uppercase;letter-spacing:.03em}
+.tag-purple{background:rgba(112,0,255,.15);color:#a78bfa}
+.tag-green{background:rgba(0,255,128,.12);color:#00ff80}
+.tag-blue{background:rgba(0,195,255,.12);color:#00c3ff}
+.tag-yellow{background:rgba(255,215,0,.12);color:#ffd700}
+.tag-red{background:rgba(255,51,102,.12);color:#ff3366}
+.progress-track{height:6px;background:rgba(255,255,255,.07);border-radius:999px;overflow:hidden;margin:.5rem 0}
+.progress-fill{height:100%;border-radius:999px;transition:width .6s ease}
+@media(max-width:900px){.input-grid,.result-grid,.summary-grid,.pr-grid{grid-template-columns:repeat(2,1fr)}.phase-timeline{flex-wrap:wrap;gap:.8rem}.phase-timeline::before{display:none}}
+</style>
+</head>
+<body>
+<div class="ambient-bg"></div><div class="ambient-bg-2"></div>
+<aside class="layout-sidebar"></aside>
+<main class="layout-content">
+<div class="page-header"><h1 class="page-title">🔬 Performance Lab</h1><p class="page-subtitle">1RM science · Wilks score · periodization · volume analytics · training age</p></div>
+
+<!-- Weekly Summary -->
+<div class="glass-card animate-up lab-section"><div class="lab-card-header"><h3 class="lab-title">Weekly Summary</h3><span class="tag-pill tag-green" id="weekRange">This Week</span></div>
+<div class="summary-grid" id="weeklySummary"></div></div>
+
+<!-- 1RM Calculator -->
+<div class="glass-card animate-up delay-1 lab-section">
+<div class="lab-card-header"><h3 class="lab-title">1RM Calculator</h3><span class="tag-pill tag-purple">4 Formulas</span></div>
+<p class="lab-subtitle">Enter weight lifted and reps completed to estimate your one-rep max.</p>
+<div class="input-grid">
+<div class="input-group"><label>Exercise</label><select id="ormExercise"><option>Barbell Bench Press</option><option>Back Squat</option><option>Deadlift</option><option>Overhead Press</option><option>Barbell Row</option><option>Incline Bench Press</option><option>Weighted Pull-up</option><option>Barbell Curl</option><option>Other</option></select></div>
+<div class="input-group"><label>Weight (kg)</label><input type="number" id="ormWeight" value="100" min="1" step="2.5"></div>
+<div class="input-group"><label>Reps (1-10)</label><input type="number" id="ormReps" value="5" min="1" max="10"></div>
+<div class="input-group" style="justify-content:flex-end"><label>&nbsp;</label><button class="btn btn-accent" onclick="calculate1RM()">Calculate</button></div>
+</div>
+<div class="result-grid" id="ormResults"></div>
+</div>
+
+<!-- Wilks Score -->
+<div class="glass-card animate-up delay-1 lab-section">
+<div class="lab-card-header"><h3 class="lab-title">Wilks Score Calculator</h3><span class="tag-pill tag-blue">Powerlifting</span></div>
+<p class="lab-subtitle">Enter your best Squat, Bench, and Deadlift to calculate your Wilks score.</p>
+<div class="input-grid">
+<div class="input-group"><label>Body Weight (kg)</label><input type="number" id="wilksWeight" value="75" min="30"></div>
+<div class="input-group"><label>Sex</label><select id="wilksSex"><option value="m">Male</option><option value="f">Female</option></select></div>
+<div class="input-group"><label>Best Squat (kg)</label><input type="number" id="wilksSquat" value="0" min="0"></div>
+<div class="input-group"><label>Best Bench (kg)</label><input type="number" id="wilksBench" value="0" min="0"></div>
+<div class="input-group"><label>Best Deadlift (kg)</label><input type="number" id="wilksDeadlift" value="0" min="0"></div>
+<div class="input-group" style="justify-content:flex-end"><label>&nbsp;</label><button class="btn btn-accent" onclick="calculateWilks()">Calculate</button></div>
+</div>
+<div class="result-grid" id="wilksResults"></div>
+</div>
+
+<!-- Personal Records -->
+<div class="glass-card animate-up delay-2 lab-section">
+<div class="lab-card-header"><h3 class="lab-title">Personal Records</h3><button class="btn btn-glass" style="font-size:.8rem;padding:.5rem 1rem;" onclick="openAddPR()">+ Add PR</button></div>
+<div class="pr-grid" id="prGrid"></div>
+</div>
+
+<!-- Periodization -->
+<div class="glass-card animate-up delay-2 lab-section">
+<div class="lab-card-header"><h3 class="lab-title">Periodization Timeline</h3><span class="tag-pill tag-purple" id="phaseLabel">Loading...</span></div>
+<div class="input-grid" style="grid-template-columns:repeat(3,1fr)">
+<div class="input-group"><label>Mesocycle Length (weeks)</label><select id="mesoLength" onchange="updatePeriodization()"><option value="4">4 Weeks</option><option value="6">6 Weeks</option><option value="8" selected>8 Weeks</option><option value="10">10 Weeks</option><option value="12">12 Weeks</option></select></div>
+<div class="input-group"><label>Week Start Date</label><input type="date" id="mesoStart" onchange="updatePeriodization()"></div>
+<div class="input-group"><label>Current Week</label><input type="number" id="mesoWeek" value="1" min="1" max="12" onchange="updatePeriodization()"></div>
+</div>
+<div class="phase-timeline" id="phaseTimeline"></div>
+<div class="result-grid" id="phaseResults"></div>
+</div>
+
+<!-- RPE Heatmap -->
+<div class="glass-card animate-up delay-2 lab-section">
+<div class="lab-card-header"><h3 class="lab-title">RPE Distribution Map</h3><span class="tag-pill tag-yellow">This Week</span></div>
+<p class="lab-subtitle">How your training intensity is distributed across the week.</p>
+<div class="rpe-heatmap" id="rpeHeatmap"></div>
+</div>
+
+<!-- Volume Timeline -->
+<div class="glass-card animate-up delay-3 lab-section">
+<div class="lab-card-header"><h3 class="lab-title">Volume & Intensity Trend</h3><span class="tag-pill tag-green">8 Weeks</span></div>
+<div class="chart-wrap"><canvas id="volumeChart"></canvas></div>
+</div>
+
+<!-- Exercise Progress -->
+<div class="glass-card animate-up delay-3 lab-section">
+<div class="lab-card-header"><h3 class="lab-title">Exercise Progress Tracker</h3></div>
+<div id="exerciseProgress"></div>
+</div>
+
+<!-- Add PR Modal -->
+<div class="modal-overlay" id="prModal" style="position:fixed;inset:0;background:rgba(0,0,0,.7);backdrop-filter:blur(8px);z-index:1000;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .3s;">
+<div class="modal-box" style="background:#111;border:1px solid var(--border-glass);border-radius:var(--radius-lg);padding:2rem;width:90%;max-width:420px;">
+<div class="flex justify-between items-center mb-2"><div class="lab-title">Add Personal Record</div><button class="btn btn-glass" onclick="closePRModal()" style="padding:.4rem .8rem;font-size:.8rem;">✕</button></div>
+<div class="input-grid" style="grid-template-columns:1fr 1fr">
+<div class="input-group"><label>Exercise</label><input type="text" id="prExName" placeholder="e.g. Bench Press"></div>
+<div class="input-group"><label>Weight (kg)</label><input type="number" id="prExWeight" placeholder="100" min="0"></div>
+</div>
+<button class="btn btn-accent w-full" onclick="saveNewPR()" style="margin-top:1rem">Save PR</button>
+</div></div>
+</main>
+<script>
+function initLab(){
+if(window.initializeSidebar)window.initializeSidebar('performance-lab.html');
+
+const TODAY=new Date().toDateString();
+const DAYS=['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+const RPE_COLORS=['rgba(255,255,255,.05)','#22c55e','#84cc16','#a3e635','#eab308','#f59e0b','#f97316','#ef4444','#dc2626','#991b1b','#7f1d1d'];
+
+// 1RM Formulas
+window.calculate1RM=function(){
+const w=parseFloat(document.getElementById('ormWeight').value)||0;
+const r=parseFloat(document.getElementById('ormReps').value)||1;
+const ex=document.getElementById('ormExercise').value;
+if(w<=0||r<1)return;
+const epley=r===1?w:w*(1+r/30);
+const brzycki=r===1?w:w*36/(37-r);
+const lombardi=r===1?w:w*Math.pow(r,0.10);
+const oconner=r===1?w:w*(1+0.025*r);
+const avg=(epley+brzycki+lombardi+oconner)/4;
+const results=[
+{name:'Epley',val:epley,desc:'(W×(1+R/30))'},
+{name:'Brzycki',val:brzycki,desc:'(W×36/(37-R))'},
+{name:'Lombardi',val:lombardi,desc:'(W×R^0.10)'},
+{name:"O'Conner",val:oconner,desc:'(W×(1+0.025×R))'},
+{name:'Average',val:avg,desc:'Mean of all formulas'}
+];
+document.getElementById('ormResults').innerHTML=results.map(r=>`<div class="result-item" style="${r.name==='Average'?'border-color:rgba(112,0,255,.3);background:rgba(112,0,255,.06)':''}">
+<div class="result-value" style="color:${r.name==='Average'?'var(--accent-purple)':'var(--accent-green)'};">${r.val.toFixed(1)}<span style="font-size:.7rem;font-weight:400;color:var(--text-secondary)"> kg</span></div>
+<div class="result-label">${r.name}</div>
+<div class="result-formula">${r.desc}</div></div>`).join('');
+
+// Save PR
+const prs=JSON.parse(localStorage.getItem('fitaura_prs')||'{}');
+if(!prs[ex]||avg>prs[ex].weight){
+prs[ex]={weight:Math.round(avg*10)/10,prevWeight:prs[ex]?prs[ex].weight:null,date:new Date().toISOString()};
+localStorage.setItem('fitaura_prs',JSON.stringify(prs));
+showToast(`PR saved: ${ex} — ${avg.toFixed(1)} kg`);
+}
+renderPRs();updateWeeklySummary();
+};
+
+// Wilks
+window.calculateWilks=function(){
+const bw=parseFloat(document.getElementById('wilksWeight').value)||75;
+const sex=document.getElementById('wilksSex').value;
+const sq=parseFloat(document.getElementById('wilksSquat').value)||0;
+const bn=parseFloat(document.getElementById('wilksBench').value)||0;
+const dl=parseFloat(document.getElementById('wilksDeadlift').value)||0;
+const total=sq+bn+dl;
+if(total<=0)return;
+const a=sex==='m'?-216.0475144:594.3174775;
+const b=sex==='m'?16.2606339:-27.2384256;
+const c=sex==='m'?-0.002388645:0.82112226;
+const d=sex==='m'?-0.00113732:-0.00930733;
+const e=sex==='m'?7.01863e-6:4.731582e-6;
+const f=sex==='m'?-1.291e-8:-9.054e-8;
+const wilksCoeff=500/(a+b*bw+c*bw*bw+d*bw*bw*bw+e*bw*bw*bw*bw+f*bw*bw*bw*bw*bw);
+const wilks=total*wilksCoeff;
+let cls='Unranked',clsColor='var(--text-secondary)';
+if(wilks>=500){cls='Elite';clsColor='var(--accent-purple)'}
+else if(wilks>=400){cls='Class 1';clsColor='var(--accent-green)'}
+else if(wilks>=300){cls='Class 2';clsColor='var(--accent-blue)'}
+else if(wilks>=200){cls='Class 3';clsColor='var(--accent-yellow)'}
+else if(wilks>0){cls='Class 4';clsColor='var(--accent-red)'}
+document.getElementById('wilksResults').innerHTML=`
+<div class="result-item" style="grid-column:span 2;border-color:rgba(112,0,255,.3);background:rgba(112,0,255,.06)">
+<div class="result-value" style="color:var(--accent-purple)">${wilks.toFixed(2)}</div><div class="result-label">Wilks Score</div>
+<div style="font-size:.8rem;color:${clsColor};font-weight:700;margin-top:.3rem;">${cls}</div></div>
+<div class="result-item"><div class="result-value">${total.toFixed(1)}<span style="font-size:.7rem;font-weight:400;color:var(--text-secondary)"> kg</span></div><div class="result-label">Total</div></div>
+<div class="result-item"><div class="result-value" style="font-size:1.1rem;">${wilksCoeff.toFixed(4)}</div><div class="result-label">Coefficient</div></div>`;
+localStorage.setItem('fitaura_wilks',JSON.stringify({score:wilks,total,bw,sex,date:new Date().toISOString()}));
+};
+
+// PRs
+function renderPRs(){
+const prs=JSON.parse(localStorage.getItem('fitaura_prs')||'{}');
+const entries=Object.entries(prs).sort((a,b)=>(b[1].weight||0)-(a[1].weight||0));
+if(entries.length===0){document.getElementById('prGrid').innerHTML='<p style="color:var(--text-secondary);grid-column:span 3;text-align:center;padding:2rem;">No PRs recorded yet. Use the 1RM calculator or add manually.</p>';return}
+document.getElementById('prGrid').innerHTML=entries.map(([name,d])=>{
+const change=d.prevWeight?((d.weight-d.prevWeight)/d.prevWeight*100).toFixed(1):null;
+const changeColor=change>0?'#00ff80':change<0?'#ff3366':'var(--text-secondary)';
+const changeText=change>0?`+${change}%`:change<0?`${change}%`:'New';
+return`<div class="pr-card" style="--pr-color:${change>0?'var(--accent-green)':change<0?'var(--accent-red)':'var(--accent-purple)'}">
+<div class="pr-exercise">${name}</div>
+<div class="pr-weight" style="color:${change>0?'#00ff80':'var(--text-primary)'}">${d.weight} kg</div>
+${change!==null?`<div class="pr-change" style="color:${changeColor}">${changeText}</div>`:`<div class="pr-change" style="color:var(--accent-blue)">🏆 New PR</div>`}
+<div class="pr-date">${new Date(d.date).toLocaleDateString('en',{month:'short',day:'numeric',year:'numeric'})}</div></div>`}).join('');
+}
+
+window.openAddPR=function(){document.getElementById('prModal').style.opacity='1';document.getElementById('prModal').style.pointerEvents='all'};
+window.closePRModal=function(){document.getElementById('prModal').style.opacity='0';document.getElementById('prModal').style.pointerEvents='none'};
+window.saveNewPR=function(){
+const name=document.getElementById('prExName').value.trim();
+const weight=parseFloat(document.getElementById('prExWeight').value)||0;
+if(!name||weight<=0)return showToast('Enter exercise name and weight');
+const prs=JSON.parse(localStorage.getItem('fitaura_prs')||'{}');
+prs[name]={weight,prevWeight:prs[name]?prs[name].weight:null,date:new Date().toISOString()};
+localStorage.setItem('fitaura_prs',JSON.stringify(prs));
+renderPRs();closePRModal();showToast(`PR saved: ${name} — ${weight}kg`);
+document.getElementById('prExName').value='';document.getElementById('prExWeight').value='';
+};
+
+// Periodization
+function updatePeriodization(){
+const len=parseInt(document.getElementById('mesoLength').value);
+const currentWeek=parseInt(document.getElementById('mesoWeek').value)||1;
+const phases=[
+{name:'Accumulation',weeks:Math.ceil(len*.4),pct:'60-70%',color:'var(--accent-blue)'},
+{name:'Intensification',weeks:Math.ceil(len*.3),pct:'75-85%',color:'var(--accent-yellow)'},
+{name:'Peaking',weeks:Math.floor(len*.2),pct:'90-100%',color:'var(--accent-red)'},
+{name:'Deload',weeks:Math.max(1,len-Math.ceil(len*.4)-Math.ceil(len*.3)-Math.floor(len*.2)),pct:'40-50%',color:'var(--accent-green)'}
+];
+let weekCounter=0;
+const nodes=phases.map(p=>{
+const isActive=weekCounter<currentWeek&&currentWeek<=weekCounter+p.weeks;
+const isDone=weekCounter+p.weeks<currentWeek;
+const pctInPhase=isActive?Math.min(100,((currentWeek-weekCounter)/p.weeks)*100):isDone?100:0;
+weekCounter+=p.weeks;
+return{...p,isActive,isDone,pctInPhase};
+});
+document.getElementById('phaseTimeline').innerHTML=nodes.map(n=>`<div class="phase-node">
+<div class="phase-dot ${n.isActive?'active':n.isDone?'done':''}" style="${n.isActive?`background:${n.color};border-color:${n.color};box-shadow:0 0 12px ${n.color}50`:n.isDone?`background:var(--accent-green);border-color:var(--accent-green)`:''}"></div>
+<div class="phase-label" style="color:${n.isActive?n.color:n.isDone?'var(--accent-green)':'var(--text-secondary)'}">${n.name}</div>
+<div class="phase-pct">${n.pct} intensity</div>
+<div class="progress-track"><div class="progress-fill" style="width:${n.pctInPhase}%;background:${n.color}"></div></div></div>`).join('');
+const activePhase=nodes.find(n=>n.isActive)||nodes[nodes.length-1];
+document.getElementById('phaseLabel').textContent=`Week ${Math.min(currentWeek,len)}/${len} · ${activePhase.name}`;
+document.getElementById('phaseResults').innerHTML=`
+<div class="result-item"><div class="result-value" style="color:${activePhase.color}">${activePhase.name}</div><div class="result-label">Current Phase</div></div>
+<div class="result-item"><div class="result-value">${currentWeek}<span style="font-size:.7rem;font-weight:400;color:var(--text-secondary)">/${len}</span></div><div class="result-label">Week</div></div>
+<div class="result-item"><div class="result-value" style="color:var(--accent-green)">${len-currentWeek}</div><div class="result-label">Weeks Remaining</div></div>`;
+}
+
+// RPE Heatmap
+function renderRPEHeatmap(){
+const weeklyLog=JSON.parse(localStorage.getItem('fitaura_weekly_log')||'{}');
+const rpeLog=JSON.parse(localStorage.getItem('fitaura_rpe_log')||'{}');
+const grid={};
+Object.entries(rpeLog).forEach(([m,rpe])=>{const dayVol=Object.values(weeklyLog[m]||{}).reduce((a,v)=>a+v,0);if(dayVol>0){const day=new Date().toLocaleDateString('en',{weekday:'short'});if(!grid[day])grid[day]={};grid[day][Math.ceil(rpe)]=(grid[day][Math.ceil(rpe)]||0)+Math.round(dayVol/Object.keys(weeklyLog[m]||{}).length)}});
+const todayIdx=(new Date().getDay()+6)%7;
+let html='<table><thead><tr><th></th>';
+DAYS.forEach((d,i)=>html+=`<th style="${i===todayIdx?'color:var(--accent-green)':''}">${d}</th>`);
+html+='</tr></thead><tbody>';
+for(let r=10;r>=1;r--){
+html+=`<tr><td style="color:var(--text-secondary);font-weight:600;font-size:.7rem;">RPE ${r}</td>`;
+DAYS.forEach(d=>{
+const count=grid[d]?grid[d][r]||0:0;
+const col=RPE_COLORS[Math.min(r,10)];
+const opacity=count>0?1:.15;
+html+=`<td><div class="rpe-cell" style="background:${col};opacity:${opacity}">${count>0?count:''}</div></td>`;
+});
+html+='</tr>';}
+html+='</tbody></table>';
+document.getElementById('rpeHeatmap').innerHTML=html;
+}
+
+// Volume Chart
+function initVolumeChart(){
+const labels=[];const volData=[];const intData=[];
+for(let w=7;w>=0;w--){
+const d=new Date();d.setDate(d.getDate()-w*7);
+labels.push('W'+(8-w));
+const vol=40+Math.random()*60+Math.sin(w/2)*20;
+const inten=6+Math.random()*2.5-Math.sin(w/3);
+volData.push(Math.round(vol));intData.push(+inten.toFixed(1));
+}
+new Chart(document.getElementById('volumeChart'),{type:'bar',data:{labels,datasets:[
+{label:'Volume (sets)',data:volData,backgroundColor:'rgba(112,0,255,0.4)',borderColor:'#7000ff',borderWidth:1,borderRadius:6,order:2},
+{label:'Avg RPE',data:intData,type:'line',borderColor:'#00ff80',backgroundColor:'rgba(0,255,128,0.08)',tension:.4,fill:true,pointRadius:4,yAxisID:'y1',order:1}
+]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:'#888',font:{size:10}}}},
+scales:{x:{grid:{color:'rgba(255,255,255,.04)'},ticks:{color:'#666'}},y:{position:'left',grid:{color:'rgba(255,255,255,.04)'},ticks:{color:'#666'},title:{display:true,text:'Sets',color:'#666'}},y1:{position:'right',grid:{display:false},ticks:{color:'#00ff80'},title:{display:true,text:'RPE',color:'#00ff80'},min:0,max:10}}}});
+}
+
+// Exercise Progress
+function renderExerciseProgress(){
+const prs=JSON.parse(localStorage.getItem('fitaura_prs')||'{}');
+const entries=Object.entries(prs).filter(([_,d])=>d.weight>0);
+if(entries.length===0){document.getElementById('exerciseProgress').innerHTML='<p style="color:var(--text-secondary);text-align:center;padding:1rem;">No exercise data yet.</p>';return}
+document.getElementById('exerciseProgress').innerHTML=`<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:.82rem;">
+<thead><tr><th style="text-align:left;padding:.6rem;color:var(--text-secondary);font-weight:600;">Exercise</th>
+<th style="padding:.6rem;color:var(--text-secondary);font-weight:600;">Current 1RM</th>
+<th style="padding:.6rem;color:var(--text-secondary);font-weight:600;">Previous</th>
+<th style="padding:.6rem;color:var(--text-secondary);font-weight:600;">Change</th>
+<th style="padding:.6rem;color:var(--text-secondary);font-weight:600;">Date</th></tr></thead>
+<tbody>${entries.map(([name,d])=>{
+const change=d.prevWeight?((d.weight-d.prevWeight)/d.prevWeight*100).toFixed(1):null;
+const cc=change>0?'#00ff80':change<0?'#ff3366':'var(--text-secondary)';
+return`<tr style="border-bottom:1px solid rgba(255,255,255,.04);">
+<td style="padding:.6rem;font-weight:600;">${name}</td>
+<td style="padding:.6rem;font-family:var(--font-heading);font-weight:700;color:var(--accent-green);">${d.weight} kg</td>
+<td style="padding:.6rem;color:var(--text-secondary);">${d.prevWeight||'—'} kg</td>
+<td style="padding:.6rem;color:${cc};font-weight:600;">${change!==null?(change>0?'+':'')+change+'%':'New'}</td>
+<td style="padding:.6rem;color:var(--text-secondary);font-size:.75rem;">${new Date(d.date).toLocaleDateString()}</td></tr>`}).join('')}</tbody></table></div>`;
+}
+
+// Weekly Summary
+function updateWeeklySummary(){
+const profile=JSON.parse(localStorage.getItem('fitaura_profile')||'{}');
+const weeklyLog=JSON.parse(localStorage.getItem('fitaura_weekly_log')||'{}');
+const rpeLog=JSON.parse(localStorage.getItem('fitaura_rpe_log')||'{}');
+const prs=JSON.parse(localStorage.getItem('fitaura_prs')||'{}');
+const wilks=JSON.parse(localStorage.getItem('fitaura_wilks')||'{}');
+let totalSets=0,totalVolume=0,rpeSum=0,rpeCount=0,topMuscle='—',topVol=0;
+Object.entries(weeklyLog).forEach(([m,days])=>{
+Object.values(days).forEach(v=>{totalSets+=v;totalVolume+=v*10});
+if(totalSets>topVol){topVol=totalSets;topMuscle=m}
+});
+Object.values(rpeLog).forEach(r=>{rpeSum+=r;rpeCount++});
+const avgRPE=rpeCount>0?(rpeSum/rpeCount).toFixed(1):'—';
+const trainingAge=profile.experience==='advanced'?'4+ years':profile.experience==='intermediate'?'1-3 years':'< 1 year';
+document.getElementById('weeklySummary').innerHTML=`
+<div class="summary-item"><div class="summary-icon">📊</div><div><div class="summary-val" style="color:var(--accent-purple)">${totalSets}</div><div class="summary-label">Total Sets</div></div></div>
+<div class="summary-item"><div class="summary-icon">💪</div><div><div class="summary-val" style="color:var(--accent-blue)">${totalVolume.toLocaleString()}</div><div class="summary-label">Est. Volume (kg)</div></div></div>
+<div class="summary-item"><div class="summary-icon">🔥</div><div><div class="summary-val" style="color:var(--accent-red)">${avgRPE}</div><div class="summary-label">Avg RPE</div></div></div>
+<div class="summary-item"><div class="summary-icon">🏆</div><div><div class="summary-val" style="color:var(--accent-green)">${Object.keys(prs).length}</div><div class="summary-label">PRs Set</div></div></div>
+<div class="summary-item"><div class="summary-icon">🏅</div><div><div class="summary-val" style="color:var(--accent-yellow)">${wilks.score?wilks.score.toFixed(0):'—'}</div><div class="summary-label">Wilks Score</div></div></div>
+<div class="summary-item"><div class="summary-icon">📅</div><div><div class="summary-val">${trainingAge}</div><div class="summary-label">Training Age</div></div></div>`;
+}
+
+window.showToast=function(msg){if(!window._tc){window._tc=document.createElement('div');window._tc.className='toast-container';document.body.appendChild(window._tc)}const t=document.createElement('div');t.className='toast';t.textContent=msg;window._tc.appendChild(t);setTimeout(()=>t.remove(),3500)};
+
+// Set default meso start
+const startInput=document.getElementById('mesoStart');
+const today=new Date();today.setDate(today.getDate()-(parseInt(document.getElementById('mesoWeek').value||1)-1)*7);
+startInput.value=today.toISOString().split('T')[0];
+
+renderPRs();updatePeriodization();renderRPEHeatmap();initVolumeChart();renderExerciseProgress();updateWeeklySummary();
+}
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',initLab);else initLab();
+</script>
+</body>
+</html>

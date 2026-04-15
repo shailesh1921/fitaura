@@ -20,6 +20,7 @@ window.initializeSidebar = function(activePage) {
         { id: 'ai-coach.html', label: 'AI Coach', icon: '🧠' },
         { id: 'progress-photos.html', label: 'Progress Photos', icon: '📸' },
         { id: 'leaderboard.html', label: 'Leaderboard', icon: '🏆' },
+        { id: 'device-sync.html', label: 'Device Sync', icon: '🔗' },
         { id: 'profile.html', label: 'Athlete Profile', icon: '👤', style: 'margin-top:2rem;' }
     ];
 
