@@ -276,7 +276,14 @@
             if(localStorage.getItem('fitaura_nutrition_profile')) {
                 document.getElementById('calcPlanBtn').click();
             }
-        });
+        }
+
+        // Wait for components to load, then init
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initDiet);
+        } else {
+            initDiet();
+        }
     </script>
 </body>
 </html>
