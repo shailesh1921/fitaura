@@ -282,8 +282,135 @@ Respond ONLY with valid JSON:
     }
 });
 
+// ─── DEVICE SYNC & OAUTH ROUTES ──────────────────────────────────────
+const { db } = require('./firebase-admin');
+
+// 1. Google Fit OAuth
+app.get('/api/connect/google-fit', (req, res) => {
+    const clientId = process.env.GOOGLE_FIT_CLIENT_ID || 'dummy_client_id';
+    const redirectUri = encodeURIComponent(`${req.protocol}://${req.get('host')}/api/callback/google-fit`);
+    const scope = encodeURIComponent('https://www.googleapis.com/auth/fitness.activity.read https://www.googleapis.com/auth/fitness.sleep.read');
+    res.redirect(`https://accounts.google.com/o/oauth2/v2/auth?client_id=${clientId}&redirect_uri=${redirectUri}&response_type=code&scope=${scope}&access_type=offline`);
+});
+
+app.get('/api/callback/google-fit', async (req, res) => {
+    const { code, state } = req.query; // state should ideally contain the uid
+    // Stub: In real app, exchange code for token via POST to https://oauth2.googleapis.com/token
+    const uid = state || 'test_user_123'; 
+    if (db) {
+        await db.collection('users').doc(uid).collection('integrations').doc('google-fit').set({
+            accessToken: 'dummy_access_token',
+            refreshToken: 'dummy_refresh_token',
+            status: 'active',
+            connectedAt: new Date()
+        });
+    }
+    // Redirect back to the frontend sync page
+    res.redirect('/app/device-sync.html?sync_success=google-fit');
+});
+
+// 2. Fitbit OAuth
+app.get('/api/connect/fitbit', (req, res) => {
+    const clientId = process.env.FITBIT_CLIENT_ID || 'dummy_client_id';
+    const redirectUri = encodeURIComponent(`${req.protocol}://${req.get('host')}/api/callback/fitbit`);
+    const scope = encodeURIComponent('activity heartrate sleep');
+    res.redirect(`https://www.fitbit.com/oauth2/authorize?response_type=code&client_id=${clientId}&redirect_uri=${redirectUri}&scope=${scope}`);
+});
+
+app.get('/api/callback/fitbit', async (req, res) => {
+    const { code, state } = req.query;
+    const uid = state || 'test_user_123';
+    if (db) {
+        await db.collection('users').doc(uid).collection('integrations').doc('fitbit').set({
+            accessToken: 'dummy_access_token',
+            refreshToken: 'dummy_refresh_token',
+            status: 'active',
+            connectedAt: new Date()
+        });
+    }
+    res.redirect('/app/device-sync.html?sync_success=fitbit');
+});
+
+// 3. Oura OAuth
+app.get('/api/connect/oura', (req, res) => {
+    const clientId = process.env.OURA_CLIENT_ID || 'dummy_client_id';
+    const redirectUri = encodeURIComponent(`${req.protocol}://${req.get('host')}/api/callback/oura`);
+    const scope = encodeURIComponent('daily sleep heartrate');
+    res.redirect(`https://cloud.ouraring.com/oauth/authorize?response_type=code&client_id=${clientId}&redirect_uri=${redirectUri}&scope=${scope}`);
+});
+
+app.get('/api/callback/oura', async (req, res) => {
+    const { code, state } = req.query;
+    const uid = state || 'test_user_123';
+    if (db) {
+        await db.collection('users').doc(uid).collection('integrations').doc('oura').set({
+            accessToken: 'dummy_access_token',
+            refreshToken: 'dummy_refresh_token',
+            status: 'active',
+            connectedAt: new Date()
+        });
+    }
+    res.redirect('/app/device-sync.html?sync_success=oura');
+});
+
+// 4. Apple Health (HealthKit) Webhook
+// Apple Health doesn't have a direct REST API. An iOS Shortcut or App posts here.
+app.post('/api/sync/apple-health/:uid', async (req, res) => {
+    try {
+        const { uid } = req.params;
+        const healthData = req.body; 
+        
+        if (!healthData) return res.status(400).json({ error: 'No health data provided' });
+
+        if (db) {
+            const today = new Date().toISOString().split('T')[0];
+            const dailyRef = db.collection('users').doc(uid).collection('dailyMetrics').doc(today);
+            
+            // Normalize Apple Health Data
+            const normalized = {
+                steps: healthData.steps || null,
+                activeCalories: healthData.activeEnergy || null,
+                heartRateResting: healthData.restingHeartRate || null,
+                sleepMinutes: healthData.sleepDuration || null
+            };
+
+            const dailyDoc = await dailyRef.get();
+            let mergedData = dailyDoc.exists ? dailyDoc.data() : { sources: {} };
+            
+            Object.keys(normalized).forEach(key => {
+                if (normalized[key]) {
+                    mergedData[key] = normalized[key];
+                    mergedData.sources[key] = 'apple-health';
+                }
+            });
+            mergedData.date = today;
+
+            await dailyRef.set(mergedData, { merge: true });
+            
+            await db.collection('users').doc(uid).collection('syncHistory').add({
+                timestamp: new Date(),
+                source: 'apple-health',
+                recordsSynced: Object.keys(normalized).filter(k => normalized[k] !== null).length,
+                status: 'success',
+                message: 'Apple Health sync successful via Shortcut'
+            });
+        }
+
+        res.json({ status: 'success', message: 'Apple Health data ingested' });
+    } catch (error) {
+        console.error('[AppleHealth Sync] Error:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
+
+// ─── INITIALIZE CRON JOBS ──────────────────────────────────────────
+const { initCronJobs } = require('./services/cronJobs');
+initCronJobs();
+
 
 app.listen(PORT, () => {
     console.log(`FitAura API running on http://localhost:${PORT}`);
     console.log(`  POST /api/food/scan  (Groq Vision — FREE)`);
+    console.log(`  GET  /api/connect/*  (OAuth flows)`);
 });

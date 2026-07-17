@@ -711,22 +711,39 @@ window.closeModal = function(id) {
 };
 
 window.manualPairDevice = async function(name, brand, model, icon) {
-    const colors = {
-        'apple-watch': 'rgba(255,255,255,0.1)',
-        'fitbit': 'rgba(0,195,255,0.15)',
-        'garmin': 'rgba(0,255,128,0.15)',
-        'samsung-watch': 'rgba(112,0,255,0.15)',
-        'whoop': 'rgba(255,51,102,0.15)',
-        'oura': 'rgba(255,215,0,0.15)',
-        'polar': 'rgba(255,51,102,0.12)',
-        'xiaomi': 'rgba(0,195,255,0.12)'
-    };
-    closeModal('pairModal');
-    await window.deviceSyncEngine.connectDevice(name, brand, model, icon, colors[model] || 'rgba(112,0,255,0.15)');
+    if (brand.toLowerCase() === 'fitbit') {
+        window.location.href = '/api/connect/fitbit';
+    } else if (brand.toLowerCase() === 'oura ring' || model.toLowerCase() === 'oura') {
+        window.location.href = '/api/connect/oura';
+    } else {
+        // Fallback for unsupported devices
+        const colors = {
+            'apple-watch': 'rgba(255,255,255,0.1)',
+            'garmin': 'rgba(0,255,128,0.15)',
+            'samsung-watch': 'rgba(112,0,255,0.15)',
+            'whoop': 'rgba(255,51,102,0.15)',
+            'polar': 'rgba(255,51,102,0.12)',
+            'xiaomi': 'rgba(0,195,255,0.12)'
+        };
+        closeModal('pairModal');
+        
+        if (brand.toLowerCase() === 'xiaomi' || brand.toLowerCase() === 'mi band') {
+             alert('Xiaomi / Mi Band API is not publicly available yet (Coming Soon).');
+             return;
+        }
+
+        await window.deviceSyncEngine.connectDevice(name, brand, model, icon, colors[model] || 'rgba(112,0,255,0.15)');
+    }
 };
 
 window.connectHealthAPI = function(platform) {
-    window.deviceSyncEngine.connectHealthAPI(platform);
+    if (platform === 'google') {
+        window.location.href = '/api/connect/google-fit';
+    } else if (platform === 'apple') {
+        alert('Apple Health requires setting up an iOS Shortcut to export data. Please view the documentation (INTEGRATIONS.md) to set this up.');
+    } else {
+        window.deviceSyncEngine.connectHealthAPI(platform);
+    }
 };
 
 window.saveSyncSettings = function() {
