@@ -12,8 +12,8 @@
     <style>
         /* ── Twin-specific overrides ── */
         .twin-hero {
-            background: linear-gradient(135deg, rgba(112,0,255,0.12) 0%, rgba(0,195,255,0.06) 100%);
-            border: 1px solid rgba(112,0,255,0.25);
+            background: linear-gradient(135deg, rgba(192, 92, 70,0.12) 0%, rgba(74, 88, 64,0.06) 100%);
+            border: 1px solid rgba(192, 92, 70,0.25);
             border-radius: var(--radius-lg);
             padding: 2.5rem;
             margin-bottom: 2rem;
@@ -25,7 +25,7 @@
             position: absolute;
             top: -60px; right: -60px;
             width: 200px; height: 200px;
-            background: radial-gradient(circle, rgba(112,0,255,0.2) 0%, transparent 70%);
+            background: radial-gradient(circle, rgba(192, 92, 70,0.2) 0%, transparent 70%);
             border-radius: 50%;
         }
         .twin-avatar {
@@ -34,7 +34,7 @@
             border-radius: 50%;
             display: flex; align-items: center; justify-content: center;
             font-size: 1.8rem;
-            box-shadow: 0 0 30px rgba(112,0,255,0.4);
+            box-shadow: 0 0 30px rgba(192, 92, 70,0.4);
             flex-shrink: 0;
         }
         .readiness-ring-big {
@@ -66,7 +66,7 @@
         /* ── Metric cards ── */
         .metric-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1.5rem; margin-bottom: 2rem; }
         .metric-card {
-            background: rgba(255,255,255,0.03);
+            background: rgba(0,0,0,0.03);
             border: 1px solid var(--border-glass);
             border-radius: var(--radius-md);
             padding: 1.5rem;
@@ -82,13 +82,13 @@
         /* ── Lift cards ── */
         .lift-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; }
         .lift-card {
-            background: rgba(255,255,255,0.02);
+            background: rgba(0,0,0,0.02);
             border: 1px solid var(--border-glass);
             border-radius: var(--radius-md);
             padding: 1.5rem;
             transition: var(--transition-smooth);
         }
-        .lift-card:hover { border-color: rgba(112,0,255,0.3); background: rgba(112,0,255,0.05); }
+        .lift-card:hover { border-color: rgba(192, 92, 70,0.3); background: rgba(192, 92, 70,0.05); }
         .lift-name { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-secondary); margin-bottom: 0.5rem; }
         .lift-current { font-family: var(--font-heading); font-size: 2rem; font-weight: 800; }
         .lift-predicted {
@@ -96,12 +96,12 @@
             font-size: 0.85rem; color: var(--accent-green); margin-top: 0.5rem;
         }
         .lift-delta { font-size: 0.9rem; font-weight: 700; }
-        .lift-bar-wrap { height: 4px; background: rgba(255,255,255,0.08); border-radius: 2px; margin-top: 1rem; overflow: hidden; }
+        .lift-bar-wrap { height: 4px; background: rgba(0,0,0,0.08); border-radius: 2px; margin-top: 1rem; overflow: hidden; }
         .lift-bar { height: 100%; border-radius: 2px; transition: width 1s ease; }
 
         /* ── AI Insights ── */
         .insight-card {
-            background: rgba(255,255,255,0.02);
+            background: rgba(0,0,0,0.02);
             border: 1px solid var(--border-glass);
             border-radius: var(--radius-md);
             padding: 1.5rem;
@@ -118,14 +118,14 @@
 
         /* ── Log panel ── */
         .log-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; }
-        .log-card { background: rgba(255,255,255,0.02); border: 1px solid var(--border-glass); border-radius: var(--radius-md); padding: 1.5rem; }
+        .log-card { background: rgba(0,0,0,0.02); border: 1px solid var(--border-glass); border-radius: var(--radius-md); padding: 1.5rem; }
 
         /* ── Weight forecast ── */
-        .wf-row { display: flex; justify-content: space-between; align-items: center; padding: 0.5rem 0; border-bottom: 1px solid rgba(255,255,255,0.04); }
+        .wf-row { display: flex; justify-content: space-between; align-items: center; padding: 0.5rem 0; border-bottom: 1px solid rgba(0,0,0,0.04); }
         .wf-row:last-child { border-bottom: none; }
 
         /* ── Fatigue bar ── */
-        .fatigue-bar-wrap { height: 8px; background: rgba(255,255,255,0.08); border-radius: 4px; overflow: hidden; margin: 1rem 0; }
+        .fatigue-bar-wrap { height: 8px; background: rgba(0,0,0,0.08); border-radius: 4px; overflow: hidden; margin: 1rem 0; }
         .fatigue-bar { height: 100%; border-radius: 4px; transition: width 1.2s cubic-bezier(0.2,0.8,0.2,1); }
 
         /* ── Overtraining dial ── */
@@ -165,8 +165,8 @@
             transition: var(--transition-smooth);
         }
         .tab-btn.active {
-            background: rgba(112,0,255,0.2);
-            border-color: rgba(112,0,255,0.4);
+            background: rgba(192, 92, 70,0.2);
+            border-color: rgba(192, 92, 70,0.4);
             color: #b080ff;
         }
         .tab-panel { display: none; }
@@ -192,8 +192,8 @@
         /* ── Floating badge ── */
         .live-badge {
             display: inline-flex; align-items: center; gap: 0.4rem;
-            background: rgba(0,255,128,0.12);
-            border: 1px solid rgba(0,255,128,0.25);
+            background: rgba(74, 88, 64,0.12);
+            border: 1px solid rgba(74, 88, 64,0.25);
             border-radius: var(--radius-pill);
             padding: 0.3rem 0.8rem;
             font-size: 0.75rem;
@@ -429,7 +429,7 @@
                             <label class="form-label">Reps Performed</label>
                             <input type="number" id="liftReps" class="form-control" value="5" min="1" max="30" placeholder="reps">
                         </div>
-                        <div style="background:rgba(0,195,255,0.05);border:1px solid rgba(0,195,255,0.2);border-radius:var(--radius-sm);padding:1rem;margin-top:0.5rem;">
+                        <div style="background:rgba(74, 88, 64,0.05);border:1px solid rgba(74, 88, 64,0.2);border-radius:var(--radius-sm);padding:1rem;margin-top:0.5rem;">
                             <div style="font-size:0.8rem;color:var(--text-secondary);">Estimated 1RM (Epley)</div>
                             <div id="e1rmPreview" style="font-family:var(--font-heading);font-size:1.5rem;font-weight:800;color:var(--accent-blue);">—</div>
                         </div>
@@ -522,7 +522,7 @@
         </div>
 
         <!-- Toast -->
-        <div id="toast" style="position:fixed;bottom:2rem;right:2rem;background:rgba(0,255,128,0.15);border:1px solid rgba(0,255,128,0.3);color:var(--accent-green);padding:1rem 1.5rem;border-radius:var(--radius-md);font-weight:600;opacity:0;transition:opacity 0.3s;z-index:999;pointer-events:none;"></div>
+        <div id="toast" style="position:fixed;bottom:2rem;right:2rem;background:rgba(74, 88, 64,0.15);border:1px solid rgba(74, 88, 64,0.3);color:var(--accent-green);padding:1rem 1.5rem;border-radius:var(--radius-md);font-weight:600;opacity:0;transition:opacity 0.3s;z-index:999;pointer-events:none;"></div>
     </main>
 
     <script src="../js/predictionModel.js"></script>
@@ -644,7 +644,7 @@
         // Track
         ctx.beginPath();
         ctx.arc(cx, cy, r, 0, Math.PI * 2);
-        ctx.strokeStyle = 'rgba(255,255,255,0.06)';
+        ctx.strokeStyle = 'rgba(0,0,0,0.06)';
         ctx.lineWidth = 10;
         ctx.stroke();
 
@@ -675,7 +675,7 @@
         // Track
         ctx.beginPath();
         ctx.arc(cx, cy, r, Math.PI, 0);
-        ctx.strokeStyle = 'rgba(255,255,255,0.07)';
+        ctx.strokeStyle = 'rgba(0,0,0,0.07)';
         ctx.lineWidth = 10;
         ctx.stroke();
 
@@ -766,8 +766,8 @@
         if (strengthChartInst) strengthChartInst.destroy();
         const ctx = document.getElementById('strengthChart').getContext('2d');
         const grad = ctx.createLinearGradient(0, 0, 0, 200);
-        grad.addColorStop(0, 'rgba(0,195,255,0.3)');
-        grad.addColorStop(1, 'rgba(0,195,255,0)');
+        grad.addColorStop(0, 'rgba(74, 88, 64,0.3)');
+        grad.addColorStop(1, 'rgba(74, 88, 64,0)');
 
         strengthChartInst = new Chart(ctx, {
             type: 'line',
@@ -792,7 +792,7 @@
                     legend: { display: false },
                     tooltip: {
                         backgroundColor: 'rgba(10,10,10,0.9)',
-                        borderColor: 'rgba(0,195,255,0.3)',
+                        borderColor: 'rgba(74, 88, 64,0.3)',
                         borderWidth: 1,
                         callbacks: {
                             label: ctx => ` ${ctx.parsed.y}kg ${ctx.dataIndex > 0 ? '(predicted)' : '(current)'}`,
@@ -800,8 +800,8 @@
                     }
                 },
                 scales: {
-                    x: { grid: { color: 'rgba(255,255,255,0.04)' }, ticks: { color: '#666' } },
-                    y: { grid: { color: 'rgba(255,255,255,0.04)' }, ticks: { color: '#666', callback: v => v + 'kg' } }
+                    x: { grid: { color: 'rgba(0,0,0,0.04)' }, ticks: { color: '#666' } },
+                    y: { grid: { color: 'rgba(0,0,0,0.04)' }, ticks: { color: '#666', callback: v => v + 'kg' } }
                 }
             }
         });
@@ -847,8 +847,8 @@
                     }
                 },
                 scales: {
-                    x: { grid: { color: 'rgba(255,255,255,0.04)' }, ticks: { color: '#666', font: { size: 10 } } },
-                    y: { grid: { color: 'rgba(255,255,255,0.04)' }, ticks: { color: '#666', callback: v => v + 'kg' } }
+                    x: { grid: { color: 'rgba(0,0,0,0.04)' }, ticks: { color: '#666', font: { size: 10 } } },
+                    y: { grid: { color: 'rgba(0,0,0,0.04)' }, ticks: { color: '#666', callback: v => v + 'kg' } }
                 }
             }
         });

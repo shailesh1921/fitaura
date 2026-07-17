@@ -123,7 +123,7 @@
 
         .auth-card {
             max-width: 460px; width: 100%; padding: 3rem;
-            background: rgba(255,255,255,0.03); border: 1px solid var(--border-glass);
+            background: rgba(0,0,0,0.03); border: 1px solid var(--border-glass);
             border-radius: var(--radius-lg); backdrop-filter: blur(24px);
             box-shadow: var(--shadow-glass); animation: fadeUp 0.6s ease forwards;
         }
@@ -137,11 +137,11 @@
         .google-btn {
             width: 100%; display: flex; align-items: center; justify-content: center; gap: 0.75rem;
             padding: 0.9rem 1.5rem; border-radius: var(--radius-sm);
-            background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.12);
+            background: rgba(0,0,0,0.06); border: 1px solid rgba(0,0,0,0.12);
             color: var(--text-primary); font-family: var(--font-body); font-size: 0.95rem; font-weight: 600;
             cursor: pointer; transition: var(--transition-smooth); margin-bottom: 1.5rem;
         }
-        .google-btn:hover { background: rgba(255,255,255,0.1); border-color: rgba(255,255,255,0.25); transform: translateY(-1px); }
+        .google-btn:hover { background: rgba(0,0,0,0.1); border-color: rgba(0,0,0,0.25); transform: translateY(-1px); }
         .google-btn:active { transform: translateY(0); }
         .google-icon { width: 20px; height: 20px; }
 
@@ -156,7 +156,7 @@
         .form-control { padding-left: 2.8rem; }
 
         .error-box {
-            background: rgba(255,51,102,0.08); border: 1px solid rgba(255,51,102,0.25);
+            background: rgba(192, 92, 70,0.08); border: 1px solid rgba(192, 92, 70,0.25);
             border-radius: var(--radius-sm); padding: 0.75rem 1rem;
             color: #ff6688; font-size: 0.85rem; margin-bottom: 1rem; display: none;
         }
@@ -164,7 +164,7 @@
 
         .submit-btn {
             width: 100%; padding: 1rem; border-radius: var(--radius-sm);
-            background: var(--accent-purple); color: white; border: none;
+            background: var(--accent-purple); color: #1A1A1A; border: none;
             font-family: var(--font-heading); font-size: 1rem; font-weight: 700;
             cursor: pointer; transition: var(--transition-smooth);
             display: flex; align-items: center; justify-content: center; gap: 0.5rem;
@@ -173,8 +173,8 @@
         .submit-btn:disabled { opacity: 0.6; cursor: not-allowed; }
 
         .spinner {
-            width: 16px; height: 16px; border: 2px solid rgba(255,255,255,0.3);
-            border-top-color: white; border-radius: 50%; animation: spin 0.7s linear infinite; display: none;
+            width: 16px; height: 16px; border: 2px solid rgba(0,0,0,0.3);
+            border-top-color: #1A1A1A; border-radius: 50%; animation: spin 0.7s linear infinite; display: none;
         }
         @keyframes spin { to { transform: rotate(360deg); } }
 
@@ -188,15 +188,15 @@
 
         .demo-note {
             margin-top: 1.5rem; padding: 0.75rem 1rem;
-            background: rgba(0,195,255,0.05); border: 1px solid rgba(0,195,255,0.15);
+            background: rgba(74, 88, 64,0.05); border: 1px solid rgba(74, 88, 64,0.15);
             border-radius: var(--radius-sm); font-size: 0.78rem; color: var(--accent-blue);
             text-align: center;
         }
     </style>
 </head>
 <body>
-    <div class="ambient-bg" style="background:radial-gradient(circle,rgba(0,255,128,0.08) 0%,rgba(0,0,0,0) 60%);"></div>
-    <div class="ambient-bg-2" style="background:radial-gradient(circle,rgba(112,0,255,0.1) 0%,rgba(0,0,0,0) 60%);"></div>
+    <div class="ambient-bg" style="background:radial-gradient(circle,rgba(74, 88, 64,0.08) 0%,rgba(0,0,0,0) 60%);"></div>
+    <div class="ambient-bg-2" style="background:radial-gradient(circle,rgba(192, 92, 70,0.1) 0%,rgba(0,0,0,0) 60%);"></div>
 
     <div class="auth-card">
         <a href="index.html" class="auth-brand">

@@ -10,10 +10,10 @@
 <script src="../js/components.js" defer></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <style>
-.hub-profile{background:linear-gradient(135deg,rgba(112,0,255,.08),rgba(0,195,255,.04));border:1px solid rgba(112,0,255,.2);border-radius:var(--radius-lg);padding:2rem;margin-bottom:2rem;position:relative;overflow:hidden}
-.hub-profile::before{content:'';position:absolute;top:-50%;right:-30%;width:400px;height:400px;background:radial-gradient(circle,rgba(112,0,255,.06),transparent 70%);pointer-events:none}
+.hub-profile{background:linear-gradient(135deg,rgba(192, 92, 70,.08),rgba(74, 88, 64,.04));border:1px solid rgba(192, 92, 70,.2);border-radius:var(--radius-lg);padding:2rem;margin-bottom:2rem;position:relative;overflow:hidden}
+.hub-profile::before{content:'';position:absolute;top:-50%;right:-30%;width:400px;height:400px;background:radial-gradient(circle,rgba(192, 92, 70,.06),transparent 70%);pointer-events:none}
 .hub-profile-grid{display:grid;grid-template-columns:auto 1fr;gap:2rem;align-items:center;position:relative;z-index:1}
-.hub-avatar{width:80px;height:80px;border-radius:50%;background:linear-gradient(135deg,var(--accent-purple),var(--accent-blue));display:flex;align-items:center;justify-content:center;font-size:2rem;border:3px solid rgba(255,255,255,.2)}
+.hub-avatar{width:80px;height:80px;border-radius:50%;background:linear-gradient(135deg,var(--accent-purple),var(--accent-blue));display:flex;align-items:center;justify-content:center;font-size:2rem;border:3px solid rgba(0,0,0,.2)}
 .hub-name{font-family:var(--font-heading);font-size:1.8rem;font-weight:800}
 .hub-meta{font-size:.85rem;color:var(--text-secondary)}
 .hub-stats{display:flex;gap:2rem;margin-top:1rem;flex-wrap:wrap}
@@ -29,13 +29,13 @@
 .body-chart-wrap{height:250px;margin-top:1rem;position:relative}
 .body-chart-wrap canvas{border-radius:var(--radius-sm)}
 .comp-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:1rem;margin-top:1rem}
-.comp-card{background:rgba(255,255,255,.03);border:1px solid var(--border-glass);border-radius:var(--radius-md);padding:1.2rem;text-align:center;transition:var(--transition-smooth)}
+.comp-card{background:rgba(0,0,0,.03);border:1px solid var(--border-glass);border-radius:var(--radius-md);padding:1.2rem;text-align:center;transition:var(--transition-smooth)}
 .comp-card:hover{border-color:var(--border-hover);transform:translateY(-2px)}
 .comp-value{font-family:var(--font-heading);font-size:1.5rem;font-weight:800}
 .comp-label{font-size:.65rem;color:var(--text-secondary);text-transform:uppercase;letter-spacing:.06em;margin-top:.3rem}
 .comp-change{font-size:.7rem;margin-top:.2rem}
 .badge-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(100px,1fr));gap:.8rem;margin-top:1rem}
-.badge{background:rgba(255,255,255,.03);border:1px solid var(--border-glass);border-radius:var(--radius-md);padding:1rem;text-align:center;transition:all .3s;position:relative;overflow:hidden}
+.badge{background:rgba(0,0,0,.03);border:1px solid var(--border-glass);border-radius:var(--radius-md);padding:1rem;text-align:center;transition:all .3s;position:relative;overflow:hidden}
 .badge.unlocked{border-color:rgba(255,215,0,.25);background:rgba(255,215,0,.04)}
 .badge.unlocked .badge-icon{filter:none}
 .badge.locked .badge-icon{filter:grayscale(1) opacity(.3)}
@@ -43,21 +43,21 @@
 .badge-name{font-size:.68rem;font-weight:700;margin-bottom:.2rem}
 .badge-desc{font-size:.58rem;color:var(--text-secondary)}
 .badge-date{font-size:.55rem;color:var(--accent-yellow);margin-top:.3rem}
-.goal-card{background:rgba(255,255,255,.03);border:1px solid var(--border-glass);border-radius:var(--radius-md);padding:1.2rem;margin-bottom:.8rem;transition:all .2s}
+.goal-card{background:rgba(0,0,0,.03);border:1px solid var(--border-glass);border-radius:var(--radius-md);padding:1.2rem;margin-bottom:.8rem;transition:all .2s}
 .goal-card:hover{border-color:var(--border-hover)}
 .goal-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:.6rem}
 .goal-title{font-weight:700;font-size:.9rem}
 .goal-pct{font-family:var(--font-heading);font-weight:700;font-size:.85rem}
 .goal-target{font-size:.72rem;color:var(--text-secondary);margin-bottom:.5rem}
-.goal-bar-track{height:6px;background:rgba(255,255,255,.07);border-radius:999px;overflow:hidden}
+.goal-bar-track{height:6px;background:rgba(0,0,0,.07);border-radius:999px;overflow:hidden}
 .goal-bar-fill{height:100%;border-radius:999px;transition:width .6s ease}
-.log-entry{display:flex;align-items:center;gap:1rem;padding:.8rem 1rem;border-bottom:1px solid rgba(255,255,255,.04);font-size:.82rem;transition:background .2s}
-.log-entry:hover{background:rgba(255,255,255,.02)}
+.log-entry{display:flex;align-items:center;gap:1rem;padding:.8rem 1rem;border-bottom:1px solid rgba(0,0,0,.04);font-size:.82rem;transition:background .2s}
+.log-entry:hover{background:rgba(0,0,0,.02)}
 .log-date{color:var(--text-secondary);font-size:.72rem;min-width:60px;flex-shrink:0}
 .log-type{font-weight:600;min-width:80px;flex-shrink:0}
 .log-detail{flex:1;color:var(--text-secondary)}
 .meas-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:.6rem;margin-top:1rem}
-.meas-item{background:rgba(255,255,255,.03);border:1px solid var(--border-glass);border-radius:var(--radius-sm);padding:.8rem;text-align:center}
+.meas-item{background:rgba(0,0,0,.03);border:1px solid var(--border-glass);border-radius:var(--radius-sm);padding:.8rem;text-align:center}
 .meas-val{font-family:var(--font-heading);font-weight:700;font-size:1.05rem}
 .meas-label{font-size:.6rem;color:var(--text-secondary);text-transform:uppercase;letter-spacing:.06em;margin-top:.2rem}
 .meas-change{font-size:.65rem;margin-top:.1rem}
@@ -210,9 +210,9 @@ const labels=last30.map(e=>new Date(e.date).toLocaleDateString('en',{month:'shor
 const weights=last30.map(e=>e.weight);const bfs=last30.map(e=>e.bf);
 if(window._bodyChart)window._bodyChart.destroy();
 window._bodyChart=new Chart(document.getElementById('bodyChart'),{type:'line',data:{labels,datasets:[
-{label:'Weight (kg)',data:weights,borderColor:'#00c3ff',backgroundColor:'rgba(0,195,255,0.08)',tension:.4,fill:true,pointRadius:3,yAxisID:'y'},
-{label:'Body Fat %',data:bfs,borderColor:'#ff3366',backgroundColor:'rgba(255,51,102,0.08)',tension:.4,fill:true,pointRadius:3,yAxisID:'y1'}
-]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:'#888',font:{size:10}}}},scales:{x:{grid:{color:'rgba(255,255,255,.04)'},ticks:{color:'#666',font:{size:9},maxRotation:0}},y:{position:'left',grid:{color:'rgba(255,255,255,.04)'},ticks:{color:'#00c3ff'},title:{display:true,text:'kg',color:'#00c3ff'}},y1:{position:'right',grid:{display:false},ticks:{color:'#ff3366'},title:{display:true,text:'%',color:'#ff3366'}}}}});
+{label:'Weight (kg)',data:weights,borderColor:'#00c3ff',backgroundColor:'rgba(74, 88, 64,0.08)',tension:.4,fill:true,pointRadius:3,yAxisID:'y'},
+{label:'Body Fat %',data:bfs,borderColor:'#ff3366',backgroundColor:'rgba(192, 92, 70,0.08)',tension:.4,fill:true,pointRadius:3,yAxisID:'y1'}
+]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:'#888',font:{size:10}}}},scales:{x:{grid:{color:'rgba(0,0,0,.04)'},ticks:{color:'#666',font:{size:9},maxRotation:0}},y:{position:'left',grid:{color:'rgba(0,0,0,.04)'},ticks:{color:'#00c3ff'},title:{display:true,text:'kg',color:'#00c3ff'}},y1:{position:'right',grid:{display:false},ticks:{color:'#ff3366'},title:{display:true,text:'%',color:'#ff3366'}}}}});
 }
 
 window.logMeasurements=function(){

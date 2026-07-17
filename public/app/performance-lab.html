@@ -21,13 +21,13 @@
 .input-group input,.input-group select{width:100%;background:rgba(0,0,0,.4);border:1px solid var(--border-glass);border-radius:var(--radius-sm);padding:.7rem;color:var(--text-primary);font-family:var(--font-body);font-size:.95rem;transition:var(--transition-smooth)}
 .input-group input:focus{outline:none;border-color:var(--accent-blue)}
 .result-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:.8rem;margin-top:1rem}
-.result-item{background:rgba(255,255,255,.03);border:1px solid var(--border-glass);border-radius:var(--radius-sm);padding:1rem;text-align:center;transition:var(--transition-smooth)}
+.result-item{background:rgba(0,0,0,.03);border:1px solid var(--border-glass);border-radius:var(--radius-sm);padding:1rem;text-align:center;transition:var(--transition-smooth)}
 .result-item:hover{border-color:var(--border-hover);transform:translateY(-2px)}
 .result-value{font-family:var(--font-heading);font-size:1.6rem;font-weight:800;line-height:1}
 .result-label{font-size:.65rem;color:var(--text-secondary);text-transform:uppercase;letter-spacing:.08em;margin-top:.3rem}
 .result-formula{font-size:.6rem;color:var(--accent-purple);margin-top:.2rem}
 .pr-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:1rem;margin-top:1rem}
-.pr-card{background:rgba(255,255,255,.03);border:1px solid var(--border-glass);border-radius:var(--radius-md);padding:1.2rem;transition:var(--transition-smooth);cursor:pointer;position:relative;overflow:hidden}
+.pr-card{background:rgba(0,0,0,.03);border:1px solid var(--border-glass);border-radius:var(--radius-md);padding:1.2rem;transition:var(--transition-smooth);cursor:pointer;position:relative;overflow:hidden}
 .pr-card:hover{border-color:var(--border-hover);transform:translateY(-3px);box-shadow:var(--shadow-glass)}
 .pr-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:var(--pr-color,var(--accent-purple))}
 .pr-exercise{font-family:var(--font-heading);font-weight:700;font-size:1rem;margin-bottom:.3rem}
@@ -35,32 +35,32 @@
 .pr-change{font-size:.75rem;margin-top:.4rem}
 .pr-date{font-size:.65rem;color:var(--text-secondary);margin-top:.2rem}
 .phase-timeline{display:flex;gap:.5rem;margin:1rem 0;position:relative}
-.phase-timeline::before{content:'';position:absolute;top:50%;left:0;right:0;height:3px;background:rgba(255,255,255,.06);border-radius:999px;transform:translateY(-50%)}
+.phase-timeline::before{content:'';position:absolute;top:50%;left:0;right:0;height:3px;background:rgba(0,0,0,.06);border-radius:999px;transform:translateY(-50%)}
 .phase-node{flex:1;text-align:center;position:relative;z-index:1}
 .phase-dot{width:20px;height:20px;border-radius:50%;margin:0 auto .5rem;border:2px solid var(--border-glass);background:var(--bg-dark);transition:all .3s}
-.phase-dot.active{border-color:var(--accent-purple);background:var(--accent-purple);box-shadow:0 0 12px rgba(112,0,255,.5)}
+.phase-dot.active{border-color:var(--accent-purple);background:var(--accent-purple);box-shadow:0 0 12px rgba(192, 92, 70,.5)}
 .phase-dot.done{border-color:var(--accent-green);background:var(--accent-green)}
 .phase-label{font-size:.72rem;color:var(--text-secondary);font-weight:600;text-transform:uppercase;letter-spacing:.05em}
 .phase-pct{font-size:.6rem;color:var(--text-muted);margin-top:.2rem}
 .rpe-heatmap{overflow-x:auto;margin-top:1rem}
 .rpe-heatmap table{width:100%;border-collapse:collapse;font-size:.75rem}
 .rpe-heatmap th{padding:.5rem;text-align:center;color:var(--text-secondary);font-weight:600;font-size:.65rem;text-transform:uppercase}
-.rpe-heatmap td{padding:.4rem;text-align:center;border:1px solid rgba(255,255,255,.04)}
+.rpe-heatmap td{padding:.4rem;text-align:center;border:1px solid rgba(0,0,0,.04)}
 .rpe-cell{width:32px;height:32px;border-radius:6px;display:inline-flex;align-items:center;justify-content:center;font-size:.65rem;font-weight:700;transition:all .2s;cursor:default}
 .rpe-cell:hover{transform:scale(1.15)}
 .chart-wrap{position:relative;height:220px;margin-top:1rem}
 .summary-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:1rem}
-.summary-item{background:rgba(255,255,255,.03);border:1px solid var(--border-glass);border-radius:var(--radius-md);padding:1.2rem;display:flex;align-items:center;gap:1rem}
+.summary-item{background:rgba(0,0,0,.03);border:1px solid var(--border-glass);border-radius:var(--radius-md);padding:1.2rem;display:flex;align-items:center;gap:1rem}
 .summary-icon{font-size:1.8rem;flex-shrink:0}
 .summary-val{font-family:var(--font-heading);font-size:1.5rem;font-weight:800;line-height:1}
 .summary-label{font-size:.65rem;color:var(--text-secondary);text-transform:uppercase;letter-spacing:.06em;margin-top:.2rem}
 .tag-pill{display:inline-flex;align-items:center;gap:4px;font-size:.65rem;font-weight:700;padding:3px 10px;border-radius:999px;text-transform:uppercase;letter-spacing:.03em}
-.tag-purple{background:rgba(112,0,255,.15);color:#a78bfa}
-.tag-green{background:rgba(0,255,128,.12);color:#00ff80}
-.tag-blue{background:rgba(0,195,255,.12);color:#00c3ff}
+.tag-purple{background:rgba(192, 92, 70,.15);color:#a78bfa}
+.tag-green{background:rgba(74, 88, 64,.12);color:#00ff80}
+.tag-blue{background:rgba(74, 88, 64,.12);color:#00c3ff}
 .tag-yellow{background:rgba(255,215,0,.12);color:#ffd700}
-.tag-red{background:rgba(255,51,102,.12);color:#ff3366}
-.progress-track{height:6px;background:rgba(255,255,255,.07);border-radius:999px;overflow:hidden;margin:.5rem 0}
+.tag-red{background:rgba(192, 92, 70,.12);color:#ff3366}
+.progress-track{height:6px;background:rgba(0,0,0,.07);border-radius:999px;overflow:hidden;margin:.5rem 0}
 .progress-fill{height:100%;border-radius:999px;transition:width .6s ease}
 @media(max-width:900px){.input-grid,.result-grid,.summary-grid,.pr-grid{grid-template-columns:repeat(2,1fr)}.phase-timeline{flex-wrap:wrap;gap:.8rem}.phase-timeline::before{display:none}}
 </style>
@@ -157,7 +157,7 @@ if(window.initializeSidebar)window.initializeSidebar('performance-lab.html');
 
 const TODAY=new Date().toDateString();
 const DAYS=['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
-const RPE_COLORS=['rgba(255,255,255,.05)','#22c55e','#84cc16','#a3e635','#eab308','#f59e0b','#f97316','#ef4444','#dc2626','#991b1b','#7f1d1d'];
+const RPE_COLORS=['rgba(0,0,0,.05)','#22c55e','#84cc16','#a3e635','#eab308','#f59e0b','#f97316','#ef4444','#dc2626','#991b1b','#7f1d1d'];
 
 // 1RM Formulas
 window.calculate1RM=function(){
@@ -177,7 +177,7 @@ const results=[
 {name:"O'Conner",val:oconner,desc:'(W×(1+0.025×R))'},
 {name:'Average',val:avg,desc:'Mean of all formulas'}
 ];
-document.getElementById('ormResults').innerHTML=results.map(r=>`<div class="result-item" style="${r.name==='Average'?'border-color:rgba(112,0,255,.3);background:rgba(112,0,255,.06)':''}">
+document.getElementById('ormResults').innerHTML=results.map(r=>`<div class="result-item" style="${r.name==='Average'?'border-color:rgba(192, 92, 70,.3);background:rgba(192, 92, 70,.06)':''}">
 <div class="result-value" style="color:${r.name==='Average'?'var(--accent-purple)':'var(--accent-green)'};">${r.val.toFixed(1)}<span style="font-size:.7rem;font-weight:400;color:var(--text-secondary)"> kg</span></div>
 <div class="result-label">${r.name}</div>
 <div class="result-formula">${r.desc}</div></div>`).join('');
@@ -216,7 +216,7 @@ else if(wilks>=300){cls='Class 2';clsColor='var(--accent-blue)'}
 else if(wilks>=200){cls='Class 3';clsColor='var(--accent-yellow)'}
 else if(wilks>0){cls='Class 4';clsColor='var(--accent-red)'}
 document.getElementById('wilksResults').innerHTML=`
-<div class="result-item" style="grid-column:span 2;border-color:rgba(112,0,255,.3);background:rgba(112,0,255,.06)">
+<div class="result-item" style="grid-column:span 2;border-color:rgba(192, 92, 70,.3);background:rgba(192, 92, 70,.06)">
 <div class="result-value" style="color:var(--accent-purple)">${wilks.toFixed(2)}</div><div class="result-label">Wilks Score</div>
 <div style="font-size:.8rem;color:${clsColor};font-weight:700;margin-top:.3rem;">${cls}</div></div>
 <div class="result-item"><div class="result-value">${total.toFixed(1)}<span style="font-size:.7rem;font-weight:400;color:var(--text-secondary)"> kg</span></div><div class="result-label">Total</div></div>
@@ -318,10 +318,10 @@ const inten=6+Math.random()*2.5-Math.sin(w/3);
 volData.push(Math.round(vol));intData.push(+inten.toFixed(1));
 }
 new Chart(document.getElementById('volumeChart'),{type:'bar',data:{labels,datasets:[
-{label:'Volume (sets)',data:volData,backgroundColor:'rgba(112,0,255,0.4)',borderColor:'#7000ff',borderWidth:1,borderRadius:6,order:2},
-{label:'Avg RPE',data:intData,type:'line',borderColor:'#00ff80',backgroundColor:'rgba(0,255,128,0.08)',tension:.4,fill:true,pointRadius:4,yAxisID:'y1',order:1}
+{label:'Volume (sets)',data:volData,backgroundColor:'rgba(192, 92, 70,0.4)',borderColor:'#7000ff',borderWidth:1,borderRadius:6,order:2},
+{label:'Avg RPE',data:intData,type:'line',borderColor:'#00ff80',backgroundColor:'rgba(74, 88, 64,0.08)',tension:.4,fill:true,pointRadius:4,yAxisID:'y1',order:1}
 ]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:'#888',font:{size:10}}}},
-scales:{x:{grid:{color:'rgba(255,255,255,.04)'},ticks:{color:'#666'}},y:{position:'left',grid:{color:'rgba(255,255,255,.04)'},ticks:{color:'#666'},title:{display:true,text:'Sets',color:'#666'}},y1:{position:'right',grid:{display:false},ticks:{color:'#00ff80'},title:{display:true,text:'RPE',color:'#00ff80'},min:0,max:10}}}});
+scales:{x:{grid:{color:'rgba(0,0,0,.04)'},ticks:{color:'#666'}},y:{position:'left',grid:{color:'rgba(0,0,0,.04)'},ticks:{color:'#666'},title:{display:true,text:'Sets',color:'#666'}},y1:{position:'right',grid:{display:false},ticks:{color:'#00ff80'},title:{display:true,text:'RPE',color:'#00ff80'},min:0,max:10}}}});
 }
 
 // Exercise Progress
@@ -338,7 +338,7 @@ document.getElementById('exerciseProgress').innerHTML=`<div style="overflow-x:au
 <tbody>${entries.map(([name,d])=>{
 const change=d.prevWeight?((d.weight-d.prevWeight)/d.prevWeight*100).toFixed(1):null;
 const cc=change>0?'#00ff80':change<0?'#ff3366':'var(--text-secondary)';
-return`<tr style="border-bottom:1px solid rgba(255,255,255,.04);">
+return`<tr style="border-bottom:1px solid rgba(0,0,0,.04);">
 <td style="padding:.6rem;font-weight:600;">${name}</td>
 <td style="padding:.6rem;font-family:var(--font-heading);font-weight:700;color:var(--accent-green);">${d.weight} kg</td>
 <td style="padding:.6rem;color:var(--text-secondary);">${d.prevWeight||'—'} kg</td>

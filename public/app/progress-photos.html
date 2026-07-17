@@ -15,7 +15,7 @@
             transition: var(--transition-smooth); position: relative;
         }
         .upload-zone:hover, .upload-zone.drag-over {
-            border-color: var(--accent-purple); background: rgba(112,0,255,0.05);
+            border-color: var(--accent-purple); background: rgba(192, 92, 70,0.05);
         }
         .upload-zone input[type="file"] { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; }
         .upload-icon { font-size: 3rem; margin-bottom: 1rem; }
@@ -29,14 +29,14 @@
         }
         .photo-modal.open { display: flex; }
         .photo-modal img { max-height: 80vh; max-width: 90vw; border-radius: var(--radius-md); object-fit: contain; }
-        .modal-close { position: absolute; top: 1.5rem; right: 2rem; font-size: 2rem; cursor: pointer; color: #fff; background: none; border: none; }
+        .modal-close { position: absolute; top: 1.5rem; right: 2rem; font-size: 2rem; cursor: pointer; color: #1A1A1A; background: none; border: none; }
         .photo-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 1.5rem; margin-top: 1.5rem; }
         .stat-change { font-size: 0.82rem; padding: 0.3rem 0.8rem; border-radius: var(--radius-pill); }
-        .stat-change.positive { background: rgba(0,255,128,0.12); color: var(--accent-green); }
-        .stat-change.negative { background: rgba(255,51,102,0.12); color: var(--accent-red); }
+        .stat-change.positive { background: rgba(74, 88, 64,0.12); color: var(--accent-green); }
+        .stat-change.negative { background: rgba(192, 92, 70,0.12); color: var(--accent-red); }
         .timeline-bar { display: flex; align-items: center; gap: 1rem; margin-bottom: 1rem; overflow-x: auto; padding-bottom: 0.5rem; }
         .timeline-dot { width: 44px; height: 44px; border-radius: 50%; border: 2px solid var(--border-glass); overflow: hidden; flex-shrink: 0; cursor: pointer; transition: var(--transition-smooth); }
-        .timeline-dot:hover, .timeline-dot.active { border-color: var(--accent-purple); box-shadow: 0 0 12px rgba(112,0,255,0.4); }
+        .timeline-dot:hover, .timeline-dot.active { border-color: var(--accent-purple); box-shadow: 0 0 12px rgba(192, 92, 70,0.4); }
         .timeline-dot img { width: 100%; height: 100%; object-fit: cover; }
         .timeline-line { flex: 1; height: 1px; background: var(--border-glass); min-width: 20px; }
     </style>
@@ -222,7 +222,7 @@ function render() {
         card.innerHTML = `
             <img src="${p.dataUrl}" alt="progress" loading="lazy" onclick="openModal(${p.id})">
             <div class="photo-card-date">${d}${p.weight ? ` · ${p.weight}kg` : ''}</div>
-            <button onclick="deletePhoto(${p.id})" title="Delete" style="position:absolute;top:0.5rem;right:0.5rem;background:rgba(0,0,0,0.6);border:none;color:#fff;border-radius:50%;width:24px;height:24px;cursor:pointer;font-size:0.75rem;">✕</button>
+            <button onclick="deletePhoto(${p.id})" title="Delete" style="position:absolute;top:0.5rem;right:0.5rem;background:rgba(0,0,0,0.6);border:none;color:#1A1A1A;border-radius:50%;width:24px;height:24px;cursor:pointer;font-size:0.75rem;">✕</button>
         `;
         grid.appendChild(card);
     });

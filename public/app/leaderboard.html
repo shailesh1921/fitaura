@@ -10,19 +10,19 @@
     <script src="../js/components.js" defer></script>
     <style>
         .lb-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem; }
-        .lb-tabs { display:flex; gap:0.5rem; background:rgba(255,255,255,0.03); padding:0.3rem; border-radius:var(--radius-pill); border:1px solid var(--border-glass); }
+        .lb-tabs { display:flex; gap:0.5rem; background:rgba(0,0,0,0.03); padding:0.3rem; border-radius:var(--radius-pill); border:1px solid var(--border-glass); }
         .lb-tab { padding:0.4rem 1.2rem; border-radius:var(--radius-pill); font-size:0.82rem; font-weight:600; cursor:pointer; border:none; background:transparent; color:var(--text-secondary); transition:var(--transition-smooth); }
-        .lb-tab.active { background:var(--accent-purple); color:#fff; }
+        .lb-tab.active { background:var(--accent-purple); color:#1A1A1A; }
         .rank-1 { color: var(--accent-yellow); }
         .rank-2 { color: #c0c0c0; }
         .rank-3 { color: #cd7f32; }
         .trophy { font-size:1.4rem; }
-        .invite-box { background:rgba(112,0,255,0.06); border:1px solid rgba(112,0,255,0.2); border-radius:var(--radius-md); padding:1.5rem; margin-bottom:2rem; }
-        .code-display { font-family:monospace; font-size:1.4rem; letter-spacing:0.2em; color:var(--accent-purple); font-weight:700; background:rgba(112,0,255,0.1); padding:0.75rem 1.5rem; border-radius:var(--radius-sm); display:inline-block; cursor:pointer; }
+        .invite-box { background:rgba(192, 92, 70,0.06); border:1px solid rgba(192, 92, 70,0.2); border-radius:var(--radius-md); padding:1.5rem; margin-bottom:2rem; }
+        .code-display { font-family:monospace; font-size:1.4rem; letter-spacing:0.2em; color:var(--accent-purple); font-weight:700; background:rgba(192, 92, 70,0.1); padding:0.75rem 1.5rem; border-radius:var(--radius-sm); display:inline-block; cursor:pointer; }
         .score-bar-wrap { flex:1; display:flex; align-items:center; gap:0.75rem; }
-        .score-bar { height:6px; border-radius:3px; background:rgba(255,255,255,0.05); flex:1; overflow:hidden; }
+        .score-bar { height:6px; border-radius:3px; background:rgba(0,0,0,0.05); flex:1; overflow:hidden; }
         .score-bar-fill { height:100%; border-radius:3px; transition:width 0.6s ease; }
-        .lb-you { border-color: rgba(112,0,255,0.4); background: rgba(112,0,255,0.06); }
+        .lb-you { border-color: rgba(192, 92, 70,0.4); background: rgba(192, 92, 70,0.06); }
         .stat-badge { padding:0.2rem 0.7rem; border-radius:var(--radius-pill); font-size:0.72rem; font-weight:700; }
     </style>
 </head>
@@ -94,7 +94,7 @@
                 <span>Weekly progress</span>
                 <span id="myProgressLabel">0 / 500 pts to next rank</span>
             </div>
-            <div style="height:8px;background:rgba(255,255,255,0.06);border-radius:4px;overflow:hidden;">
+            <div style="height:8px;background:rgba(0,0,0,0.06);border-radius:4px;overflow:hidden;">
                 <div id="myProgressBar" style="height:100%;background:linear-gradient(90deg,var(--accent-purple),var(--accent-blue));border-radius:4px;transition:width 0.8s ease;width:0%"></div>
             </div>
         </div>
@@ -178,7 +178,7 @@ function renderList() {
             <div style="font-size:${pos===1?'2.2':'1.6'}rem;margin-bottom:0.25rem;">${trophies[pos]}</div>
             <div style="font-size:1.8rem;margin-bottom:0.25rem;">${m.emoji}</div>
             <div style="font-weight:700;font-size:0.9rem;color:${isMe?'var(--accent-purple)':'var(--text-primary)'};margin-bottom:0.25rem;">${m.name}</div>
-            <div style="background:rgba(255,255,255,0.06);border:1px solid var(--border-glass);border-radius:var(--radius-sm) var(--radius-sm) 0 0;width:90px;height:${heights[pos]}px;display:flex;align-items:flex-start;justify-content:center;padding-top:0.75rem;font-family:var(--font-heading);font-weight:800;font-size:1rem;color:${pos===0?'var(--accent-yellow)':pos===1?'var(--accent-green)':'var(--accent-blue)'};">
+            <div style="background:rgba(0,0,0,0.06);border:1px solid var(--border-glass);border-radius:var(--radius-sm) var(--radius-sm) 0 0;width:90px;height:${heights[pos]}px;display:flex;align-items:flex-start;justify-content:center;padding-top:0.75rem;font-family:var(--font-heading);font-weight:800;font-size:1rem;color:${pos===0?'var(--accent-yellow)':pos===1?'var(--accent-green)':'var(--accent-blue)'};">
                 ${getScore(m,activeTab).toLocaleString()}
             </div>
         `;
@@ -199,7 +199,7 @@ function renderList() {
             <div class="lb-rank ${rankColor}">${i+1}</div>
             <div class="lb-avatar">${m.emoji}</div>
             <div style="flex:1;min-width:0;">
-                <div style="font-weight:600;${m.isMe?'color:var(--accent-purple)':''}">${m.name}${m.isMe?' <span style="font-size:0.7rem;background:rgba(112,0,255,0.2);color:var(--accent-purple);padding:2px 8px;border-radius:99px;">You</span>':''}</div>
+                <div style="font-weight:600;${m.isMe?'color:var(--accent-purple)':''}">${m.name}${m.isMe?' <span style="font-size:0.7rem;background:rgba(192, 92, 70,0.2);color:var(--accent-purple);padding:2px 8px;border-radius:99px;">You</span>':''}</div>
                 <div class="score-bar-wrap" style="margin-top:0.4rem;">
                     <div class="score-bar"><div class="score-bar-fill" style="width:${pct}%;background:${barColor};"></div></div>
                     <span style="font-size:0.75rem;color:var(--text-secondary);white-space:nowrap;">${m.workouts} workouts</span>

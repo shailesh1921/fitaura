@@ -34,9 +34,9 @@
         font-weight: 700;
         text-transform: uppercase;
         letter-spacing: 0.1em;
-        background: rgba(0,255,128,0.12);
+        background: rgba(74, 88, 64,0.12);
         color: var(--accent-green);
-        border: 1px solid rgba(0,255,128,0.25);
+        border: 1px solid rgba(74, 88, 64,0.25);
         padding: 3px 10px;
         border-radius: var(--radius-pill);
       }
@@ -56,8 +56,8 @@
         position: relative;
       }
       .scanner-card:hover {
-        border-color: rgba(0,255,128,0.25);
-        box-shadow: 0 8px 40px rgba(0,255,128,0.08);
+        border-color: rgba(74, 88, 64,0.25);
+        box-shadow: 0 8px 40px rgba(74, 88, 64,0.08);
         transform: translateY(-2px);
       }
 
@@ -114,7 +114,7 @@
       .scan-launch-btn:hover {
         background: #00e874;
         transform: translateY(-2px);
-        box-shadow: 0 8px 25px rgba(0,255,128,0.35);
+        box-shadow: 0 8px 25px rgba(74, 88, 64,0.35);
       }
       .scan-launch-btn .btn-icon {
         font-size: 1.1rem;
@@ -127,8 +127,8 @@
 
       /* Right: visual pane */
       .scanner-visual {
-        background: linear-gradient(135deg, rgba(0,255,128,0.04) 0%, rgba(112,0,255,0.08) 100%);
-        border-left: 1px solid rgba(255,255,255,0.06);
+        background: linear-gradient(135deg, rgba(74, 88, 64,0.04) 0%, rgba(192, 92, 70,0.08) 100%);
+        border-left: 1px solid rgba(0,0,0,0.06);
         display: flex;
         flex-direction: column;
         align-items: center;
@@ -142,21 +142,21 @@
         content: '';
         position: absolute;
         inset: 0;
-        background: radial-gradient(circle at 60% 40%, rgba(0,255,128,0.06), transparent 70%);
+        background: radial-gradient(circle at 60% 40%, rgba(74, 88, 64,0.06), transparent 70%);
         pointer-events: none;
       }
 
       /* Animated mock camera bracket */
       .mock-bracket {
         width: 120px; height: 100px;
-        border: 2px dashed rgba(255,255,255,0.2);
+        border: 2px dashed rgba(0,0,0,0.2);
         border-radius: 12px;
         position: relative;
         transition: all 0.3s;
       }
       .scanner-card:hover .mock-bracket {
-        border-color: rgba(0,255,128,0.5);
-        box-shadow: 0 0 20px rgba(0,255,128,0.1) inset;
+        border-color: rgba(74, 88, 64,0.5);
+        box-shadow: 0 0 20px rgba(74, 88, 64,0.1) inset;
       }
       .mock-bracket::before { top:-2px; left:-2px; border-width:3px 0 0 3px; border-radius:5px 0 0 0; }
       .mock-bracket::after  { bottom:-2px; right:-2px; border-width:0 3px 3px 0; border-radius:0 0 5px 0; }
@@ -193,8 +193,8 @@
         animation: floatIn 4s ease-in-out infinite;
         pointer-events: none;
       }
-      .food-tag-float:nth-child(1) { top: 18%; left: 8%;  background:rgba(0,255,128,0.1); border-color:rgba(0,255,128,0.3); color:var(--accent-green); animation-delay:0s; }
-      .food-tag-float:nth-child(2) { top: 35%; right:6%;  background:rgba(0,195,255,0.1); border-color:rgba(0,195,255,0.3); color:var(--accent-blue);  animation-delay:1.3s; }
+      .food-tag-float:nth-child(1) { top: 18%; left: 8%;  background:rgba(74, 88, 64,0.1); border-color:rgba(74, 88, 64,0.3); color:var(--accent-green); animation-delay:0s; }
+      .food-tag-float:nth-child(2) { top: 35%; right:6%;  background:rgba(74, 88, 64,0.1); border-color:rgba(74, 88, 64,0.3); color:var(--accent-blue);  animation-delay:1.3s; }
       .food-tag-float:nth-child(3) { bottom:22%; left:12%; background:rgba(255,215,0,0.1); border-color:rgba(255,215,0,0.3); color:var(--accent-yellow); animation-delay:2.6s; }
       @keyframes floatIn {
         0%,100% { opacity:0; transform:translateY(6px); }
@@ -214,8 +214,8 @@
         letter-spacing: 0.07em;
         padding: 5px 12px;
         border-radius: var(--radius-pill);
-        background: rgba(255,255,255,0.05);
-        border: 1px solid rgba(255,255,255,0.1);
+        background: rgba(0,0,0,0.05);
+        border: 1px solid rgba(0,0,0,0.1);
         color: var(--text-secondary);
       }
 
@@ -226,7 +226,7 @@
         display: grid;
         grid-template-columns: repeat(4, 1fr);
         gap: 1rem;
-        border-top: 1px solid rgba(255,255,255,0.05);
+        border-top: 1px solid rgba(0,0,0,0.05);
         padding-top: 1.5rem;
       }
       .cap-item {
@@ -259,7 +259,7 @@
     </style>
 </head>
 <body>
-    <div class="ambient-bg" style="background: radial-gradient(circle, rgba(112,0,255,0.1) 0%, rgba(0,0,0,0) 60%);"></div>
+    <div class="ambient-bg" style="background: radial-gradient(circle, rgba(192, 92, 70,0.1) 0%, rgba(0,0,0,0) 60%);"></div>
 
     <aside class="layout-sidebar">
         <!-- Dynamic Sidebar injected via components.js -->
@@ -317,10 +317,10 @@
             </div>
 
             <!-- AI MACRO INSIGHT -->
-            <div class="glass-card animate-up delay-5" style="background: linear-gradient(135deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.01) 100%);">
+            <div class="glass-card animate-up delay-5" style="background: linear-gradient(135deg, rgba(0,0,0,0.05) 0%, rgba(0,0,0,0.01) 100%);">
                 <h3 class="mb-1 text-secondary uppercase tag">Pattern Analysis</h3>
                 <div class="flex-col gap-1 mt-2">
-                    <div style="background: rgba(0,255,128,0.1); padding: 1rem; border-radius: var(--radius-sm); border-left: 3px solid var(--accent-green);">
+                    <div style="background: rgba(74, 88, 64,0.1); padding: 1rem; border-radius: var(--radius-sm); border-left: 3px solid var(--accent-green);">
                         <strong>Positive Adaptation</strong>
                         <p class="text-secondary mt-1" style="font-size: 0.9rem;">Your volume load correlates strongly with your recovery baseline. You are successfully maintaining progressive overload without entering overtraining territory.</p>
                     </div>

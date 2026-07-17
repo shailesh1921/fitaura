@@ -12,7 +12,7 @@
 <style>
 .gauge-wrap{display:flex;align-items:center;gap:1.5rem;margin-bottom:1.5rem;flex-wrap:wrap}
 .gauge-svg{width:120px;height:120px;flex-shrink:0}
-.gauge-track{fill:none;stroke:rgba(255,255,255,.06);stroke-width:8}
+.gauge-track{fill:none;stroke:rgba(0,0,0,.06);stroke-width:8}
 .gauge-fill{fill:none;stroke-width:8;stroke-linecap:round;transform-origin:center;transform:rotate(-90deg);transition:stroke-dashoffset 1.2s cubic-bezier(.4,0,.2,1)}
 .gauge-info h4{font-size:.72rem;text-transform:uppercase;letter-spacing:.1em;color:var(--text-secondary);margin-bottom:.3rem}
 .gauge-score{font-family:var(--font-heading);font-size:2.5rem;font-weight:800;line-height:1}
@@ -24,7 +24,7 @@
 .factor-icon{font-size:1.3rem}
 .factor-name{font-size:.88rem;font-weight:700;flex:1}
 .factor-score{font-family:var(--font-heading);font-weight:700;font-size:1.1rem}
-.factor-track{height:5px;background:rgba(255,255,255,.06);border-radius:999px;overflow:hidden}
+.factor-track{height:5px;background:rgba(0,0,0,.06);border-radius:999px;overflow:hidden}
 .factor-fill{height:100%;border-radius:999px;transition:width .8s ease}
 .factor-desc{font-size:.68rem;color:var(--text-secondary);margin-top:.5rem}
 .acwr-gauge-wrap{display:flex;align-items:center;gap:2rem;margin-bottom:1.5rem;padding:1.5rem;background:var(--bg-surface);border:1px solid var(--border-glass);border-radius:var(--radius-lg)}
@@ -38,20 +38,20 @@
 .deload-info{flex:1}
 .deload-title{font-family:var(--font-heading);font-weight:700;font-size:1rem;margin-bottom:.2rem}
 .deload-desc{font-size:.78rem;color:var(--text-secondary)}
-.mobility-exercise{display:flex;align-items:center;gap:1rem;padding:.8rem 1rem;background:rgba(255,255,255,.03);border:1px solid var(--border-glass);border-radius:var(--radius-sm);margin-bottom:.5rem;transition:all .2s}
+.mobility-exercise{display:flex;align-items:center;gap:1rem;padding:.8rem 1rem;background:rgba(0,0,0,.03);border:1px solid var(--border-glass);border-radius:var(--radius-sm);margin-bottom:.5rem;transition:all .2s}
 .mobility-exercise:hover{border-color:var(--border-hover)}
 .mobility-name{font-weight:600;font-size:.85rem;flex:1}
 .mobility-time{font-size:.72rem;color:var(--text-secondary)}
 .mobility-target{font-size:.65rem;color:var(--accent-blue);min-width:100px;text-align:right}
-.supplement-card{display:flex;align-items:center;gap:1rem;padding:1rem 1.2rem;background:rgba(255,255,255,.03);border:1px solid var(--border-glass);border-radius:var(--radius-md);margin-bottom:.6rem;transition:all .2s}
+.supplement-card{display:flex;align-items:center;gap:1rem;padding:1rem 1.2rem;background:rgba(0,0,0,.03);border:1px solid var(--border-glass);border-radius:var(--radius-md);margin-bottom:.6rem;transition:all .2s}
 .supplement-card:hover{border-color:var(--border-hover)}
 .supplement-icon{font-size:1.4rem;flex-shrink:0}
 .supplement-info{flex:1}
 .supplement-name{font-weight:700;font-size:.88rem}
 .supplement-reason{font-size:.72rem;color:var(--text-secondary);margin-top:.2rem}
 .supplement-badge{font-size:.6rem;font-weight:700;padding:2px 8px;border-radius:999px;text-transform:uppercase;letter-spacing:.03em;flex-shrink:0}
-.badge-research{background:rgba(0,255,128,.1);color:#00ff80;border:1px solid rgba(0,255,128,.25)}
-.badge-optional{background:rgba(255,255,255,.06);color:var(--text-secondary);border:1px solid var(--border-glass)}
+.badge-research{background:rgba(74, 88, 64,.1);color:#00ff80;border:1px solid rgba(74, 88, 64,.25)}
+.badge-optional{background:rgba(0,0,0,.06);color:var(--text-secondary);border:1px solid var(--border-glass)}
 .section-title{font-family:var(--font-heading);font-size:1.1rem;font-weight:700;margin-bottom:1rem;display:flex;align-items:center;gap:.5rem}
 @media(max-width:900px){.factor-grid{grid-template-columns:1fr}.acwr-gauge-wrap{flex-direction:column}}
 </style>
@@ -211,12 +211,12 @@ if(!sleep.hours){document.getElementById('sleepContent').innerHTML=`<div style="
 </div>`;
 const ctx=document.getElementById('sleepChart').getContext('2d');
 if(window._sleepChart)window._sleepChart.destroy();
-window._sleepChart=new Chart(ctx,{type:'doughnut',data:{labels:['Deep','Light','REM','Awake'],datasets:[{data:[sleep.deep||0,sleep.light||0,sleep.rem||0,sleep.awake||0],backgroundColor:['#7000ff','rgba(112,0,255,0.3)','#00c3ff','rgba(255,255,255,0.08)'],borderWidth:0}]},options:{responsive:true,maintainAspectRatio:false,cutout:'65%',plugins:{legend:{position:'bottom',labels:{color:'#888',font:{size:10},padding:15}}}}});
+window._sleepChart=new Chart(ctx,{type:'doughnut',data:{labels:['Deep','Light','REM','Awake'],datasets:[{data:[sleep.deep||0,sleep.light||0,sleep.rem||0,sleep.awake||0],backgroundColor:['#7000ff','rgba(192, 92, 70,0.3)','#00c3ff','rgba(0,0,0,0.08)'],borderWidth:0}]},options:{responsive:true,maintainAspectRatio:false,cutout:'65%',plugins:{legend:{position:'bottom',labels:{color:'#888',font:{size:10},padding:15}}}}});
 return}
 const total=sleep.deep+sleep.light+sleep.rem+sleep.awake||1;
 const data=[sleep.deep||0,sleep.light||0,sleep.rem||0,sleep.awake||0];
 const labels=['Deep','Light','REM','Awake'];
-const colors=['#7000ff','rgba(112,0,255,0.3)','#00c3ff','rgba(255,255,255,0.08)'];
+const colors=['#7000ff','rgba(192, 92, 70,0.3)','#00c3ff','rgba(0,0,0,0.08)'];
 document.getElementById('sleepContent').innerHTML=`<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;margin-bottom:1rem;">
 <div style="text-align:center"><div style="font-family:var(--font-heading);font-size:1.8rem;font-weight:800;color:var(--accent-green)">${sleep.hours||0}</div><div style="font-size:.65rem;color:var(--text-secondary);text-transform:uppercase">Hours</div></div>
 <div style="text-align:center"><div style="font-family:var(--font-heading);font-size:1.4rem;font-weight:800;color:#7000ff">${sleep.deep||0}</div><div style="font-size:.65rem;color:var(--text-secondary);text-transform:uppercase">Deep</div></div>
@@ -233,9 +233,9 @@ const totalVol=muscles.reduce((a,m)=>a+(vol[m]||0),0);
 const rpe=getRPELog();const avgRPE=Object.values(rpe).length>0?Object.values(rpe).reduce((a,b)=>a+b,0)/Object.values(rpe).length:5;
 const hrv=JSON.parse(localStorage.getItem('fitaura_last_hrv')||'{}');
 let severity='none',msg,icon,bg,col;
-if(totalVol>100||avgRPE>8.5){severity='immediate';msg='Immediate deload recommended. Your CNS fatigue is critically high. Take 3-5 days of active recovery with light mobility work only. Focus on sleep, nutrition, and hydration.';icon='🔴';bg='rgba(255,51,102,.06)';col='var(--accent-red)'}
+if(totalVol>100||avgRPE>8.5){severity='immediate';msg='Immediate deload recommended. Your CNS fatigue is critically high. Take 3-5 days of active recovery with light mobility work only. Focus on sleep, nutrition, and hydration.';icon='🔴';bg='rgba(192, 92, 70,.06)';col='var(--accent-red)'}
 else if(totalVol>70||avgRPE>7.5){severity='this_week';msg='Schedule a deload week this week. Reduce volume to 40-50% and intensity to RPE 5-6. Include extra rest days and focus on recovery modalities.';icon='🟡';bg='rgba(255,215,0,.04)';col='var(--accent-yellow)'}
-else{msg='No deload needed. Your training load is within healthy ranges. Keep training smart and monitor recovery markers weekly.';icon='🟢';bg='rgba(0,255,128,.04)';col='var(--accent-green)'}
+else{msg='No deload needed. Your training load is within healthy ranges. Keep training smart and monitor recovery markers weekly.';icon='🟢';bg='rgba(74, 88, 64,.04)';col='var(--accent-green)'}
 document.getElementById('deloadContent').innerHTML=`<div class="deload-card" style="background:${bg};border-color:${col}30">
 <div class="deload-icon" style="background:${bg}">${icon}</div>
 <div class="deload-info"><div class="deload-title" style="color:${col}">${severity==='immediate'?'Immediate Deload':severity==='this_week'?'Deload This Week':'No Deload Needed'}</div>
@@ -266,7 +266,7 @@ document.getElementById('mobilityContent').innerHTML=`
 ${dynamic.map(e=>`<div class="mobility-exercise"><div class="mobility-name">${e.name}</div><div class="mobility-time">${e.time}</div><div class="mobility-target">→ ${e.target}</div></div>`).join('')}
 <div style="font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--accent-purple);margin:1rem 0 .6rem">Static Stretching (Post-Workout)</div>
 ${static_.map(e=>`<div class="mobility-exercise"><div class="mobility-name">${e.name}</div><div class="mobility-time">${e.time}</div><div class="mobility-target">→ ${e.target}</div></div>`).join('')}
-${fatigued.length>0?`<div style="margin-top:1rem;padding:.8rem 1rem;background:rgba(0,195,255,.06);border:1px solid rgba(0,195,255,.2);border-radius:var(--radius-sm);font-size:.8rem;color:var(--accent-blue)">💡 <strong>Priority muscles:</strong> ${fatigued.slice(0,5).join(', ')} — spend extra time on these during static stretching.</div>`:''}`;
+${fatigued.length>0?`<div style="margin-top:1rem;padding:.8rem 1rem;background:rgba(74, 88, 64,.06);border:1px solid rgba(74, 88, 64,.2);border-radius:var(--radius-sm);font-size:.8rem;color:var(--accent-blue)">💡 <strong>Priority muscles:</strong> ${fatigued.slice(0,5).join(', ')} — spend extra time on these during static stretching.</div>`:''}`;
 }
 
 function updateSupplements(){

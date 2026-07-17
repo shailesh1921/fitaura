@@ -21,16 +21,16 @@
             line-height: 1.6; animation: fadeUp 0.3s ease forwards;
         }
         .chat-ai {
-            background: rgba(255,255,255,0.05); border: 1px solid var(--border-glass);
-            align-self: flex-start; border-bottom-left-radius: 0; color: #fff;
+            background: rgba(0,0,0,0.05); border: 1px solid var(--border-glass);
+            align-self: flex-start; border-bottom-left-radius: 0; color: #1A1A1A;
         }
         .chat-user {
-            background: var(--accent-purple); color: white;
+            background: var(--accent-purple); color: #1A1A1A;
             align-self: flex-end; border-bottom-right-radius: 0;
         }
         .typing-indicator {
             display: flex; gap: 5px; align-items: center;
-            padding: 1rem 1.5rem; background: rgba(255,255,255,0.05);
+            padding: 1rem 1.5rem; background: rgba(0,0,0,0.05);
             border: 1px solid var(--border-glass); border-radius: var(--radius-md);
             border-bottom-left-radius: 0; align-self: flex-start; max-width: 80px;
         }
@@ -53,27 +53,27 @@
         .chat-input-wrapper:focus-within { border-color: var(--accent-purple); }
         .chat-input {
             flex: 1; background: transparent; border: none;
-            color: white; font-size: 1rem; font-family: var(--font-body);
+            color: #1A1A1A; font-size: 1rem; font-family: var(--font-body);
         }
         .chat-input:focus { outline: none; }
         .quick-actions { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 2rem; }
         .quick-btn {
-            background: rgba(255,255,255,0.02); border: 1px solid var(--border-glass);
+            background: rgba(0,0,0,0.02); border: 1px solid var(--border-glass);
             color: var(--text-secondary); padding: 0.5rem 1rem;
             border-radius: var(--radius-pill); font-size: 0.8rem;
             cursor: pointer; transition: var(--transition-smooth); font-family: var(--font-body);
         }
-        .quick-btn:hover { background: rgba(112,0,255,0.1); color: #fff; border-color: rgba(112,0,255,0.4); }
+        .quick-btn:hover { background: rgba(192, 92, 70,0.1); color: #1A1A1A; border-color: rgba(192, 92, 70,0.4); }
 
         .context-panel {
-            background: rgba(112,0,255,0.05); border: 1px solid rgba(112,0,255,0.2);
+            background: rgba(192, 92, 70,0.05); border: 1px solid rgba(192, 92, 70,0.2);
             border-radius: var(--radius-sm); padding: 1rem; margin-bottom: 1.5rem;
             font-size: 0.85rem; color: var(--text-secondary);
         }
     </style>
 </head>
 <body>
-    <div class="ambient-bg" style="background:radial-gradient(circle,rgba(112,0,255,0.15) 0%,rgba(0,0,0,0) 60%);"></div>
+    <div class="ambient-bg" style="background:radial-gradient(circle,rgba(192, 92, 70,0.15) 0%,rgba(0,0,0,0) 60%);"></div>
 
     <aside class="layout-sidebar">
         <!-- Dynamic Sidebar injected via components.js -->
@@ -152,9 +152,9 @@
             panel.innerHTML = `
                 <div style="display:flex; justify-content:space-between; align-items:center; width:100%;">
                     <span>
-                        <strong style="color:white;">Live Context:</strong>
+                        <strong style="color:#1A1A1A;">Live Context:</strong>
                         Recovery <strong style="color:${rec.color || '#00ff88'}">${rec.score || 75}%</strong> (${rec.status || 'Good'}) ·
-                        Today: <strong style="color:white;">${lift ? lift.type : 'Rest'}</strong>
+                        Today: <strong style="color:#1A1A1A;">${lift ? lift.type : 'Rest'}</strong>
                         ${lift && lift.type !== 'Rest' ? `· ${lift.exercises ? lift.exercises.length : 0} exercises` : ''}
                     </span>
                 </div>

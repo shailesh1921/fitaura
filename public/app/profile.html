@@ -12,7 +12,7 @@
         .select-group { display: flex; gap: 1rem; margin-bottom: 2rem; }
         .select-btn {
             flex: 1;
-            background: rgba(255,255,255,0.05);
+            background: rgba(0,0,0,0.05);
             border: 1px solid var(--border-glass);
             padding: 1rem;
             border-radius: var(--radius-sm);
@@ -22,15 +22,15 @@
             color: var(--text-secondary);
         }
         .select-btn.active {
-            background: rgba(255,255,255,0.1);
+            background: rgba(0,0,0,0.1);
             border-color: var(--accent-green);
-            color: white;
+            color: #1A1A1A;
             box-shadow: var(--shadow-glow-green);
         }
     </style>
 </head>
 <body>
-    <div class="ambient-bg" style="background: radial-gradient(circle, rgba(0,255,128,0.1) 0%, rgba(0,0,0,0) 60%);"></div>
+    <div class="ambient-bg" style="background: radial-gradient(circle, rgba(74, 88, 64,0.1) 0%, rgba(0,0,0,0) 60%);"></div>
 
     <aside class="layout-sidebar">
         <!-- Dynamic Sidebar injected via components.js -->

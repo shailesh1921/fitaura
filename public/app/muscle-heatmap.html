@@ -14,94 +14,94 @@
         .body-views{display:flex;justify-content:center;gap:3rem;flex-wrap:wrap;padding:1.5rem 0}
         .body-section{text-align:center;position:relative}
         .body-section h4{font-size:.72rem;text-transform:uppercase;letter-spacing:.12em;color:var(--text-secondary);margin-bottom:.75rem}
-        svg.body-svg{width:190px;height:400px;filter:drop-shadow(0 0 20px rgba(112,0,255,0.05))}
+        svg.body-svg{width:190px;height:400px;filter:drop-shadow(0 0 20px rgba(192, 92, 70,0.05))}
         .muscle{transition:fill .5s cubic-bezier(.4,0,.2,1),filter .3s ease;cursor:pointer;stroke:transparent;stroke-width:1.5}
-        .muscle:hover{stroke:rgba(255,255,255,.5);stroke-width:1.5;filter:brightness(1.3) drop-shadow(0 0 6px currentColor)}
+        .muscle:hover{stroke:rgba(0,0,0,.5);stroke-width:1.5;filter:brightness(1.3) drop-shadow(0 0 6px currentColor)}
         .muscle.selected{stroke:#a78bfa;stroke-width:2.5;filter:brightness(1.2) drop-shadow(0 0 8px #a78bfa)}
         .muscle.pulse-active{animation:musclePulse 2s ease-in-out infinite}
         @keyframes musclePulse{0%,100%{filter:brightness(1) drop-shadow(0 0 2px currentColor)}50%{filter:brightness(1.4) drop-shadow(0 0 12px currentColor)}}
         .heat-legend{display:flex;align-items:flex-start;gap:.5rem;margin-bottom:1.5rem;flex-wrap:wrap}
         .legend-scale{display:flex;gap:3px;align-items:center}
         .legend-cell{width:22px;height:10px;border-radius:2px}
-        .muscle-detail{background:rgba(255,255,255,.03);border:1px solid var(--border-glass);border-radius:var(--radius-md);padding:1.5rem;min-height:160px;position:relative;overflow:hidden;transition:all .3s}
+        .muscle-detail{background:rgba(0,0,0,.03);border:1px solid var(--border-glass);border-radius:var(--radius-md);padding:1.5rem;min-height:160px;position:relative;overflow:hidden;transition:all .3s}
         .muscle-detail::before{content:'';position:absolute;top:0;left:0;width:3px;height:100%;background:var(--detail-accent,var(--accent-purple));border-radius:0 2px 2px 0}
         .muscle-name-badge{display:inline-flex;align-items:center;gap:.5rem;margin-bottom:.75rem;flex-wrap:wrap}
         .muscle-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
         .stat-row{display:flex;gap:.75rem;margin:1rem 0;flex-wrap:wrap}
-        .stat-chip{background:rgba(255,255,255,.05);border:1px solid var(--border-glass);border-radius:8px;padding:.6rem .9rem;flex:1;min-width:80px}
+        .stat-chip{background:rgba(0,0,0,.05);border:1px solid var(--border-glass);border-radius:8px;padding:.6rem .9rem;flex:1;min-width:80px}
         .stat-chip-label{font-size:.65rem;text-transform:uppercase;letter-spacing:.08em;color:var(--text-secondary);margin-bottom:.2rem}
         .stat-chip-val{font-size:1rem;font-weight:700;font-family:var(--font-heading)}
         .volume-bar-wrap{margin:.75rem 0 0}
-        .volume-bar-track{height:6px;background:rgba(255,255,255,.07);border-radius:4px;overflow:hidden}
+        .volume-bar-track{height:6px;background:rgba(0,0,0,.07);border-radius:4px;overflow:hidden}
         .volume-bar-fill{height:100%;border-radius:4px;transition:width .6s cubic-bezier(.4,0,.2,1)}
         .vol-labels{display:flex;justify-content:space-between;font-size:.65rem;color:var(--text-secondary);margin-top:4px}
         .week-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;margin-top:1rem}
-        .week-cell{border-radius:6px;aspect-ratio:1;border:1px solid rgba(255,255,255,.05);transition:transform .2s;cursor:default;position:relative}
+        .week-cell{border-radius:6px;aspect-ratio:1;border:1px solid rgba(0,0,0,.05);transition:transform .2s;cursor:default;position:relative}
         .week-cell:hover{transform:scale(1.12);z-index:2}
         .week-cell-label{font-size:.55rem;text-transform:uppercase;color:var(--text-secondary);text-align:center;margin-top:4px;letter-spacing:.06em}
         .recovery-wrap{display:flex;align-items:center;gap:1.5rem;margin-bottom:1.5rem}
         .ring-svg{width:80px;height:80px;flex-shrink:0}
-        .ring-track{fill:none;stroke:rgba(255,255,255,.07);stroke-width:6}
+        .ring-track{fill:none;stroke:rgba(0,0,0,.07);stroke-width:6}
         .ring-fill{fill:none;stroke-width:6;stroke-linecap:round;transition:stroke-dashoffset 1s cubic-bezier(.4,0,.2,1);transform-origin:center;transform:rotate(-90deg)}
         .recovery-text h4{font-size:.7rem;text-transform:uppercase;letter-spacing:.1em;color:var(--text-secondary);margin-bottom:.3rem}
         .recovery-score{font-family:var(--font-heading);font-size:1.8rem;font-weight:800}
         .recovery-status{font-size:.75rem;color:var(--text-secondary);margin-top:.2rem}
         .tab-bar{display:flex;gap:.5rem;margin-bottom:1.5rem;border-bottom:1px solid var(--border-glass);padding-bottom:.5rem;flex-wrap:wrap}
         .tab-btn{padding:.45rem 1rem;border-radius:var(--radius-pill);font-size:.82rem;font-weight:600;cursor:pointer;border:none;background:transparent;color:var(--text-secondary);transition:all .2s;font-family:var(--font-body)}
-        .tab-btn.active{background:rgba(255,255,255,.1);color:var(--text-primary)}
+        .tab-btn.active{background:rgba(0,0,0,.1);color:var(--text-primary)}
         .tab-pane{display:none}
         .tab-pane.active{display:block}
         .log-row{display:flex;gap:.75rem;flex-wrap:wrap;align-items:flex-end}
         .log-field{display:flex;flex-direction:column;gap:.4rem}
         .log-field label{font-size:.72rem;text-transform:uppercase;letter-spacing:.08em;color:var(--text-secondary)}
         .muscle-overview-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:.75rem;margin-top:1rem}
-        .mg-card{background:rgba(255,255,255,.03);border:1px solid var(--border-glass);border-radius:var(--radius-sm);padding:.9rem;cursor:pointer;transition:all .2s;position:relative;overflow:hidden}
+        .mg-card{background:rgba(0,0,0,.03);border:1px solid var(--border-glass);border-radius:var(--radius-sm);padding:.9rem;cursor:pointer;transition:all .2s;position:relative;overflow:hidden}
         .mg-card:hover{border-color:var(--border-hover);transform:translateY(-2px)}
-        .mg-card::after{content:'';position:absolute;bottom:0;left:0;right:0;height:3px;background:var(--mg-color,rgba(255,255,255,.1))}
+        .mg-card::after{content:'';position:absolute;bottom:0;left:0;right:0;height:3px;background:var(--mg-color,rgba(0,0,0,.1))}
         .mg-card-name{font-size:.78rem;font-weight:600;margin-bottom:.3rem}
         .mg-card-sets{font-size:1.2rem;font-weight:800;font-family:var(--font-heading)}
         .mg-card-sub{font-size:.62rem;color:var(--text-secondary);margin-top:2px}
         .mg-card-sparkline{height:28px;margin-top:6px;opacity:.6}
-        .hud{position:fixed;pointer-events:none;background:rgba(8,8,16,.96);backdrop-filter:blur(16px);border:1px solid rgba(255,255,255,.12);padding:.65rem .9rem;border-radius:10px;z-index:9999;opacity:0;transition:opacity .15s;min-width:160px;box-shadow:0 12px 32px rgba(0,0,0,.6)}
+        .hud{position:fixed;pointer-events:none;background:rgba(8,8,16,.96);backdrop-filter:blur(16px);border:1px solid rgba(0,0,0,.12);padding:.65rem .9rem;border-radius:10px;z-index:9999;opacity:0;transition:opacity .15s;min-width:160px;box-shadow:0 12px 32px rgba(0,0,0,.6)}
         .hud.show{opacity:1}
-        .hud-top{font-size:.65rem;text-transform:uppercase;letter-spacing:.1em;color:rgba(255,255,255,.45);margin-bottom:3px}
-        .hud-val{font-size:1rem;font-weight:700;font-family:var(--font-heading);color:#fff}
+        .hud-top{font-size:.65rem;text-transform:uppercase;letter-spacing:.1em;color:rgba(0,0,0,.45);margin-bottom:3px}
+        .hud-val{font-size:1rem;font-weight:700;font-family:var(--font-heading);color:#1A1A1A}
         .hud-status{font-size:.6rem;margin-top:4px;font-weight:600}
         .suggestion-list{display:flex;flex-direction:column;gap:.6rem;margin-top:.75rem}
-        .suggestion-item{display:flex;justify-content:space-between;align-items:center;background:rgba(255,255,255,.03);border:1px solid var(--border-glass);border-radius:8px;padding:.65rem .9rem;font-size:.82rem;transition:all .2s;gap:.5rem}
-        .suggestion-item:hover{border-color:var(--border-hover);background:rgba(255,255,255,.06)}
+        .suggestion-item{display:flex;justify-content:space-between;align-items:center;background:rgba(0,0,0,.03);border:1px solid var(--border-glass);border-radius:8px;padding:.65rem .9rem;font-size:.82rem;transition:all .2s;gap:.5rem}
+        .suggestion-item:hover{border-color:var(--border-hover);background:rgba(0,0,0,.06)}
         .sug-label{color:var(--text-secondary);flex:1}
         .sug-badge{font-size:.65rem;font-weight:700;padding:2px 8px;border-radius:var(--radius-pill);white-space:nowrap;flex-shrink:0}
-        .sug-rest{background:rgba(0,255,128,.1);color:#00ff80}
-        .sug-train{background:rgba(112,0,255,.2);color:#a78bfa}
-        .sug-warn{background:rgba(255,51,102,.15);color:#ff3366}
-        .sug-info{background:rgba(0,195,255,.12);color:#00c3ff}
+        .sug-rest{background:rgba(74, 88, 64,.1);color:#00ff80}
+        .sug-train{background:rgba(192, 92, 70,.2);color:#a78bfa}
+        .sug-warn{background:rgba(192, 92, 70,.15);color:#ff3366}
+        .sug-info{background:rgba(74, 88, 64,.12);color:#00c3ff}
         .fatigue-alert{display:flex;align-items:center;gap:.75rem;padding:.85rem 1.1rem;border-radius:var(--radius-md);border:1px solid;margin-bottom:1.5rem;font-size:.85rem}
-        .fatigue-alert.green{border-color:rgba(0,255,128,.2);background:rgba(0,255,128,.05);color:#00ff80}
+        .fatigue-alert.green{border-color:rgba(74, 88, 64,.2);background:rgba(74, 88, 64,.05);color:#00ff80}
         .fatigue-alert.yellow{border-color:rgba(255,215,0,.2);background:rgba(255,215,0,.05);color:#ffd700}
-        .fatigue-alert.red{border-color:rgba(255,51,102,.2);background:rgba(255,51,102,.05);color:#ff3366}
-        .alert-icon{width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:.75rem;font-weight:800;background:rgba(255,255,255,.1)}
+        .fatigue-alert.red{border-color:rgba(192, 92, 70,.2);background:rgba(192, 92, 70,.05);color:#ff3366}
+        .alert-icon{width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:.75rem;font-weight:800;background:rgba(0,0,0,.1)}
         .compare-row{display:flex;align-items:center;gap:.75rem;padding:.6rem 0;border-bottom:1px solid var(--border-glass)}
         .compare-label{width:90px;font-size:.78rem;color:var(--text-secondary);flex-shrink:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-        .compare-bar-track{flex:1;height:5px;background:rgba(255,255,255,.07);border-radius:4px;overflow:hidden}
+        .compare-bar-track{flex:1;height:5px;background:rgba(0,0,0,.07);border-radius:4px;overflow:hidden}
         .compare-bar{height:100%;border-radius:4px;transition:width .5s ease}
         .compare-val{width:42px;font-size:.75rem;font-weight:600;text-align:right;font-family:var(--font-heading);flex-shrink:0}
         .split-cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:.75rem;margin-top:1rem}
-        .split-card{background:rgba(255,255,255,.03);border:1px solid var(--border-glass);border-radius:var(--radius-sm);padding:1rem;transition:all .2s;cursor:pointer}
+        .split-card{background:rgba(0,0,0,.03);border:1px solid var(--border-glass);border-radius:var(--radius-sm);padding:1rem;transition:all .2s;cursor:pointer}
         .split-card:hover{border-color:var(--border-hover)}
-        .split-card.recommended{border-color:rgba(112,0,255,.4);background:rgba(112,0,255,.06)}
+        .split-card.recommended{border-color:rgba(192, 92, 70,.4);background:rgba(192, 92, 70,.06)}
         .split-card-name{font-size:.85rem;font-weight:700;margin-bottom:.3rem}
         .split-card-days{font-size:.7rem;color:var(--text-secondary)}
         .split-card-reason{font-size:.68rem;color:#a78bfa;margin-top:.5rem}
         .section-label{font-size:.72rem;text-transform:uppercase;letter-spacing:.08em;color:var(--text-secondary);margin-bottom:.6rem}
 
         /* ── NEW: Injury Risk Cards ── */
-        .risk-card{background:rgba(255,255,255,.03);border:1px solid var(--border-glass);border-radius:var(--radius-sm);padding:1rem 1.2rem;display:flex;align-items:center;gap:1rem;transition:all .2s;margin-bottom:.6rem}
+        .risk-card{background:rgba(0,0,0,.03);border:1px solid var(--border-glass);border-radius:var(--radius-sm);padding:1rem 1.2rem;display:flex;align-items:center;gap:1rem;transition:all .2s;margin-bottom:.6rem}
         .risk-card:hover{border-color:var(--border-hover)}
         .risk-icon{width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.1rem;flex-shrink:0}
-        .risk-low{background:rgba(0,255,128,.1);color:#00ff80}
+        .risk-low{background:rgba(74, 88, 64,.1);color:#00ff80}
         .risk-med{background:rgba(255,215,0,.1);color:#ffd700}
-        .risk-high{background:rgba(255,51,102,.1);color:#ff3366}
+        .risk-high{background:rgba(192, 92, 70,.1);color:#ff3366}
         .risk-info{flex:1}
         .risk-name{font-weight:700;font-size:.88rem}
         .risk-desc{font-size:.72rem;color:var(--text-secondary);margin-top:2px}
@@ -111,18 +111,18 @@
         .act-matrix{overflow-x:auto;margin-top:1rem}
         .act-matrix table{width:100%;border-collapse:collapse;font-size:.72rem}
         .act-matrix th{position:sticky;top:0;background:rgba(10,10,10,.95);padding:.5rem .4rem;text-align:center;color:var(--text-secondary);font-weight:600;text-transform:uppercase;letter-spacing:.05em;font-size:.62rem;white-space:nowrap}
-        .act-matrix td{padding:.4rem;text-align:center;border:1px solid rgba(255,255,255,.04);font-size:.68rem;transition:background .2s}
-        .act-matrix tr:hover td{background:rgba(255,255,255,.02)}
+        .act-matrix td{padding:.4rem;text-align:center;border:1px solid rgba(0,0,0,.04);font-size:.68rem;transition:background .2s}
+        .act-matrix tr:hover td{background:rgba(0,0,0,.02)}
         .act-cell{width:28px;height:28px;border-radius:4px;display:inline-block;transition:all .2s;cursor:pointer}
         .act-cell:hover{transform:scale(1.3);box-shadow:0 0 8px currentColor}
-        .act-3{background:rgba(255,51,102,.7);color:#ff3366}
+        .act-3{background:rgba(192, 92, 70,.7);color:#ff3366}
         .act-2{background:rgba(245,158,11,.6);color:#f59e0b}
         .act-1{background:rgba(34,197,94,.4);color:#22c55e}
-        .act-0{background:rgba(255,255,255,.05);color:transparent}
+        .act-0{background:rgba(0,0,0,.05);color:transparent}
 
         /* ── NEW: Wearable Data Panel ── */
         .wearable-strip{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:.6rem;margin-bottom:1.5rem}
-        .wearable-stat{background:rgba(255,255,255,.03);border:1px solid var(--border-glass);border-radius:var(--radius-sm);padding:.8rem;text-align:center;transition:all .2s}
+        .wearable-stat{background:rgba(0,0,0,.03);border:1px solid var(--border-glass);border-radius:var(--radius-sm);padding:.8rem;text-align:center;transition:all .2s}
         .wearable-stat:hover{border-color:var(--border-hover);transform:translateY(-2px)}
         .ws-icon{font-size:1.3rem;margin-bottom:.3rem}
         .ws-val{font-family:var(--font-heading);font-weight:700;font-size:1.05rem}
@@ -135,8 +135,8 @@
 
         /* ── Fiber Type Badges ── */
         .fiber-badge{display:inline-flex;align-items:center;gap:4px;font-size:.62rem;padding:2px 8px;border-radius:999px;font-weight:600;letter-spacing:.03em}
-        .fiber-1{background:rgba(0,195,255,.12);color:#00c3ff}
-        .fiber-2{background:rgba(255,51,102,.12);color:#ff3366}
+        .fiber-1{background:rgba(74, 88, 64,.12);color:#00c3ff}
+        .fiber-2{background:rgba(192, 92, 70,.12);color:#ff3366}
 
         @media(max-width:900px){.heatmap-grid{grid-template-columns:1fr}.wearable-strip{grid-template-columns:repeat(3,1fr)}}
     </style>
@@ -188,11 +188,11 @@
                         <svg class="body-svg" viewBox="0 0 200 420" xmlns="http://www.w3.org/2000/svg">
                             <defs>
                                 <filter id="glow"><feGaussianBlur stdDeviation="3" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
-                                <radialGradient id="muscleGrad" cx="50%" cy="40%"><stop offset="0%" stop-color="rgba(255,255,255,0.15)"/><stop offset="100%" stop-color="rgba(255,255,255,0)"/></radialGradient>
+                                <radialGradient id="muscleGrad" cx="50%" cy="40%"><stop offset="0%" stop-color="rgba(0,0,0,0.15)"/><stop offset="100%" stop-color="rgba(0,0,0,0)"/></radialGradient>
                             </defs>
-                            <path d="M100,20 L120,25 L135,60 L155,75 L165,120 L155,180 L135,192 L145,320 L130,410 L100,410 L70,410 L55,320 L65,192 L45,180 L35,120 L45,75 L65,60 L80,25 Z" fill="none" stroke="rgba(255,255,255,.06)" stroke-width="1.5"/>
-                            <ellipse cx="100" cy="32" rx="18" ry="20" fill="rgba(255,255,255,.03)" stroke="rgba(255,255,255,.06)" stroke-width="1"/>
-                            <rect x="93" y="50" width="14" height="14" rx="3" fill="rgba(255,255,255,.03)" stroke="rgba(255,255,255,.05)" stroke-width="1"/>
+                            <path d="M100,20 L120,25 L135,60 L155,75 L165,120 L155,180 L135,192 L145,320 L130,410 L100,410 L70,410 L55,320 L65,192 L45,180 L35,120 L45,75 L65,60 L80,25 Z" fill="none" stroke="rgba(0,0,0,.06)" stroke-width="1.5"/>
+                            <ellipse cx="100" cy="32" rx="18" ry="20" fill="rgba(0,0,0,.03)" stroke="rgba(0,0,0,.06)" stroke-width="1"/>
+                            <rect x="93" y="50" width="14" height="14" rx="3" fill="rgba(0,0,0,.03)" stroke="rgba(0,0,0,.05)" stroke-width="1"/>
                             <path id="f-chest" class="muscle" data-muscle="Chest" d="M72,72 Q86,65 100,72 Q114,65 128,72 L133,100 Q100,112 67,100 Z" fill="#1d1d33"/>
                             <path id="f-delt-l" class="muscle" data-muscle="Shoulders" d="M56,68 Q44,82 57,108 L68,102 Q63,80 73,72 Z" fill="#1d1d33"/>
                             <path id="f-delt-r" class="muscle" data-muscle="Shoulders" d="M144,68 Q156,82 143,108 L132,102 Q137,80 127,72 Z" fill="#1d1d33"/>
@@ -215,9 +215,9 @@
                     <div class="body-section">
                         <h4>Back</h4>
                         <svg class="body-svg" viewBox="0 0 200 420" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M100,20 L120,25 L135,60 L155,75 L165,120 L155,180 L135,192 L145,320 L130,410 L100,410 L70,410 L55,320 L65,192 L45,180 L35,120 L45,75 L65,60 L80,25 Z" fill="none" stroke="rgba(255,255,255,.06)" stroke-width="1.5"/>
-                            <ellipse cx="100" cy="32" rx="18" ry="20" fill="rgba(255,255,255,.03)" stroke="rgba(255,255,255,.06)" stroke-width="1"/>
-                            <rect x="93" y="50" width="14" height="14" rx="3" fill="rgba(255,255,255,.03)" stroke="rgba(255,255,255,.05)" stroke-width="1"/>
+                            <path d="M100,20 L120,25 L135,60 L155,75 L165,120 L155,180 L135,192 L145,320 L130,410 L100,410 L70,410 L55,320 L65,192 L45,180 L35,120 L45,75 L65,60 L80,25 Z" fill="none" stroke="rgba(0,0,0,.06)" stroke-width="1.5"/>
+                            <ellipse cx="100" cy="32" rx="18" ry="20" fill="rgba(0,0,0,.03)" stroke="rgba(0,0,0,.06)" stroke-width="1"/>
+                            <rect x="93" y="50" width="14" height="14" rx="3" fill="rgba(0,0,0,.03)" stroke="rgba(0,0,0,.05)" stroke-width="1"/>
                             <path id="b-traps" class="muscle" data-muscle="Traps" d="M76,58 Q100,44 124,58 L138,90 Q100,76 62,90 Z" fill="#1d1d33"/>
                             <path id="b-delt-l" class="muscle" data-muscle="Shoulders" d="M60,76 Q44,90 56,116 L66,110 Q60,90 70,96 Z" fill="#1d1d33"/>
                             <path id="b-delt-r" class="muscle" data-muscle="Shoulders" d="M140,76 Q156,90 144,116 L134,110 Q140,90 130,96 Z" fill="#1d1d33"/>
@@ -359,8 +359,8 @@
         <!-- HUD -->
         <div class="hud" id="hud">
             <div class="hud-top" id="hudMuscle">Muscle Group</div>
-            <div class="hud-val"><span id="hudSets">0</span> <span style="font-size:.65rem;color:rgba(255,255,255,.4);font-weight:400;">sets</span></div>
-            <div class="hud-val" style="font-size:.8rem;"><span id="hudLoad">0</span><span style="font-size:.6rem;color:rgba(255,255,255,.4);font-weight:400;">kg avg</span></div>
+            <div class="hud-val"><span id="hudSets">0</span> <span style="font-size:.65rem;color:rgba(0,0,0,.4);font-weight:400;">sets</span></div>
+            <div class="hud-val" style="font-size:.8rem;"><span id="hudLoad">0</span><span style="font-size:.6rem;color:rgba(0,0,0,.4);font-weight:400;">kg avg</span></div>
             <div class="hud-status" id="hudStatus">Ready</div>
         </div>
     </main>
@@ -578,7 +578,7 @@
                 const vol = mW[d.toDateString()] || 0;
                 const col = heatColor(vol);
                 const isToday = idx === 6;
-                return `<div><div class="week-cell" style="background:${col};${isToday?'box-shadow:0 0 0 2px rgba(255,255,255,.4);':''}" title="${dl[d.getDay()]} — ${vol.toFixed(1)} sets"></div><div class="week-cell-label">${dl[d.getDay()]}</div></div>`;
+                return `<div><div class="week-cell" style="background:${col};${isToday?'box-shadow:0 0 0 2px rgba(0,0,0,.4);':''}" title="${dl[d.getDay()]} — ${vol.toFixed(1)} sets"></div><div class="week-cell-label">${dl[d.getDay()]}</div></div>`;
             }).join('');
             document.getElementById('weekStart').textContent = days[0].toLocaleDateString('en',{month:'short',day:'numeric'});
         }
@@ -813,7 +813,7 @@
             document.getElementById('volumeTargetRows').innerHTML = Object.entries(VOL_TARGETS).map(([m, target]) => {
                 const actual = volumeLog[m] || 0;
                 const pct = Math.min(100, (actual / target) * 100);
-                const col = pct >= 90 ? '#22c55e' : pct >= 60 ? '#eab308' : pct >= 30 ? '#f97316' : 'rgba(255,255,255,.2)';
+                const col = pct >= 90 ? '#22c55e' : pct >= 60 ? '#eab308' : pct >= 30 ? '#f97316' : 'rgba(0,0,0,.2)';
                 return `<div class="compare-row"><span class="compare-label">${m}</span><div class="compare-bar-track"><div class="compare-bar" style="width:${pct}%;background:${col};"></div></div><span class="compare-val" style="color:${col};font-size:.7rem;">${actual.toFixed(0)}/${target}</span></div>`;
             }).join('');
 
@@ -855,8 +855,8 @@
                     responsive: true, maintainAspectRatio: false,
                     plugins: { legend: { labels: { color: '#888', font: { size: 10 } } } },
                     scales: {
-                        x: { grid: { color: 'rgba(255,255,255,.04)' }, ticks: { color: '#666', font: { size: 10 } } },
-                        y: { grid: { color: 'rgba(255,255,255,.04)' }, ticks: { color: '#666', font: { size: 10 } }, title: { display: true, text: 'Sets', color: '#666' } }
+                        x: { grid: { color: 'rgba(0,0,0,.04)' }, ticks: { color: '#666', font: { size: 10 } } },
+                        y: { grid: { color: 'rgba(0,0,0,.04)' }, ticks: { color: '#666', font: { size: 10 } }, title: { display: true, text: 'Sets', color: '#666' } }
                     }
                 }
             });

@@ -11,7 +11,7 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
-    <div class="ambient-bg" style="background: radial-gradient(circle, rgba(0,195,255,0.15) 0%, rgba(0,0,0,0) 60%);"></div>
+    <div class="ambient-bg" style="background: radial-gradient(circle, rgba(74, 88, 64,0.15) 0%, rgba(0,0,0,0) 60%);"></div>
 
     <aside class="layout-sidebar">
         <!-- Dynamic Sidebar injected via components.js -->
@@ -117,7 +117,7 @@
             Object.keys(z).forEach((key, idx) => {
                 const zone = z[key];
                 grid.innerHTML += `
-                    <div style="background: rgba(255,255,255,0.03); padding: 1.5rem 1rem; border-radius: var(--radius-sm); border-top: 3px solid ${zone.color}; text-align: center;">
+                    <div style="background: rgba(0,0,0,0.03); padding: 1.5rem 1rem; border-radius: var(--radius-sm); border-top: 3px solid ${zone.color}; text-align: center;">
                         <span style="color: ${zone.color}; font-weight: 700; font-size: 0.9rem; margin-bottom: 0.5rem; display: block;">ZONE ${idx+1}</span>
                         <div style="font-size: 1.2rem; font-weight: 700; margin-bottom: 0.2rem;">${zone.min}-${zone.max}</div>
                         <div class="text-secondary" style="font-size: 0.75rem;">${zone.name}</div>
@@ -136,7 +136,7 @@
                 data: {
                     datasets: [{
                         data: [strainData.val, Math.max(0, 500 - strainData.val)],
-                        backgroundColor: [strainData.color, 'rgba(255,255,255,0.05)'],
+                        backgroundColor: [strainData.color, 'rgba(0,0,0,0.05)'],
                         borderWidth: 0,
                     }]
                 },
