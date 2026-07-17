@@ -39,7 +39,7 @@ export default function Hero() {
             className="flex flex-col items-start gap-4 mb-2 md:mb-0"
           >
             <a 
-              href="#diet-plan"
+              href="app/dashboard.html"
               className="bg-charcoal hover:bg-terracotta text-[#FAF6F0] font-medium text-sm h-12 px-8 rounded-full pointer-events-auto transition-colors duration-300 shadow-md cursor-pointer flex items-center justify-center gap-2 group"
             >
               Start Your Plan 

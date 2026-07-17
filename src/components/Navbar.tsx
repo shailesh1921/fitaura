@@ -34,7 +34,7 @@ export default function Navbar() {
         {/* Right: Cols 10-12 */}
         <div className="col-span-6 md:col-span-3 flex items-center justify-end gap-3 md:gap-6">
           <a 
-            href="#get-started" 
+            href="app/dashboard.html" 
             className="bg-charcoal text-[#FAF6F0] hover:bg-terracotta transition-colors duration-300 text-[10px] font-mono tracking-widest uppercase h-10 px-6 rounded-full flex items-center justify-center cursor-pointer shadow-sm"
           >
             Access
