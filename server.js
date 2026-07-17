@@ -8,9 +8,9 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const cors = require('cors');
-const { User, Workout, Exercise, Feedback, ExercisePerformance } = require('./models');
-const TrainingEngine = require('./training_engine');
-const config = require('./js/config');
+const { User, Workout, Exercise, Feedback, ExercisePerformance } = require('./public/models');
+const TrainingEngine = require('./public/training_engine');
+const config = require('./public/js/config');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -189,11 +189,99 @@ Respond ONLY with valid JSON:
         console.log(`[FoodScan] ✅ ${result.foods.length} food(s), ${Math.round(result.totalCalories)} kcal`);
         res.json({ status: 'success', data: result });
 
+// ─── NUTRITION TEXT PARSER (Claude / Groq) ─────────────────────────
+app.post('/api/nutrition/parse', async (req, res) => {
+    try {
+        const { text, goal, weightTrend } = req.body;
+        if (!text) return res.status(400).json({ error: 'No text description provided' });
+
+        const provider = config.AI_PROVIDER || 'groq';
+        let apiUrl, headers, body;
+
+        const systemPrompt = `You are a sports nutritionist. Parse this text description of a meal.
+Extract all food items, and estimate their calories, protein (g), carbs (g), and fat (g).
+
+Given:
+- User Goal: ${goal || 'maintain'}
+- User Weight Trend (last few days): ${JSON.stringify(weightTrend || [])}
+
+Provide:
+1. Individual food items with macros.
+2. Total calories and macros.
+3. One singular, highly specific, actionable feedback note tailored to their goal and weight trend. Do not give generic advice. Be direct and constructive.
+
+Respond ONLY with valid JSON:
+{
+  "items": [{"name": "item name", "calories": 150, "protein": 10, "carbs": 20, "fat": 5}],
+  "totalCalories": 150,
+  "totalProtein": 10,
+  "totalCarbs": 20,
+  "totalFat": 5,
+  "actionableNote": "One specific actionable feedback sentence."
+}`;
+
+        if (provider === 'groq') {
+            apiUrl = 'https://api.groq.com/openai/v1/chat/completions';
+            const apiKey = config.GROQ_API_KEY;
+            if (!apiKey || apiKey === 'YOUR_GROQ_API_KEY') return res.status(401).json({ error: 'Groq API Key not configured.' });
+            headers = { 'Content-Type': 'application/json', 'Authorization': `Bearer ${apiKey}` };
+            body = {
+                model: 'llama-3.3-70b-versatile',
+                messages: [
+                    { role: 'system', content: systemPrompt },
+                    { role: 'user', content: text }
+                ],
+                temperature: 0.2,
+                response_format: { type: "json_object" }
+            };
+        } else {
+            apiUrl = 'https://api.anthropic.com/v1/messages';
+            const apiKey = config.CLAUDE_API_KEY;
+            if (!apiKey || apiKey === 'YOUR_CLAUDE_API_KEY') return res.status(401).json({ error: 'Claude API Key not configured.' });
+            headers = { 'Content-Type': 'application/json', 'x-api-key': apiKey, 'anthropic-version': '2023-06-01' };
+            body = {
+                model: 'claude-3-5-sonnet-20240620',
+                max_tokens: 1024,
+                system: systemPrompt,
+                messages: [{ role: 'user', content: text }]
+            };
+        }
+
+        const response = await fetch(apiUrl, { method: 'POST', headers, body: JSON.stringify(body) });
+        if (!response.ok) {
+            const err = await response.json();
+            return res.status(response.status).json(err);
+        }
+
+        const rawData = await response.json();
+        let resultText = '';
+        if (provider === 'groq') {
+            resultText = rawData.choices?.[0]?.message?.content;
+        } else {
+            resultText = rawData.content?.[0]?.text;
+        }
+
+        let parsedResult;
+        try {
+            parsedResult = JSON.parse(resultText.trim());
+        } catch (e) {
+            parsedResult = {
+                items: [],
+                totalCalories: 0,
+                totalProtein: 0,
+                totalCarbs: 0,
+                totalFat: 0,
+                actionableNote: "Could not parse meal log details. Please be more specific."
+            };
+        }
+
+        res.json({ status: 'success', data: parsedResult });
     } catch (error) {
-        console.error('[FoodScan] Error:', error);
+        console.error('[NutritionParse] Error:', error);
         res.status(500).json({ error: error.message });
     }
 });
+
 
 app.listen(PORT, () => {
     console.log(`FitAura API running on http://localhost:${PORT}`);
