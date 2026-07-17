@@ -710,6 +710,20 @@ window.closeModal = function(id) {
     document.getElementById(id).classList.remove('active');
 };
 
+window.showInfoModal = function(title, message) {
+    const titleEl = document.getElementById('infoModalTitle');
+    const messageEl = document.getElementById('infoModalMessage');
+    const modal = document.getElementById('infoModal');
+    
+    if (titleEl && messageEl && modal) {
+        titleEl.textContent = title;
+        messageEl.innerHTML = message;
+        modal.classList.add('active');
+    } else {
+        alert(message); // Fallback
+    }
+};
+
 window.manualPairDevice = async function(name, brand, model, icon) {
     if (brand.toLowerCase() === 'fitbit') {
         window.location.href = '/api/connect/fitbit';
@@ -728,7 +742,7 @@ window.manualPairDevice = async function(name, brand, model, icon) {
         closeModal('pairModal');
         
         if (brand.toLowerCase() === 'xiaomi' || brand.toLowerCase() === 'mi band') {
-             alert('Xiaomi / Mi Band API is not publicly available yet (Coming Soon).');
+             window.showInfoModal('API Unavailable', 'Xiaomi / Mi Band API is not publicly available yet.<br><br><i>Coming soon in a future update.</i>');
              return;
         }
 
@@ -740,7 +754,7 @@ window.connectHealthAPI = function(platform) {
     if (platform === 'google') {
         window.location.href = '/api/connect/google-fit';
     } else if (platform === 'apple') {
-        alert('Apple Health requires setting up an iOS Shortcut to export data. Please view the documentation (INTEGRATIONS.md) to set this up.');
+        window.showInfoModal('🍎 Apple Health Setup', 'Apple Health requires setting up an iOS Shortcut to export data because it does not offer a web API.<br><br>Please view the developer documentation (<code>INTEGRATIONS.md</code>) to set this up.');
     } else {
         window.deviceSyncEngine.connectHealthAPI(platform);
     }
