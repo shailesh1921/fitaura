@@ -141,10 +141,24 @@ async function handleCapture() {
   scanBtn?.classList.add('scanning');
   if (scanBtn) scanBtn.disabled = true;
 
-  // 2. Capture frame to canvas
-  canvas.width = video.videoWidth || 640;
-  canvas.height = video.videoHeight || 480;
-  canvas.getContext('2d').drawImage(video, 0, 0, canvas.width, canvas.height);
+  // 2. Capture frame to canvas and DOWN-SCALE for speed
+  const MAX_SIZE = 640;
+  let targetWidth = video.videoWidth || 640;
+  let targetHeight = video.videoHeight || 480;
+  
+  if (targetWidth > MAX_SIZE || targetHeight > MAX_SIZE) {
+    if (targetWidth > targetHeight) {
+      targetHeight = Math.round((targetHeight / targetWidth) * MAX_SIZE);
+      targetWidth = MAX_SIZE;
+    } else {
+      targetWidth = Math.round((targetWidth / targetHeight) * MAX_SIZE);
+      targetHeight = MAX_SIZE;
+    }
+  }
+
+  canvas.width = targetWidth;
+  canvas.height = targetHeight;
+  canvas.getContext('2d').drawImage(video, 0, 0, targetWidth, targetHeight);
 
   // Convert to base64
   const base64 = canvas.toDataURL('image/jpeg', 0.8).split(',')[1];
