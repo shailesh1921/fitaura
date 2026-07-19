@@ -82,7 +82,7 @@ Respond ONLY with valid JSON (NO markdown backticks, NO extra text):
     try {
       parsedResult = JSON.parse(jsonStr);
     } catch (e) {
-      return res.status(500).json({ error: 'Failed to parse AI response' });
+      return res.status(500).json({ error: `AI returned invalid format: ${content.substring(0, 100)}` });
     }
 
     // Calculate totals
