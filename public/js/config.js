@@ -11,10 +11,9 @@ const FITAURA_CONFIG = {
     AI_PROVIDER: 'groq',
     AI_MODEL: 'llama-3.3-70b-versatile',
 
-    // ─── FOOD SCANNER — Groq Vision (100% FREE, no billing) ─────────
-    // Get your key: https://console.groq.com/keys — free signup, instant
-    GROQ_VISION_KEY: 'YOUR_GROQ_VISION_KEY',
-    FOOD_MODEL: 'llama-4-scout-17b-16e-instruct',
+    // ─── FOOD SCANNER — NVIDIA NIM (Best Answer) ─────────
+    NVIDIA_API_KEY: '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',
+    FOOD_MODEL: 'meta/llama-3.2-90b-vision-instruct',
     FOOD_SCANNER: {
         maxRetries: 2,
         timeoutMs: 30000,
