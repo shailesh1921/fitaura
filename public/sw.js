@@ -1,6 +1,6 @@
 // Fitaura Service Worker
 
-const CACHE = 'fitaura-v3';
+const CACHE = 'fitaura-v4';
 
 const ASSETS = [
   '/',
