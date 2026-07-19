@@ -1,6 +1,6 @@
 // Fitaura Service Worker
 
-const CACHE = 'fitaura-v4';
+const CACHE = 'fitaura-v5';
 
 const ASSETS = [
   '/',
@@ -38,6 +38,7 @@ self.addEventListener('activate', e => {
 self.addEventListener('fetch', event => {
 
   if (
+    event.request.method !== 'GET' ||
     !event.request.url.startsWith('http') ||
     event.request.url.startsWith('chrome-extension://')
   ) {
