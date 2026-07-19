@@ -1,9 +1,16 @@
 /* fitaura-global.js - Theme toggle + PWA install + Toast system */
 
-// ═══ THEME TOGGLE ═══
+// ═══ THEME TOGGLE & ANALYTICS ═══
 (function() {
     const saved = localStorage.getItem('fitaura_theme') || 'dark';
     if (saved === 'light') document.body.classList.add('light-mode');
+
+    // Vercel Web Analytics
+    window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };
+    const script = document.createElement('script');
+    script.defer = true;
+    script.src = '/_vercel/insights/script.js';
+    document.head.appendChild(script);
 })();
 
 window.toggleTheme = function() {
