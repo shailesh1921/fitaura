@@ -216,120 +216,26 @@ async function handleCapture() {
   state.scanning = false;
 }
 
-/* ── API CALL — Direct NVIDIA NIM (no server needed) ──────────────── */
+/* ── API CALL — Vercel Serverless Function ──────────────── */
 async function callFoodScanAPI(base64, mimeType) {
-  // Get API key from config (already in client-side config.js)
-  const cfg = window.FITAURA_CONFIG || {};
-  const apiKey = cfg.NVIDIA_API_KEY;
-  if (!apiKey || apiKey.startsWith('YOUR_')) {
-    throw new Error('NVIDIA API Key not configured. Please provide a valid nvapi- key in config.js');
-  }
-
-  const model = cfg.FOOD_MODEL || 'meta/llama-3.2-11b-vision-instruct';
-  const dataUrl = `data:${mimeType || 'image/jpeg'};base64,${base64}`;
-
-  const prompt = `You are an expert food nutritionist AI. Analyze this food image.
-
-Identify ALL food items. For each:
-- name, emoji, estimatedGrams, confidence (75-99), category (grains/protein/vegetables/fruits/dairy/snacks/beverages/combo)
-- nutrition for that serving: calories, protein, carbs, fat, fiber, sugar, sodium (mg), cholesterol (mg)
-- per100g: same values per 100g
-
-Classify mealType: high-protein, balanced, high-carb, light-snack, heavy-meal, low-fat, high-fiber
-Give a 1-sentence healthNote.
-
-Use REAL USDA data. Be conservative with portions.
-If no food visible, return {"foods":[],"error":"No food detected"}
-
-Respond ONLY with valid JSON (NO markdown backticks, NO extra text):
-{"foods":[{"name":"Grilled Chicken Breast","emoji":"🍗","estimatedGrams":150,"confidence":95,"category":"protein","nutrition":{"calories":248,"protein":46.5,"carbs":0,"fat":5.4,"fiber":0,"sugar":0,"sodium":85,"cholesterol":120},"per100g":{"calories":165,"protein":31,"carbs":0,"fat":3.6,"fiber":0,"sugar":0,"sodium":57,"cholesterol":80}}],"totalCalories":0,"totalProtein":0,"totalCarbs":0,"totalFat":0,"totalFiber":0,"totalSugar":0,"mealType":"balanced","healthNote":"Good protein."}`;
-
-  const requestBody = {
-    model,
-    messages: [{
-      role: 'user',
-      content: [
-        { type: 'text', text: prompt },
-        { type: 'image_url', image_url: { url: dataUrl } }
-      ]
-    }],
-    max_tokens: 1024,
-    temperature: 0.2,
-    top_p: 0.7
-  };
-
-  // Try server proxy first ONLY if running locally
-  if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
-    try {
-      const response = await fetch('/api/food/scan', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ image: base64, mimeType }),
-      });
-      if (response.ok) {
-        const json = await response.json();
-        if (json.status === 'success') return json.data;
-      }
-    } catch (e) {
-      console.log('[FoodScanner] Server not available, calling NVIDIA directly...');
-    }
-  }
-
-  // Direct NVIDIA NIM API call
-  const response = await fetch('https://integrate.api.nvidia.com/v1/chat/completions', {
+  // Call the Vercel serverless function (which bypasses CORS and securely holds the API key)
+  const response = await fetch('/api/food/scan', {
     method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${apiKey}`
-    },
-    body: JSON.stringify(requestBody)
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ image: base64, mimeType }),
   });
 
   if (!response.ok) {
     const errData = await response.json().catch(() => ({}));
-    const hint = 'Check your nvapi key or NVIDIA build credits';
-    throw new Error(errData.detail || errData.error?.message || hint || `NVIDIA error ${response.status}`);
+    throw new Error(errData.error || `Server error ${response.status}`);
   }
 
-  const data = await response.json();
-  let result;
-
-  const content = data.choices?.[0]?.message?.content;
-  if (!content) throw new Error('No response from AI');
-
-  // Parse JSON from response (handle markdown code blocks)
-  let jsonStr = content.trim();
-  const codeBlockMatch = jsonStr.match(/```(?:json)?\s*([\s\S]*?)```/);
-  if (codeBlockMatch) jsonStr = codeBlockMatch[1].trim();
-
-  try {
-    result = JSON.parse(jsonStr);
-  } catch (parseErr) {
-    console.error('[FoodScanner] JSON parse error:', parseErr);
-    console.error('[FoodScanner] Raw response:', jsonStr.slice(0, 500));
-    throw new Error('AI returned invalid data — try again');
+  const json = await response.json();
+  if (json.status === 'success') {
+    return json.data;
+  } else {
+    throw new Error(json.error || 'Failed to scan food');
   }
-
-  if (result.error || !result.foods || result.foods.length === 0) {
-    throw new Error(result.error || 'No food detected — try again');
-  }
-
-  // Calculate totals
-  result.totalCalories = 0; result.totalProtein = 0;
-  result.totalCarbs = 0; result.totalFat = 0;
-  result.totalFiber = 0; result.totalSugar = 0;
-  result.foods.forEach(f => {
-    result.totalCalories += f.nutrition?.calories || 0;
-    result.totalProtein  += f.nutrition?.protein  || 0;
-    result.totalCarbs    += f.nutrition?.carbs    || 0;
-    result.totalFat      += f.nutrition?.fat      || 0;
-    result.totalFiber    += f.nutrition?.fiber    || 0;
-    result.totalSugar    += f.nutrition?.sugar    || 0;
-  });
-
-  result.source = 'groq-vision';
-  result.scannedAt = new Date().toISOString();
-  return result;
 }
 
 
