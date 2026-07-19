@@ -211,7 +211,7 @@ async function callFoodScanAPI(base64, mimeType) {
     throw new Error('NVIDIA API Key not configured. Please provide a valid nvapi- key in config.js');
   }
 
-  const model = cfg.FOOD_MODEL || 'meta/llama-3.2-90b-vision-instruct';
+  const model = cfg.FOOD_MODEL || 'meta/llama-3.2-11b-vision-instruct';
   const dataUrl = `data:${mimeType || 'image/jpeg'};base64,${base64}`;
 
   const prompt = `You are an expert food nutritionist AI. Analyze this food image.
@@ -244,20 +244,21 @@ Respond ONLY with valid JSON (NO markdown backticks, NO extra text):
     top_p: 0.7
   };
 
-  // Try server proxy first (if running), fall back to direct NVIDIA call
-  try {
-    const response = await fetch('/api/food/scan', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ image: base64, mimeType }),
-    });
-    if (response.ok) {
-      const json = await response.json();
-      if (json.status === 'success') return json.data;
+  // Try server proxy first ONLY if running locally
+  if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+    try {
+      const response = await fetch('/api/food/scan', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ image: base64, mimeType }),
+      });
+      if (response.ok) {
+        const json = await response.json();
+        if (json.status === 'success') return json.data;
+      }
+    } catch (e) {
+      console.log('[FoodScanner] Server not available, calling NVIDIA directly...');
     }
-  } catch (e) {
-    // Server not running — fall through to direct API call
-    console.log('[FoodScanner] Server not available, calling NVIDIA directly...');
   }
 
   // Direct NVIDIA NIM API call
