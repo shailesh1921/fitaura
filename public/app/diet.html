@@ -202,20 +202,71 @@
                 document.getElementById('f_train').value = engine.profile.trainingDays;
             }
 
-            document.getElementById('calcPlanBtn').addEventListener('click', () => {
-                const data = {
+            // Handle generate plan
+            document.getElementById('calcPlanBtn').addEventListener('click', async () => {
+                const btn = document.getElementById('calcPlanBtn');
+                btn.innerHTML = '<span class="loader"></span> Generating AI Indian Diet...';
+                btn.style.opacity = '0.7';
+                btn.style.pointerEvents = 'none';
+
+                engine.saveProfile({
                     age: parseInt(document.getElementById('f_age').value),
                     weight: parseInt(document.getElementById('f_weight').value),
                     height: parseInt(document.getElementById('f_height').value),
                     gender: document.getElementById('f_gender').value,
                     goal: document.getElementById('f_goal').value,
-                    trainingDays: parseInt(document.getElementById('f_train').value),
-                    activityLevel: parseInt(document.getElementById('f_train').value) >= 5 ? 'heavy' : 'moderate'
-                };
+                    trainingDays: parseInt(document.getElementById('f_train').value)
+                });
 
-                const plan = engine.saveProfile(data);
+                // Re-render UI with base macros first
+                updateUI(engine.plan);
 
-                // Render Results
+                // Fetch AI Indian Diet
+                try {
+                    const aiDiet = await engine.generateAIDiet();
+                    renderAIMeals(aiDiet);
+                } catch (err) {
+                    alert('Failed to generate AI Indian diet: ' + err.message);
+                }
+
+                btn.innerHTML = 'Generate World-Class Nutrition Plan';
+                btn.style.opacity = '1';
+                btn.style.pointerEvents = 'auto';
+            });
+
+            function renderAIMeals(aiDiet) {
+                const tl = document.getElementById('mealTimeline');
+                tl.innerHTML = '';
+                
+                const times = ["08:00 AM", "01:30 PM", "04:00 PM", "06:30 PM", "09:00 PM"];
+
+                if (aiDiet && aiDiet.meals) {
+                    aiDiet.meals.forEach((meal, i) => {
+                        const time = times[i] || "--:--";
+                        tl.innerHTML += `
+                            <div class="timeline-item">
+                                <div class="timeline-time">${time}</div>
+                                <div class="timeline-content">
+                                    <div class="flex justify-between items-center mb-1">
+                                        <strong>${meal.mealName}</strong>
+                                        <span class="tag tag-blue">${meal.macros.cals || 0} kcal</span>
+                                    </div>
+                                    <div class="text-secondary mb-1" style="font-size:0.9rem;">
+                                        ${meal.foods}
+                                    </div>
+                                    <div class="flex gap-1" style="font-size:0.8rem; font-weight:600;">
+                                        <span style="color:var(--accent-blue)">P: ${meal.macros.p}g</span>
+                                        <span style="color:var(--accent-red)">C: ${meal.macros.c}g</span>
+                                        <span style="color:var(--accent-yellow)">F: ${meal.macros.f}g</span>
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                    });
+                }
+            }
+
+            function updateUI(plan) {
                 document.getElementById('resultsEngine').style.display = 'block';
 
                 document.getElementById('tgtCals').textContent = plan.cals.target + ' kcal';
@@ -224,12 +275,10 @@
                 document.getElementById('tgtC').textContent = plan.macros.c + 'g';
                 document.getElementById('tgtF').textContent = plan.macros.f + 'g';
 
-                // Insights
                 document.getElementById('insTiming').innerHTML = `<strong>Nutrient Timing:</strong> ${plan.insights.timing}`;
                 document.getElementById('insHydration').innerHTML = `<strong>Hydration:</strong> ${plan.insights.hydration}`;
                 document.getElementById('insFiber').innerHTML = `<strong>Fiber:</strong> ${plan.insights.fiber}`;
 
-                // Update tracked data from scanner logs
                 const tracked = localStorage.getItem('fitaura_daily_intake');
                 if (tracked) {
                     const trk = JSON.parse(tracked);
@@ -251,24 +300,7 @@
                 plan.recommendations.forEach(r => {
                     recs.innerHTML += `<div style="color:var(--text-secondary); margin-bottom: 0.5rem; font-size: 0.95rem;">✓ ${r}</div>`;
                 });
-
-                // Meal Distribution
-                const timeline = document.getElementById('mealTimeline');
-                timeline.innerHTML = '';
-                Object.values(plan.meals).forEach(meal => {
-                    timeline.innerHTML += `
-                        <div class="timeline-item">
-                            <div class="timeline-time">${meal.name}</div>
-                            <div class="timeline-content flex justify-between">
-                                <div><strong style="color:var(--accent-blue)">P:</strong> ${meal.p}g</div>
-                                <div><strong style="color:var(--accent-red)">C:</strong> ${meal.c}g</div>
-                                <div><strong style="color:var(--accent-yellow)">F:</strong> ${meal.f}g</div>
-                                <div style="color:var(--text-secondary); font-size: 0.8rem;">~${(meal.p*4 + meal.c*4 + meal.f*9)} kcal</div>
-                            </div>
-                        </div>
-                    `;
-                });
-
+                
                 window.scrollTo({top: document.body.scrollHeight, behavior: 'smooth'});
             });
             

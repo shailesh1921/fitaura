@@ -133,6 +133,37 @@ class NutritionEngine {
 
         return this.plan;
     }
+
+    async generateAIDiet() {
+        if (!this.plan) this.generatePlan();
+        
+        try {
+            const response = await fetch('/api/food/indian-diet', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    profile: this.profile,
+                    macros: this.plan.macros,
+                    targetCalories: this.plan.cals.target
+                })
+            });
+            
+            if (!response.ok) {
+                const errData = await response.json().catch(() => ({}));
+                throw new Error(errData.error || 'AI request failed');
+            }
+            
+            const json = await response.json();
+            if (json.status === 'success') {
+                return json.data;
+            } else {
+                throw new Error(json.error || 'Failed to generate Indian diet');
+            }
+        } catch (err) {
+            console.error('[NutritionEngine] AI Diet Error:', err);
+            throw err;
+        }
+    }
 }
 
 window.NutritionEngine = NutritionEngine;
