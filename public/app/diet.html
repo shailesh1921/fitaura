@@ -232,7 +232,7 @@
                 btn.innerHTML = 'Generate World-Class Nutrition Plan';
                 btn.style.opacity = '1';
                 btn.style.pointerEvents = 'auto';
-            });
+            }); // End of calcPlanBtn click listener
 
             function renderAIMeals(aiDiet) {
                 const tl = document.getElementById('mealTimeline');
@@ -302,7 +302,7 @@
                 });
                 
                 window.scrollTo({top: document.body.scrollHeight, behavior: 'smooth'});
-            });
+            }
             
             // Auto click if data already exists to show UI fast
             if(localStorage.getItem('fitaura_nutrition_profile')) {
