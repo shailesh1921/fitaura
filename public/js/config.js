@@ -13,7 +13,7 @@ const FITAURA_CONFIG = {
 
     // ─── FOOD SCANNER — NVIDIA NIM (Best Answer) ─────────
     NVIDIA_API_KEY: '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',
-    FOOD_MODEL: 'meta/llama-3.2-90b-vision-instruct',
+    FOOD_MODEL: 'meta/llama-3.2-11b-vision-instruct',
     FOOD_SCANNER: {
         maxRetries: 2,
         timeoutMs: 30000,
