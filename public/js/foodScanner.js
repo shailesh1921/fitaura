@@ -185,7 +185,7 @@ async function handleCapture() {
       },
       mealType: result.mealType || 'balanced',
       healthNote: result.healthNote || '',
-      source: result.source || 'gemini-vision',
+      source: result.source || 'nvidia-nim',
     };
 
     renderResults(state.currentScan);
@@ -202,16 +202,16 @@ async function handleCapture() {
   state.scanning = false;
 }
 
-/* ── API CALL — Direct Groq Vision (no server needed) ──────────────── */
+/* ── API CALL — Direct NVIDIA NIM (no server needed) ──────────────── */
 async function callFoodScanAPI(base64, mimeType) {
   // Get API key from config (already in client-side config.js)
   const cfg = window.FITAURA_CONFIG || {};
-  const apiKey = cfg.GROQ_VISION_KEY || cfg.GROQ_API_KEY;
+  const apiKey = cfg.NVIDIA_API_KEY;
   if (!apiKey || apiKey.startsWith('YOUR_')) {
-    throw new Error('Groq API Key not configured. Get a FREE key at console.groq.com/keys');
+    throw new Error('NVIDIA API Key not configured. Please provide a valid nvapi- key in config.js');
   }
 
-  const model = cfg.FOOD_MODEL || 'llama-4-scout-17b-16e-instruct';
+  const model = cfg.FOOD_MODEL || 'meta/llama-3.2-90b-vision-instruct';
   const dataUrl = `data:${mimeType || 'image/jpeg'};base64,${base64}`;
 
   const prompt = `You are an expert food nutritionist AI. Analyze this food image.
@@ -227,7 +227,7 @@ Give a 1-sentence healthNote.
 Use REAL USDA data. Be conservative with portions.
 If no food visible, return {"foods":[],"error":"No food detected"}
 
-Respond ONLY with valid JSON:
+Respond ONLY with valid JSON (NO markdown backticks, NO extra text):
 {"foods":[{"name":"Grilled Chicken Breast","emoji":"🍗","estimatedGrams":150,"confidence":95,"category":"protein","nutrition":{"calories":248,"protein":46.5,"carbs":0,"fat":5.4,"fiber":0,"sugar":0,"sodium":85,"cholesterol":120},"per100g":{"calories":165,"protein":31,"carbs":0,"fat":3.6,"fiber":0,"sugar":0,"sodium":57,"cholesterol":80}}],"totalCalories":0,"totalProtein":0,"totalCarbs":0,"totalFat":0,"totalFiber":0,"totalSugar":0,"mealType":"balanced","healthNote":"Good protein."}`;
 
   const requestBody = {
@@ -239,11 +239,12 @@ Respond ONLY with valid JSON:
         { type: 'image_url', image_url: { url: dataUrl } }
       ]
     }],
-    max_tokens: 2048,
-    temperature: 0.1,
+    max_tokens: 1024,
+    temperature: 0.2,
+    top_p: 0.7
   };
 
-  // Try server proxy first (if running), fall back to direct Groq call
+  // Try server proxy first (if running), fall back to direct NVIDIA call
   try {
     const response = await fetch('/api/food/scan', {
       method: 'POST',
@@ -256,11 +257,11 @@ Respond ONLY with valid JSON:
     }
   } catch (e) {
     // Server not running — fall through to direct API call
-    console.log('[FoodScanner] Server not available, calling Groq directly...');
+    console.log('[FoodScanner] Server not available, calling NVIDIA directly...');
   }
 
-  // Direct Groq Vision API call
-  const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+  // Direct NVIDIA NIM API call
+  const response = await fetch('https://integrate.api.nvidia.com/v1/chat/completions', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -271,10 +272,8 @@ Respond ONLY with valid JSON:
 
   if (!response.ok) {
     const errData = await response.json().catch(() => ({}));
-    const hint = response.status === 429 ? 'Rate limited — wait 10s and retry'
-               : response.status === 401 ? 'Invalid Groq API key — check console.groq.com'
-               : 'API error — try again';
-    throw new Error(errData.error?.message || hint || `Groq error ${response.status}`);
+    const hint = 'Check your nvapi key or NVIDIA build credits';
+    throw new Error(errData.detail || errData.error?.message || hint || `NVIDIA error ${response.status}`);
   }
 
   const data = await response.json();
