@@ -427,6 +427,12 @@
 
             // 3. Strength Line
             aEng.renderStrengthProgression(document.getElementById('strengthChart').getContext('2d'));
+
+            // 4. Weight Trend
+            aEng.renderWeightTrend(document.getElementById('weightChart').getContext('2d'));
+            
+            // 5. Zone Dist Doughnut
+            aEng.renderCardioStrain(document.getElementById('zChart').getContext('2d'));
         }
 
         if (document.readyState === 'loading') {
@@ -434,13 +440,6 @@
         } else {
             initAnalytics();
         }
-
-            // 4. Weight Trend
-            aEng.renderWeightTrend(document.getElementById('weightChart').getContext('2d'));
-            
-            // 5. Zone Dist Doughnut
-            aEng.renderCardioStrain(document.getElementById('zChart').getContext('2d'));
-        });
     </script>
 </body>
 </html>
