@@ -46,6 +46,77 @@ window.initializeSidebar = function(activePage) {
 
     html += `</ul>`;
     sidebar.innerHTML = html;
+
+    // --- Inject Mobile PWA Navigation ---
+    if (!document.querySelector('.mobile-bottom-bar')) {
+        // Mobile bottom tabs
+        const bottomNav = document.createElement('nav');
+        bottomNav.className = 'mobile-bottom-bar';
+        
+        const isDash = activePage === 'dashboard.html' ? 'active' : '';
+        const isWorkout = activePage === 'workout.html' ? 'active' : '';
+        const isDiet = activePage === 'diet.html' ? 'active' : '';
+        const isProfile = activePage === 'profile.html' ? 'active' : '';
+
+        bottomNav.innerHTML = `
+            <div class="mobile-bottom-bar-inner">
+                <a href="dashboard.html" class="mobile-nav-item ${isDash}">
+                    <span class="icon">📊</span>
+                    <span>Home</span>
+                </a>
+                <a href="workout.html" class="mobile-nav-item ${isWorkout}">
+                    <span class="icon">🏋️</span>
+                    <span>Train</span>
+                </a>
+                <a href="diet.html" class="mobile-nav-item ${isDiet}">
+                    <span class="icon">🍽️</span>
+                    <span>Diet</span>
+                </a>
+                <a href="profile.html" class="mobile-nav-item ${isProfile}">
+                    <span class="icon">👤</span>
+                    <span>Profile</span>
+                </a>
+                <a href="#" class="mobile-nav-item" id="mobileMenuBtn">
+                    <span class="icon">☰</span>
+                    <span>Menu</span>
+                </a>
+            </div>
+        `;
+        document.body.appendChild(bottomNav);
+
+        // Mobile full-screen menu overlay
+        const mobileMenu = document.createElement('div');
+        mobileMenu.className = 'mobile-menu-overlay';
+        
+        let menuHtml = `
+            <button class="mobile-menu-close" id="mobileMenuCloseBtn">✕</button>
+            <h2 style="font-family: var(--font-heading); font-size: 2rem;">Fitaura Elite</h2>
+            <ul class="mobile-menu-nav">
+        `;
+        navItems.forEach(item => {
+            menuHtml += `
+                <li>
+                    <a href="${item.id}">
+                        <span style="font-size: 1.5rem">${item.icon}</span> ${item.label}
+                    </a>
+                </li>
+            `;
+        });
+        menuHtml += `</ul>`;
+        mobileMenu.innerHTML = menuHtml;
+        document.body.appendChild(mobileMenu);
+
+        // Mobile Menu Event Listeners
+        document.getElementById('mobileMenuBtn').addEventListener('click', (e) => {
+            e.preventDefault();
+            mobileMenu.classList.add('open');
+            document.body.style.overflow = 'hidden'; // Prevent scrolling background
+        });
+        document.getElementById('mobileMenuCloseBtn').addEventListener('click', () => {
+            mobileMenu.classList.remove('open');
+            document.body.style.overflow = '';
+        });
+    }
 };
 
 window.createExerciseCard = function(exercise, options = {}) {

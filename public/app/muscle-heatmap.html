@@ -4,6 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Fitaura | Muscle Activation Map</title>
+  <meta name="theme-color" content="#FAF6F0">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <link rel="stylesheet" href="css/premium.css">
     <link rel="manifest" href="../manifest.json">
     <script src="../js/fitaura-global.js" defer></script>
@@ -246,9 +249,9 @@
                                 <option>Chest</option><option>Back</option><option>Shoulders</option><option>Biceps</option><option>Triceps</option><option>Abs</option><option>Quads</option><option>Hamstrings</option><option>Glutes</option><option>Calves</option><option>Traps</option><option>Forearms</option><option>Hip Flexors</option>
                             </select>
                         </div>
-                        <div class="log-field"><label>Sets</label><input type="number" id="logSets" class="form-control" style="max-width:70px;padding:.6rem .8rem;" value="4" min="1" max="20"></div>
-                        <div class="log-field"><label>RPE</label><input type="number" id="logRPE" class="form-control" style="max-width:70px;padding:.6rem .8rem;" value="7" min="1" max="10" step="0.5"></div>
-                        <div class="log-field"><label>Load (kg)</label><input type="number" id="logLoad" class="form-control" style="max-width:80px;padding:.6rem .8rem;" value="60" min="0" step="2.5"></div>
+                        <div class="log-field"><label>Sets</label><input type="number" inputmode="numeric" pattern="[0-9]*" id="logSets" class="form-control" style="max-width:70px;padding:.6rem .8rem;" value="4" min="1" max="20"></div>
+                        <div class="log-field"><label>RPE</label><input type="number" inputmode="numeric" pattern="[0-9]*" id="logRPE" class="form-control" style="max-width:70px;padding:.6rem .8rem;" value="7" min="1" max="10" step="0.5"></div>
+                        <div class="log-field"><label>Load (kg)</label><input type="number" inputmode="numeric" pattern="[0-9]*" id="logLoad" class="form-control" style="max-width:80px;padding:.6rem .8rem;" value="60" min="0" step="2.5"></div>
                         <div class="log-field" style="justify-content:flex-end;"><label>&nbsp;</label><button class="btn btn-accent" onclick="logVolume()">Log Sets</button></div>
                     </div>
                 </div>

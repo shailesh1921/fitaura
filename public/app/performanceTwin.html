@@ -4,6 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Fitaura | Performance Twin</title>
+  <meta name="theme-color" content="#FAF6F0">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <meta name="description" content="Your Adaptive Athlete Digital Twin — AI-powered performance prediction, fatigue monitoring, and strength forecasting.">
     <link rel="stylesheet" href="css/premium.css">
     <script src="../js/fitaura-global.js" defer></script>
@@ -384,7 +387,7 @@
                         </div>
                         <div class="form-group">
                             <label class="form-label">Total Sets Completed</label>
-                            <input type="number" id="setsInput" class="form-control" value="16" min="1" max="50" placeholder="e.g. 16">
+                            <input type="number" inputmode="numeric" pattern="[0-9]*" id="setsInput" class="form-control" value="16" min="1" max="50" placeholder="e.g. 16">
                         </div>
                     </div>
                     <div>
@@ -421,13 +424,13 @@
                         </div>
                         <div class="form-group">
                             <label class="form-label">Weight Lifted (kg)</label>
-                            <input type="number" id="liftWeight" class="form-control" value="100" min="10" max="500" placeholder="kg">
+                            <input type="number" inputmode="numeric" pattern="[0-9]*" id="liftWeight" class="form-control" value="100" min="10" max="500" placeholder="kg">
                         </div>
                     </div>
                     <div>
                         <div class="form-group">
                             <label class="form-label">Reps Performed</label>
-                            <input type="number" id="liftReps" class="form-control" value="5" min="1" max="30" placeholder="reps">
+                            <input type="number" inputmode="numeric" pattern="[0-9]*" id="liftReps" class="form-control" value="5" min="1" max="30" placeholder="reps">
                         </div>
                         <div style="background:rgba(74, 88, 64,0.05);border:1px solid rgba(74, 88, 64,0.2);border-radius:var(--radius-sm);padding:1rem;margin-top:0.5rem;">
                             <div style="font-size:0.8rem;color:var(--text-secondary);">Estimated 1RM (Epley)</div>
@@ -443,7 +446,7 @@
                 <div style="max-width:400px;">
                     <div class="form-group">
                         <label class="form-label">Today's Body Weight (kg)</label>
-                        <input type="number" id="weightInput" class="form-control" step="0.1" min="30" max="300" placeholder="e.g. 76.5">
+                        <input type="number" inputmode="numeric" pattern="[0-9]*" id="weightInput" class="form-control" step="0.1" min="30" max="300" placeholder="e.g. 76.5">
                     </div>
                     <button class="btn btn-accent" onclick="logWeight()">⚖️ Log Weight & Update Twin</button>
                 </div>
@@ -459,15 +462,15 @@
                         </div>
                         <div class="form-group">
                             <label class="form-label">Age</label>
-                            <input type="number" id="pAge" class="form-control" value="25" min="15" max="80">
+                            <input type="number" inputmode="numeric" pattern="[0-9]*" id="pAge" class="form-control" value="25" min="15" max="80">
                         </div>
                         <div class="form-group">
                             <label class="form-label">Weight (kg)</label>
-                            <input type="number" id="pWeight" class="form-control" step="0.5" value="75">
+                            <input type="number" inputmode="numeric" pattern="[0-9]*" id="pWeight" class="form-control" step="0.5" value="75">
                         </div>
                         <div class="form-group">
                             <label class="form-label">Height (cm)</label>
-                            <input type="number" id="pHeight" class="form-control" value="175">
+                            <input type="number" inputmode="numeric" pattern="[0-9]*" id="pHeight" class="form-control" value="175">
                         </div>
                         <div class="form-group">
                             <label class="form-label">Sex</label>
@@ -498,11 +501,11 @@
                         </div>
                         <div class="form-group">
                             <label class="form-label">Training Days / Week</label>
-                            <input type="number" id="pDays" class="form-control" value="4" min="1" max="7">
+                            <input type="number" inputmode="numeric" pattern="[0-9]*" id="pDays" class="form-control" value="4" min="1" max="7">
                         </div>
                         <div class="form-group">
                             <label class="form-label">Sleep Hours / Night</label>
-                            <input type="number" id="pSleep" class="form-control" step="0.5" value="7" min="3" max="12">
+                            <input type="number" inputmode="numeric" pattern="[0-9]*" id="pSleep" class="form-control" step="0.5" value="7" min="3" max="12">
                         </div>
                         <div class="form-group">
                             <label class="form-label">Stress Level (1–10)</label>
@@ -513,7 +516,7 @@
                         </div>
                         <div class="form-group">
                             <label class="form-label">Daily Calorie Intake</label>
-                            <input type="number" id="pCals" class="form-control" value="2400" min="1000" max="6000">
+                            <input type="number" inputmode="numeric" pattern="[0-9]*" id="pCals" class="form-control" value="2400" min="1000" max="6000">
                         </div>
                     </div>
                 </div>

@@ -4,6 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Fitaura | Endurance Zone</title>
+  <meta name="theme-color" content="#FAF6F0">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <link rel="stylesheet" href="css/premium.css">
     <link rel="manifest" href="../manifest.json">
     <script src="../js/fitaura-global.js" defer></script>
@@ -70,11 +73,11 @@
             <div class="flex gap-2">
                 <div class="form-group" style="flex: 1;">
                     <label class="form-label">Duration (Minutes)</label>
-                    <input type="number" id="logDur" class="form-control" placeholder="e.g. 45">
+                    <input type="number" inputmode="numeric" pattern="[0-9]*" id="logDur" class="form-control" placeholder="e.g. 45">
                 </div>
                 <div class="form-group" style="flex: 1;">
                     <label class="form-label">Average Heart Rate</label>
-                    <input type="number" id="logHR" class="form-control" placeholder="e.g. 140">
+                    <input type="number" inputmode="numeric" pattern="[0-9]*" id="logHR" class="form-control" placeholder="e.g. 140">
                 </div>
                 <div style="flex: 1; display: flex; align-items: center; padding-top: 1rem;">
                     <button id="logBtn" class="btn btn-primary" style="width: 100%;">Calculate Strain</button>

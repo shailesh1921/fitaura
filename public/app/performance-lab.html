@@ -3,6 +3,9 @@
 <head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Fitaura | Performance Lab</title>
+  <meta name="theme-color" content="#FAF6F0">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <link rel="stylesheet" href="css/premium.css">
 <link rel="manifest" href="../manifest.json">
 <meta name="theme-color" content="#7000ff">
@@ -81,8 +84,8 @@
 <p class="lab-subtitle">Enter weight lifted and reps completed to estimate your one-rep max.</p>
 <div class="input-grid">
 <div class="input-group"><label>Exercise</label><select id="ormExercise"><option>Barbell Bench Press</option><option>Back Squat</option><option>Deadlift</option><option>Overhead Press</option><option>Barbell Row</option><option>Incline Bench Press</option><option>Weighted Pull-up</option><option>Barbell Curl</option><option>Other</option></select></div>
-<div class="input-group"><label>Weight (kg)</label><input type="number" id="ormWeight" value="100" min="1" step="2.5"></div>
-<div class="input-group"><label>Reps (1-10)</label><input type="number" id="ormReps" value="5" min="1" max="10"></div>
+<div class="input-group"><label>Weight (kg)</label><input type="number" inputmode="numeric" pattern="[0-9]*" id="ormWeight" value="100" min="1" step="2.5"></div>
+<div class="input-group"><label>Reps (1-10)</label><input type="number" inputmode="numeric" pattern="[0-9]*" id="ormReps" value="5" min="1" max="10"></div>
 <div class="input-group" style="justify-content:flex-end"><label>&nbsp;</label><button class="btn btn-accent" onclick="calculate1RM()">Calculate</button></div>
 </div>
 <div class="result-grid" id="ormResults"></div>
@@ -93,11 +96,11 @@
 <div class="lab-card-header"><h3 class="lab-title">Wilks Score Calculator</h3><span class="tag-pill tag-blue">Powerlifting</span></div>
 <p class="lab-subtitle">Enter your best Squat, Bench, and Deadlift to calculate your Wilks score.</p>
 <div class="input-grid">
-<div class="input-group"><label>Body Weight (kg)</label><input type="number" id="wilksWeight" value="75" min="30"></div>
+<div class="input-group"><label>Body Weight (kg)</label><input type="number" inputmode="numeric" pattern="[0-9]*" id="wilksWeight" value="75" min="30"></div>
 <div class="input-group"><label>Sex</label><select id="wilksSex"><option value="m">Male</option><option value="f">Female</option></select></div>
-<div class="input-group"><label>Best Squat (kg)</label><input type="number" id="wilksSquat" value="0" min="0"></div>
-<div class="input-group"><label>Best Bench (kg)</label><input type="number" id="wilksBench" value="0" min="0"></div>
-<div class="input-group"><label>Best Deadlift (kg)</label><input type="number" id="wilksDeadlift" value="0" min="0"></div>
+<div class="input-group"><label>Best Squat (kg)</label><input type="number" inputmode="numeric" pattern="[0-9]*" id="wilksSquat" value="0" min="0"></div>
+<div class="input-group"><label>Best Bench (kg)</label><input type="number" inputmode="numeric" pattern="[0-9]*" id="wilksBench" value="0" min="0"></div>
+<div class="input-group"><label>Best Deadlift (kg)</label><input type="number" inputmode="numeric" pattern="[0-9]*" id="wilksDeadlift" value="0" min="0"></div>
 <div class="input-group" style="justify-content:flex-end"><label>&nbsp;</label><button class="btn btn-accent" onclick="calculateWilks()">Calculate</button></div>
 </div>
 <div class="result-grid" id="wilksResults"></div>
@@ -115,7 +118,7 @@
 <div class="input-grid" style="grid-template-columns:repeat(3,1fr)">
 <div class="input-group"><label>Mesocycle Length (weeks)</label><select id="mesoLength" onchange="updatePeriodization()"><option value="4">4 Weeks</option><option value="6">6 Weeks</option><option value="8" selected>8 Weeks</option><option value="10">10 Weeks</option><option value="12">12 Weeks</option></select></div>
 <div class="input-group"><label>Week Start Date</label><input type="date" id="mesoStart" onchange="updatePeriodization()"></div>
-<div class="input-group"><label>Current Week</label><input type="number" id="mesoWeek" value="1" min="1" max="12" onchange="updatePeriodization()"></div>
+<div class="input-group"><label>Current Week</label><input type="number" inputmode="numeric" pattern="[0-9]*" id="mesoWeek" value="1" min="1" max="12" onchange="updatePeriodization()"></div>
 </div>
 <div class="phase-timeline" id="phaseTimeline"></div>
 <div class="result-grid" id="phaseResults"></div>
@@ -146,7 +149,7 @@
 <div class="flex justify-between items-center mb-2"><div class="lab-title">Add Personal Record</div><button class="btn btn-glass" onclick="closePRModal()" style="padding:.4rem .8rem;font-size:.8rem;">✕</button></div>
 <div class="input-grid" style="grid-template-columns:1fr 1fr">
 <div class="input-group"><label>Exercise</label><input type="text" id="prExName" placeholder="e.g. Bench Press"></div>
-<div class="input-group"><label>Weight (kg)</label><input type="number" id="prExWeight" placeholder="100" min="0"></div>
+<div class="input-group"><label>Weight (kg)</label><input type="number" inputmode="numeric" pattern="[0-9]*" id="prExWeight" placeholder="100" min="0"></div>
 </div>
 <button class="btn btn-accent w-full" onclick="saveNewPR()" style="margin-top:1rem">Save PR</button>
 </div></div>
