@@ -1,81 +1,118 @@
-import { motion } from 'motion/react';
-import AnatomyModel from './AnatomyModel';
+import React, { useEffect, useRef, useState } from 'react';
+import Hls from 'hls.js';
+import './Hero.css';
 
-export default function Hero() {
+interface HeroProps {
+  // Pass your actual .m3u8 URL here. Defaults to a dummy URL if not provided.
+  videoSrc?: string;
+  // Fallback gym image for slow connections or errors.
+  fallbackImageSrc?: string;
+}
+
+const Hero: React.FC<HeroProps> = ({
+  videoSrc = 'https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8', // Replace with your actual fitness video
+  fallbackImageSrc = 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?q=80&w=1920&auto=format&fit=crop'
+}) => {
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const [videoHasError, setVideoHasError] = useState(false);
+
+  useEffect(() => {
+    const video = videoRef.current;
+    if (!video || !videoSrc) return;
+
+    let hls: Hls | null = null;
+
+    // Check if the browser natively supports HLS (e.g., Safari)
+    if (video.canPlayType('application/vnd.apple.mpegurl')) {
+      video.src = videoSrc;
+      video.addEventListener('error', () => setVideoHasError(true));
+    } 
+    // Otherwise, use hls.js if supported
+    else if (Hls.isSupported()) {
+      hls = new Hls({
+        // Optional: fine-tune settings for your specific stream if needed
+        enableWorker: true,
+        lowLatencyMode: true,
+      });
+
+      hls.loadSource(videoSrc);
+      hls.attachMedia(video);
+
+      hls.on(Hls.Events.MANIFEST_PARSED, () => {
+        // Attempt to play once manifest is parsed
+        video.play().catch((err) => {
+          console.warn("Autoplay blocked or failed:", err);
+        });
+      });
+
+      hls.on(Hls.Events.ERROR, (_event, data) => {
+        if (data.fatal) {
+          switch (data.type) {
+            case Hls.ErrorTypes.NETWORK_ERROR:
+              console.error('HLS Network error, attempting recovery...');
+              hls?.startLoad();
+              break;
+            case Hls.ErrorTypes.MEDIA_ERROR:
+              console.error('HLS Media error, attempting recovery...');
+              hls?.recoverMediaError();
+              break;
+            default:
+              console.error('HLS Fatal error, destroying instance.');
+              hls?.destroy();
+              setVideoHasError(true);
+              break;
+          }
+        }
+      });
+    } else {
+      // Browser doesn't support HLS natively or via hls.js
+      setVideoHasError(true);
+    }
+
+    // Cleanup on unmount
+    return () => {
+      if (hls) {
+        hls.destroy();
+      }
+    };
+  }, [videoSrc]);
+
   return (
-    <section className="relative min-h-[100dvh] w-full flex flex-col items-center justify-start overflow-hidden bg-bg-base pt-[10vh]">
-      
-      {/* Editorial Typographic Layout (Layered behind/beside 3D model) */}
-      <div className="absolute inset-0 flex flex-col justify-between pt-[18dvh] pb-[10dvh] px-6 sm:px-12 md:px-20 pointer-events-none z-0">
-        
-        {/* Top Row: Left Headline & Right Description */}
-        <div className="flex flex-col md:flex-row md:justify-between items-start md:items-end w-full gap-4">
-          <motion.h1 
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-            className="font-display font-extrabold text-[12vw] sm:text-[8vw] md:text-[6vw] leading-[0.9] tracking-tighter text-[#1a1a1a] select-none text-left"
-          >
-            KNOW YOUR<br />
-            <span className="font-serif italic font-light text-[#C05C46]">body.</span>
-          </motion.h1>
-          
-          <motion.p 
-            initial={{ opacity: 0, y: 15 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
-            className="max-w-xs text-zinc-500 text-sm md:text-base font-sans mt-2 md:mt-0 md:mb-1 text-left leading-relaxed"
-          >
-            FitAura integrates custom anatomical mapping with advanced AI-driven nutrition systems. Crafting training blueprints engineered specifically for your physical profile.
-          </motion.p>
-        </div>
-        
-        {/* Bottom Row: Left CTA Button & Right Headline */}
-        <div className="flex flex-col-reverse md:flex-row md:justify-between items-start md:items-end w-full gap-6">
-          <motion.div 
-            initial={{ opacity: 0, y: 15 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.3, ease: [0.16, 1, 0.3, 1] }}
-            className="flex flex-col items-start gap-4 mb-2 md:mb-0"
-          >
-            <a 
-              href="app/dashboard.html"
-              className="bg-charcoal hover:bg-terracotta text-[#FAF6F0] font-medium text-sm h-12 px-8 rounded-full pointer-events-auto transition-colors duration-300 shadow-md cursor-pointer flex items-center justify-center gap-2 group"
-            >
-              Start Your Plan 
-              <span className="text-xs transition-transform duration-300 group-hover:translate-x-1">→</span>
-            </a>
-          </motion.div>
-          
-          <motion.h1 
-            initial={{ opacity: 0, y: -30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
-            className="font-display font-extrabold text-[12vw] sm:text-[8vw] md:text-[6vw] leading-[0.9] tracking-tighter text-[#1a1a1a] select-none text-left md:text-right"
-          >
-            TRAIN WITH<br />
-            <span className="font-serif italic font-light text-zinc-400">purpose.</span>
-          </motion.h1>
-        </div>
+    <section className="hero-container" style={{ backgroundImage: `url(${fallbackImageSrc})` }}>
+      {/* Background Video Layer */}
+      {!videoHasError && (
+        <video
+          ref={videoRef}
+          className="hero-video"
+          autoPlay
+          muted
+          loop
+          playsInline
+        />
+      )}
 
+      {/* Dark-to-transparent Gradient Overlay */}
+      <div className="hero-overlay"></div>
+
+      {/* Content Layer */}
+      <div className="hero-content">
+        <h1 className="hero-headline">Your AI Fitness Coach</h1>
+        <p className="hero-subtext">
+          Personalized training and nutrition protocols driven by real-time physiological data.
+        </p>
+        <button className="hero-cta" onClick={() => window.location.href = '/app/dashboard.html'}>
+          Start Your Transformation
+        </button>
       </div>
 
-      {/* 3D Anatomy Model Wrapper (Layered on top of typography, centered) */}
-      <div className="absolute inset-0 z-10 flex items-center justify-center pointer-events-none">
-        <motion.div
-          initial={{ opacity: 0, scale: 0.85 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 1.4, delay: 0.4, ease: [0.16, 1, 0.3, 1] }}
-          className="w-full h-full pointer-events-auto"
-        >
-          <AnatomyModel />
-        </motion.div>
+      {/* Scroll Cue Indicator */}
+      <div className="hero-scroll-cue">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <polyline points="6 9 12 15 18 9"></polyline>
+        </svg>
       </div>
-
-      {/* Soft overlay gradients to frame the hero */}
-      <div className="absolute top-0 left-0 w-full h-24 bg-gradient-to-b from-bg-base to-transparent pointer-events-none z-20" />
-      <div className="absolute bottom-0 left-0 w-full h-32 bg-gradient-to-t from-bg-base to-transparent pointer-events-none z-20" />
-
     </section>
   );
-}
+};
+
+export default Hero;
