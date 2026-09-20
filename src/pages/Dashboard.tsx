@@ -12,18 +12,23 @@ import Footer from '../components/Footer';
 
 // Quick-access cards linking to all existing features
 const FEATURE_LINKS = [
+  // NEW React Pages (featured at top)
+  { title: '3D Muscle Heatmap', desc: 'Real-time 3D fatigue visualization', icon: Flame, href: '/heatmap', gradient: 'from-red-500 to-orange-500', isNew: true },
+  { title: 'Indian Nutrition', desc: '80+ foods, Build My Plate', icon: Utensils, href: '/nutrition', gradient: 'from-amber-400 to-yellow-500', isNew: true },
+  { title: 'Performance Lab', desc: 'Recharts analytics dashboard', icon: BarChart3, href: '/analytics-dashboard', gradient: 'from-purple-500 to-indigo-500', isNew: true },
+  // Existing feature links (PRESERVED)
   { title: 'Food Scanner', desc: 'AI-powered food recognition', icon: Camera, href: '/app/food-scanner.html', gradient: 'from-green-400 to-emerald-500' },
   { title: 'Food Camera', desc: 'Scan meals for macros', icon: Scan, href: '/app/food-camera.html', gradient: 'from-lime-400 to-green-500' },
   { title: 'Nutrition Engine', desc: 'Indian diet protocols', icon: Utensils, href: '/app/diet.html', gradient: 'from-amber-400 to-orange-500' },
   { title: 'Muscle Heatmap', desc: 'Per-muscle fatigue map', icon: Flame, href: '/app/muscle-heatmap.html', gradient: 'from-red-400 to-rose-500' },
-  { title: 'Performance Lab', desc: 'Deep analytics & insights', icon: FlaskConical, href: '/app/performance-lab.html', gradient: 'from-violet-400 to-purple-500' },
   { title: 'Performance Twin', desc: 'Digital twin simulation', icon: Cpu, href: '/app/performanceTwin.html', gradient: 'from-cyan-400 to-blue-500' },
-  { title: 'Analytics', desc: 'Training data dashboard', icon: BarChart3, href: '/app/analytics.html', gradient: 'from-blue-400 to-indigo-500' },
+  { title: 'Analytics (Legacy)', desc: 'Training data dashboard', icon: BarChart3, href: '/app/analytics.html', gradient: 'from-blue-400 to-indigo-500' },
   { title: 'Recovery Lab', desc: 'Sleep & recovery tracking', icon: Heart, href: '/app/recovery-lab.html', gradient: 'from-pink-400 to-rose-500' },
   { title: 'Cardio Engine', desc: 'Zone-based cardio plans', icon: Activity, href: '/app/cardio.html', gradient: 'from-orange-400 to-red-500' },
   { title: 'Athlete Hub', desc: 'Community & social', icon: Users, href: '/app/athlete-hub.html', gradient: 'from-teal-400 to-cyan-500' },
   { title: 'Progress Photos', desc: 'Visual transformation log', icon: Camera, href: '/app/progress-photos.html', gradient: 'from-fuchsia-400 to-pink-500' },
   { title: 'Device Sync', desc: 'Wearable integration', icon: Zap, href: '/app/device-sync.html', gradient: 'from-yellow-400 to-amber-500' },
+  { title: 'Performance Lab (Legacy)', desc: 'Deep analytics & insights', icon: FlaskConical, href: '/app/performance-lab.html', gradient: 'from-violet-400 to-purple-500' },
 ];
 
 const CORE_FEATURES = [

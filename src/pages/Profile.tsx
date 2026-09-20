@@ -1,8 +1,11 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'motion/react';
-import { User, Dumbbell, TrendingDown, Target } from 'lucide-react';
+import { User, Dumbbell, TrendingDown, Target, Skull } from 'lucide-react';
+import { useBeastMode } from '../context/BeastModeContext';
+import { AchievementSystem } from '../components/AchievementSystem';
 
 export const Profile = () => {
+  const { beastMode, toggleBeastMode } = useBeastMode();
   // Staggered animation variants
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -50,14 +53,50 @@ export const Profile = () => {
       >
         {/* Top Section */}
         <motion.div variants={itemVariants} className="flex flex-col items-center text-center space-y-4">
-          <div className="relative w-[120px] h-[120px] rounded-full p-[3px] bg-gradient-to-br from-[#7000FF] to-[#00F0FF] flex items-center justify-center">
+          <div className={`relative w-[120px] h-[120px] rounded-full p-[3px] transition-all duration-500 flex items-center justify-center ${
+            beastMode 
+              ? 'bg-gradient-to-br from-[#FF0033] to-[#FF5500] shadow-[0_0_30px_rgba(255,0,51,0.5)]' 
+              : 'bg-gradient-to-br from-[#7000FF] to-[#00F0FF]'
+          }`}>
             <div className="w-full h-full bg-[#0A0A0F] rounded-full flex items-center justify-center">
-              <User size={48} className="text-[#00F0FF]" />
+              <User size={48} className={beastMode ? 'text-[#FF0033]' : 'text-[#00F0FF]'} />
             </div>
           </div>
           <div>
             <h1 className="text-4xl font-display font-bold tracking-tight">Shailesh Singh</h1>
             <p className="text-zinc-400 mt-1">Elite Athlete · Member since 2024</p>
+          </div>
+
+          {/* Beast Mode Toggle */}
+          <div className="mt-4 flex items-center justify-between p-4 rounded-2xl bg-white/[0.03] border border-white/[0.08] backdrop-blur-xl max-w-sm w-full">
+            <div className="flex items-center gap-3">
+              <div className={`w-10 h-10 rounded-xl flex items-center justify-center transition-colors ${
+                beastMode ? 'bg-red-500/20 text-red-500' : 'bg-zinc-800 text-zinc-400'
+              }`}>
+                <Skull size={22} className={beastMode ? 'animate-bounce' : ''} />
+              </div>
+              <div className="text-left">
+                <div className="font-bold text-sm tracking-wide flex items-center gap-1.5">
+                  BEAST MODE
+                  {beastMode && <span className="text-[10px] bg-red-500 text-white px-2 py-0.5 rounded-full font-mono">ACTIVE</span>}
+                </div>
+                <div className="text-zinc-500 text-xs">
+                  {beastMode ? 'Maximum aggression & blood red theme' : 'Toggle for high-intensity protocols'}
+                </div>
+              </div>
+            </div>
+            <button
+              onClick={toggleBeastMode}
+              className={`w-14 h-8 rounded-full p-1 transition-colors relative cursor-pointer ${
+                beastMode ? 'bg-[#FF0033]' : 'bg-zinc-700'
+              }`}
+            >
+              <motion.div
+                animate={{ x: beastMode ? 24 : 0 }}
+                transition={{ type: 'spring' as const, stiffness: 500, damping: 30 }}
+                className="w-6 h-6 rounded-full bg-white shadow-md"
+              />
+            </button>
           </div>
         </motion.div>
 
@@ -154,24 +193,9 @@ export const Profile = () => {
           </div>
         </motion.div>
 
-        {/* Achievements */}
-        <motion.div variants={itemVariants} className="space-y-4">
-          <h2 className="text-xl font-display font-semibold">Achievements</h2>
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            {[
-              { emoji: '🔥', title: '7-Day Streak' },
-              { emoji: '💪', title: '100kg Bench' },
-              { emoji: '🏆', title: 'Top 10 Leaderboard' }
-            ].map((achievement, idx) => (
-              <div
-                key={idx}
-                className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl p-5 flex flex-col items-center justify-center text-center space-y-3 hover:-translate-y-1 transition-transform duration-300"
-              >
-                <span className="text-4xl drop-shadow-lg">{achievement.emoji}</span>
-                <span className="font-semibold text-sm">{achievement.title}</span>
-              </div>
-            ))}
-          </div>
+        {/* Achievements System */}
+        <motion.div variants={itemVariants}>
+          <AchievementSystem />
         </motion.div>
 
       </motion.div>
