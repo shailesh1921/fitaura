@@ -1,7 +1,32 @@
 import { motion } from 'motion/react';
-import { Zap, Brain, Shield, Activity, ArrowRight, Sparkles } from 'lucide-react';
+import { 
+  Zap, Brain, Shield, Activity,
+  Camera, Utensils, Flame, BarChart3, Heart,
+  Scan, Users, Cpu, FlaskConical
+} from 'lucide-react';
+import Hero from '../components/Hero';
+import DietModule from '../components/DietModule';
+import Stats from '../components/Stats';
+import Testimonials from '../components/Testimonials';
+import Footer from '../components/Footer';
 
-const FEATURES = [
+// Quick-access cards linking to all existing features
+const FEATURE_LINKS = [
+  { title: 'Food Scanner', desc: 'AI-powered food recognition', icon: Camera, href: '/app/food-scanner.html', gradient: 'from-green-400 to-emerald-500' },
+  { title: 'Food Camera', desc: 'Scan meals for macros', icon: Scan, href: '/app/food-camera.html', gradient: 'from-lime-400 to-green-500' },
+  { title: 'Nutrition Engine', desc: 'Indian diet protocols', icon: Utensils, href: '/app/diet.html', gradient: 'from-amber-400 to-orange-500' },
+  { title: 'Muscle Heatmap', desc: 'Per-muscle fatigue map', icon: Flame, href: '/app/muscle-heatmap.html', gradient: 'from-red-400 to-rose-500' },
+  { title: 'Performance Lab', desc: 'Deep analytics & insights', icon: FlaskConical, href: '/app/performance-lab.html', gradient: 'from-violet-400 to-purple-500' },
+  { title: 'Performance Twin', desc: 'Digital twin simulation', icon: Cpu, href: '/app/performanceTwin.html', gradient: 'from-cyan-400 to-blue-500' },
+  { title: 'Analytics', desc: 'Training data dashboard', icon: BarChart3, href: '/app/analytics.html', gradient: 'from-blue-400 to-indigo-500' },
+  { title: 'Recovery Lab', desc: 'Sleep & recovery tracking', icon: Heart, href: '/app/recovery-lab.html', gradient: 'from-pink-400 to-rose-500' },
+  { title: 'Cardio Engine', desc: 'Zone-based cardio plans', icon: Activity, href: '/app/cardio.html', gradient: 'from-orange-400 to-red-500' },
+  { title: 'Athlete Hub', desc: 'Community & social', icon: Users, href: '/app/athlete-hub.html', gradient: 'from-teal-400 to-cyan-500' },
+  { title: 'Progress Photos', desc: 'Visual transformation log', icon: Camera, href: '/app/progress-photos.html', gradient: 'from-fuchsia-400 to-pink-500' },
+  { title: 'Device Sync', desc: 'Wearable integration', icon: Zap, href: '/app/device-sync.html', gradient: 'from-yellow-400 to-amber-500' },
+];
+
+const CORE_FEATURES = [
   {
     icon: Brain,
     title: 'AI Coach',
@@ -28,135 +53,58 @@ const FEATURES = [
   },
 ];
 
-const STATS = [
-  { value: '10,000+', label: 'Plans Generated' },
-  { value: '98%', label: 'Goal Completion' },
-  { value: '0.4s', label: 'AI Response Time' },
-  { value: '4.9/5', label: 'Athlete Rating' },
-];
-
 export const Dashboard = () => {
   return (
     <div className="min-h-screen bg-[#0A0A0F] text-white overflow-hidden">
       
-      {/* ─── HERO SECTION ─── */}
-      <section className="relative min-h-screen flex items-center justify-center px-6 overflow-hidden">
-        {/* Ambient glow effects */}
-        <div className="absolute top-1/4 left-1/4 w-96 h-96 rounded-full opacity-20 blur-[120px]"
-          style={{ background: 'radial-gradient(circle, #7000FF 0%, transparent 70%)' }} />
-        <div className="absolute bottom-1/4 right-1/4 w-64 h-64 rounded-full opacity-15 blur-[100px]"
-          style={{ background: 'radial-gradient(circle, #00F0FF 0%, transparent 70%)' }} />
-        
-        {/* Grid pattern overlay */}
-        <div className="absolute inset-0 opacity-[0.03]"
-          style={{ backgroundImage: 'linear-gradient(rgba(255,255,255,0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.1) 1px, transparent 1px)', backgroundSize: '60px 60px' }} />
+      {/* ─── ORIGINAL HERO VIDEO SECTION ─── */}
+      <Hero />
 
-        <div className="relative z-10 text-center max-w-4xl mx-auto">
-          {/* Status badge */}
-          <motion.div 
+      {/* ─── QUICK ACCESS: ALL FEATURES ─── */}
+      <section className="py-16 px-6">
+        <div className="max-w-6xl mx-auto">
+          <motion.div
             initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-            className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full mb-8"
-            style={{ background: 'rgba(112, 0, 255, 0.1)', border: '1px solid rgba(112, 0, 255, 0.2)' }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="mb-10"
           >
-            <Sparkles size={14} className="text-purple-400" />
-            <span className="text-xs font-mono tracking-wider text-purple-300">AI ENGINE v3.0 ACTIVE</span>
+            <span className="text-xs font-mono tracking-widest text-purple-400 uppercase mb-3 block">Command Center</span>
+            <h2 className="text-3xl md:text-4xl font-bold tracking-tight">
+              All Your Tools.
+              <span className="text-zinc-500 font-light italic" style={{ fontFamily: 'var(--font-serif)' }}> One tap away.</span>
+            </h2>
           </motion.div>
 
-          {/* Main headline */}
-          <motion.h1 
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
-            className="text-5xl sm:text-6xl md:text-8xl font-bold tracking-tight leading-[0.95] mb-6"
-            style={{ fontFamily: 'var(--font-display)' }}
-          >
-            <span className="block">Your Body.</span>
-            <span className="block bg-gradient-to-r from-purple-400 via-purple-300 to-cyan-400 bg-clip-text text-transparent">
-              Our Intelligence.
-            </span>
-          </motion.h1>
-
-          {/* Subtitle */}
-          <motion.p 
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.3 }}
-            className="text-zinc-400 text-lg md:text-xl max-w-2xl mx-auto mb-10 leading-relaxed"
-          >
-            The world's most advanced AI fitness platform. Real-time autoregulation, 
-            exponential fatigue modeling, and hyper-localized Indian nutrition — all in your pocket.
-          </motion.p>
-
-          {/* CTA Buttons */}
-          <motion.div 
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.5 }}
-            className="flex flex-col sm:flex-row gap-4 justify-center"
-          >
-            <button 
-              onClick={() => window.location.href = '/workout'}
-              className="group px-8 py-4 rounded-full font-semibold text-sm tracking-wide transition-all duration-300 flex items-center justify-center gap-2"
-              style={{ 
-                background: 'linear-gradient(135deg, #7000FF, #5000CC)',
-                boxShadow: '0 0 20px rgba(112, 0, 255, 0.4), 0 4px 15px rgba(0,0,0,0.3)'
-              }}
-            >
-              Start Training
-              <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
-            </button>
-            <button 
-              onClick={() => window.location.href = '/diet'}
-              className="px-8 py-4 rounded-full font-semibold text-sm tracking-wide transition-all duration-300 text-zinc-300 hover:text-white"
-              style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)' }}
-            >
-              Talk to AI Coach
-            </button>
-          </motion.div>
-        </div>
-
-        {/* Scroll indicator */}
-        <motion.div 
-          animate={{ y: [0, 8, 0] }}
-          transition={{ duration: 2, repeat: Infinity }}
-          className="absolute bottom-8 left-1/2 -translate-x-1/2"
-        >
-          <div className="w-5 h-8 rounded-full border border-zinc-700 flex justify-center pt-1.5">
-            <motion.div 
-              animate={{ y: [0, 8], opacity: [1, 0] }}
-              transition={{ duration: 1.5, repeat: Infinity }}
-              className="w-1 h-1 rounded-full bg-zinc-500" 
-            />
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+            {FEATURE_LINKS.map((feature, i) => (
+              <motion.a
+                key={feature.title}
+                href={feature.href}
+                initial={{ opacity: 0, y: 15 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.4, delay: i * 0.04 }}
+                className="group relative rounded-2xl p-5 transition-all duration-300 cursor-pointer overflow-hidden block no-underline"
+                style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)' }}
+              >
+                <div className={`w-10 h-10 rounded-xl flex items-center justify-center mb-3 bg-gradient-to-br ${feature.gradient}`}>
+                  <feature.icon size={18} className="text-white" />
+                </div>
+                <h3 className="text-sm font-bold text-white mb-0.5">{feature.title}</h3>
+                <p className="text-zinc-500 text-xs leading-relaxed">{feature.desc}</p>
+              </motion.a>
+            ))}
           </div>
-        </motion.div>
-      </section>
-
-      {/* ─── STATS BAR ─── */}
-      <section className="border-y border-white/5 py-12 px-6">
-        <div className="max-w-6xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-8">
-          {STATS.map((stat, i) => (
-            <motion.div
-              key={stat.label}
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.6, delay: i * 0.1 }}
-              className="text-center"
-            >
-              <div className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-white to-zinc-400 bg-clip-text text-transparent mb-1">
-                {stat.value}
-              </div>
-              <div className="text-[10px] font-mono tracking-widest text-zinc-500 uppercase">
-                {stat.label}
-              </div>
-            </motion.div>
-          ))}
         </div>
       </section>
 
-      {/* ─── FEATURES GRID ─── */}
+      {/* ─── ORIGINAL DIET MODULE (Macro Cards) ─── */}
+      <div className="bg-[#FAF6F0]">
+        <DietModule />
+      </div>
+
+      {/* ─── CORE INTELLIGENCE FEATURES ─── */}
       <section className="py-24 px-6">
         <div className="max-w-6xl mx-auto">
           <motion.div
@@ -175,7 +123,7 @@ export const Dashboard = () => {
           </motion.div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {FEATURES.map((feature, i) => (
+            {CORE_FEATURES.map((feature, i) => (
               <motion.div
                 key={feature.title}
                 initial={{ opacity: 0, y: 20 }}
@@ -185,10 +133,6 @@ export const Dashboard = () => {
                 className="group relative rounded-2xl p-8 transition-all duration-500 cursor-pointer overflow-hidden"
                 style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)' }}
               >
-                {/* Hover glow */}
-                <div className={`absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-700 bg-gradient-to-br ${feature.gradient} pointer-events-none`}
-                  style={{ opacity: 0, mixBlendMode: 'overlay' }}
-                />
                 <div className={`w-12 h-12 rounded-xl flex items-center justify-center mb-6 bg-gradient-to-br ${feature.gradient}`}>
                   <feature.icon size={22} className="text-white" />
                 </div>
@@ -200,20 +144,20 @@ export const Dashboard = () => {
         </div>
       </section>
 
+      {/* ─── ORIGINAL STATS ─── */}
+      <div className="bg-white">
+        <Stats />
+      </div>
+
+      {/* ─── ORIGINAL TESTIMONIALS ─── */}
+      <div className="bg-[#FAF6F0]">
+        <Testimonials />
+      </div>
+
       {/* ─── FOOTER ─── */}
-      <footer className="border-t border-white/5 py-12 px-6 text-center">
-        <div className="max-w-6xl mx-auto">
-          <div className="flex items-center justify-center gap-2 mb-4">
-            <svg viewBox="0 0 24 24" className="w-5 h-5" fill="none" stroke="#7000FF" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M22 12h-4l-3 9L9 3l-3 9H2" />
-            </svg>
-            <span className="font-bold text-lg tracking-widest uppercase">FitAura</span>
-          </div>
-          <p className="text-zinc-600 text-xs font-mono tracking-wider">
-            © 2024 FitAura AI. Built with obsession.
-          </p>
-        </div>
-      </footer>
+      <div className="bg-[#FAF6F0]">
+        <Footer />
+      </div>
     </div>
   );
 };
