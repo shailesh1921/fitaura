@@ -1,0 +1,51 @@
+.native-bottom-bar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 65px;
+  background: rgba(250, 246, 240, 0.95);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-top: 1px solid rgba(0,0,0,0.05);
+  z-index: 9999;
+  /* Safe area inset for modern iPhones and Android gesture navigation */
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+.native-bottom-bar-inner {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  height: 100%;
+}
+
+.tab-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: #888;
+  text-decoration: none;
+  font-size: 0.65rem;
+  font-weight: 600;
+  width: 20%;
+  height: 100%;
+  transition: color 0.2s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.tab-icon {
+  width: 24px;
+  height: 24px;
+  margin-bottom: 3px;
+  transition: transform 0.2s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.tab-item.active {
+  color: #7000ff; /* FitAura Brand Purple */
+}
+
+.tab-item.active .tab-icon {
+  transform: scale(1.1);
+}
