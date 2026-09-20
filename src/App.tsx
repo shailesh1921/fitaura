@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-route
 import { PushNotifications } from '@capacitor/push-notifications';
 import { Capacitor } from '@capacitor/core';
 import { BottomTabBar } from './components/BottomTabBar';
+import Navbar from './components/Navbar';
 import { AnimatePresence, motion } from 'motion/react';
 import { BeastModeProvider } from './context/BeastModeContext';
 
@@ -76,7 +77,8 @@ function App() {
   return (
     <BeastModeProvider>
       <Router>
-        <div className="min-h-screen bg-[#0A0A0F] text-white pb-[env(safe-area-inset-bottom)] mb-[65px]">
+        <div className="min-h-screen bg-[#08080A] text-white pb-[75px] md:pb-0">
+          <Navbar />
           <AnimatedRoutes />
           <BottomTabBar />
         </div>

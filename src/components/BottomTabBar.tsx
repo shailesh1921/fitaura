@@ -15,7 +15,7 @@ export const BottomTabBar = () => {
   };
 
   return (
-    <nav className={`fixed bottom-0 left-0 right-0 z-[9999] pb-[env(safe-area-inset-bottom)] transition-all duration-500 ${
+    <nav className={`md:hidden fixed bottom-0 left-0 right-0 z-[9999] pb-[env(safe-area-inset-bottom)] transition-all duration-500 ${
       beastMode ? 'animate-pulse' : ''
     }`}
       style={{
