@@ -1,10 +1,10 @@
 @import "tailwindcss";
 
 @theme {
-  --font-display: 'Outfit', system-ui, sans-serif;
-  --font-sans: 'Inter', system-ui, sans-serif;
-  --font-heading: 'Outfit', system-ui, sans-serif;
-  --font-mono: 'JetBrains Mono', 'SF Mono', monospace;
+  --font-display: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-heading: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
   --font-serif: 'Playfair Display', Georgia, serif;
 
   --color-charcoal: #1A1A1A;
@@ -13,23 +13,31 @@
   --color-neon-purple: #7000FF;
   --color-neon-cyan: #00F0FF;
   --color-neon-pink: #FF3366;
-  --color-dark-bg: #0A0A0F;
+  --color-dark-bg: #08080A;
   --color-dark-card: rgba(255, 255, 255, 0.03);
   --color-dark-border: rgba(255, 255, 255, 0.06);
 }
 
-/* Global Dark Theme */
+/* Global Dark Theme & Professional Typography */
 html {
-  background-color: #0A0A0F;
+  background-color: #08080A;
   color-scheme: dark;
+  font-family: var(--font-sans);
 }
 
 body {
+  font-family: var(--font-sans);
+  font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+  letter-spacing: -0.011em;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   overscroll-behavior: none;
-  /* Prevent iOS rubber-banding for native feel */
   overflow-x: hidden;
+}
+
+h1, h2, h3, h4, .font-display, .font-heading {
+  font-family: var(--font-display);
+  letter-spacing: -0.03em;
 }
 
 /* Hide scrollbar but allow scrolling */
